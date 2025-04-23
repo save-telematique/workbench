@@ -1,0 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- Le code TypeScript/JavaScript est formaté avec Prettier et linté avec ESLint.
+- Assurer que le code généré respecte les configurations définies dans `.prettierrc` et `eslint.config.js`.
+- Exécuter `npm run format` ou `npm run lint` si nécessaire pour vérifier/corriger.

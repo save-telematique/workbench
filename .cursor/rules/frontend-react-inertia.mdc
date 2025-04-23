@@ -1,0 +1,20 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- Utiliser React 19 avec TypeScript (`.tsx`).
+- Écrire des composants fonctionnels. Utiliser les Hooks React.
+- **Nouveautés React 19**:
+  - Utiliser `ref` comme prop standard (éviter `forwardRef`).
+  - Utiliser le hook `use()` pour lire les promesses (via Suspense) et le contexte conditionnellement.
+  - Exploiter les Actions, `useActionState`, `useFormStatus`, `useOptimistic` pour la gestion des formulaires et des états asynchrones.
+  - Rendre les métadonnées (`<title>`, `<meta>`, `<link>`) directement dans les composants.
+- Utiliser Inertia.js (`@inertiajs/react`) pour lier Laravel et React.
+  - Récupérer les props via `usePage().props`.
+  - Utiliser `<Link href="...">` d'Inertia pour la navigation interne.
+- **Structure**:
+  - Pages Inertia dans `resources/js/Pages`.
+  - Composants React réutilisables dans `resources/js/Components`.
+  - Composants Shadcn UI dans `resources/js/Components/ui` (ajoutés via CLI).
+- Pas de librairie de gestion d'état externe (Zustand, Redux...) ; utiliser les props Inertia et les hooks React.

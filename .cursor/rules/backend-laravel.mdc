@@ -1,0 +1,14 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- Utiliser Laravel 12 et ses conventions :
+  - Modèles Eloquent (`app/Models`).
+  - Form Requests (`app/Http/Requests`) pour la validation HTTP.
+  - Policies (`app/Policies`) pour l'autorisation.
+  - API Resources (`app/Http/Resources`) pour formatter les réponses JSON des API.
+  - Commandes `artisan` pour la génération et les migrations.
+- La base de données est **PostgreSQL**. Utiliser les fonctionnalités spécifiques si pertinent (JSONB, etc.).
+- Placer la logique métier complexe dans des Services (`app/Services`) ou des Actions.
+- Utiliser les jobs en file d'attente (`Queues`) pour les tâches longues ou asynchrones.

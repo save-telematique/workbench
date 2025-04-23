@@ -1,0 +1,17 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Le projet Save Workbench utilise la stack suivante :
+- **Backend**: Laravel 12 (PHP)
+- **Frontend**: React 19 (TypeScript)
+- **Passerelle Backend/Frontend**: Inertia.js
+- **Styling**: Tailwind CSS 4
+- **Composants UI**: Shadcn UI (via CLI `npx shadcn-ui@latest add ...`)
+- **Base de données**: PostgreSQL
+- **Tests Backend/Inertia**: Pest PHP
+- **Containerisation**: Docker
+- **Linting/Formatting Frontend**: ESLint & Prettier
+
+Se référer aux règles spécifiques pour plus de détails sur chaque partie.

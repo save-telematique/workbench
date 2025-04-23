@@ -1,0 +1,12 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- Utiliser **Pest PHP** pour les tests backend et fonctionnels (`tests/Feature`, `tests/Unit`).
+- Pour tester les composants et pages **Inertia** :
+  - Utiliser les assertions spécifiques d'Inertia fournies par Laravel (`$response->assertInertia(...)`).
+  - Tester le rendu des composants, la présence des props attendues.
+  - Pour des tests d'interaction plus poussés (simulant un utilisateur), utiliser **Laravel Dusk** avec Pest. Configurer Dusk pour l'environnement de test.
+  - Écrire des tests Dusk dans `tests/Browser`.
+- S'assurer que la base de données de test (PostgreSQL) est correctement configurée et rafraîchie entre les tests (`RefreshDatabase` trait).
