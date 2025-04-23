@@ -46,6 +46,7 @@ export interface User {
 export interface Tenant {
     id: string;
     name: string;
+    svg_logo?: string;
     created_at: string;
     updated_at: string;
     [key: string]: unknown; // This allows for additional properties...

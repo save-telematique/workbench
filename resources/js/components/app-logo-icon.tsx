@@ -5,8 +5,8 @@ import { SVGAttributes } from 'react';
 export default function AppLogoIcon(props: SVGAttributes<SVGElement>) {
     const { auth } = usePage<SharedData>().props;
 
-    return auth.user.tenant?.svg ? (
-        <svg {...props} dangerouslySetInnerHTML={{ __html: auth.user.tenant.svg }} />
+    return auth.user?.tenant?.svg_logo ? (
+        <svg {...props} dangerouslySetInnerHTML={{ __html: auth.user.tenant.svg_logo }} />
     ) : (
         <svg {...props} viewBox="0 0 40 42" xmlns="http://www.w3.org/2000/svg">
             <path
