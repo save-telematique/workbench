@@ -21,6 +21,8 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
+
+        $middleware->group('universal', []);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
