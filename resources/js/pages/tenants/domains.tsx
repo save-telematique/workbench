@@ -92,7 +92,6 @@ export default function TenantsDomains({ tenant, domains = [], app_url }: Tenant
                         title={__('tenants.domains.heading')}
                         description={__('tenants.domains.description')}
                     />
-                    
                     <div className="flex justify-end">
                         <Button variant="outline"  asChild>
                             <Link href={route('tenants.show', tenant.id)}>

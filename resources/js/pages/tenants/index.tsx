@@ -2,7 +2,6 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { Building2, Plus } from 'lucide-react';
 
-import HeadingSmall from '@/components/heading-small';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
 import AppLayout from '@/layouts/app-layout';
@@ -31,11 +30,7 @@ export default function TenantsIndex({ tenants }: TenantsIndexProps) {
 
             <TenantsLayout showSidebar={false}>
                 <div className="space-y-6">
-                    <HeadingSmall 
-                        title={__('tenants.list.heading')} 
-                        description={__('tenants.list.description')} 
-                    />
-                    
+                  
                     <div className="flex justify-end">
                         <Button asChild >
                             <Link href={route('tenants.create')}>

@@ -1,8 +1,11 @@
+import Heading from '@/components/heading';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { cn } from '@/lib/utils';
+import { NavItem } from '@/types';
+import { useTranslation } from '@/utils/translation';
 import { Link } from '@inertiajs/react';
 import { ReactNode } from 'react';
-import { cn } from '@/lib/utils';
-import { InfoIcon, GlobeIcon, UsersIcon } from 'lucide-react';
-import { useTranslation } from '@/utils/translation';
 
 interface TenantsLayoutProps {
     children: ReactNode;
@@ -11,57 +14,68 @@ interface TenantsLayoutProps {
     activeTab?: 'info' | 'domains' | 'users';
 }
 
-export default function TenantsLayout({ children, showSidebar = false, tenantId, activeTab = 'info' }: TenantsLayoutProps) {
+export default function TenantsLayout({ children, showSidebar = false, tenantId }: TenantsLayoutProps) {
     const { __ } = useTranslation();
 
+    // When server-side rendering, we only render the layout on the client...
+    if (typeof window === 'undefined') {
+        return null;
+    }
+
+    const currentPath = window.location.pathname;
+
+    const sidebarNavItems: NavItem[] = [
+        {
+            title: __('tenants.tabs.information'),
+            href: tenantId ? route('tenants.show', tenantId) : '',
+            icon: null,
+        },
+        {
+            title: __('tenants.tabs.domains'),
+            href: tenantId ? route('tenants.domains.index', tenantId) : '',
+            icon: null,
+        },
+        {
+            title: __('tenant_users.list.breadcrumb'),
+            href: tenantId ? route('tenants.users.index', tenantId) : '',
+            icon: null,
+        },
+    ];
+
     return (
-        <div className="px-4 py-2">
+        <div className="px-4 py-6">
+            <Heading title={__('tenants.list.heading')} description={__('tenants.list.description')} />
             {showSidebar && tenantId ? (
-                <div className="flex flex-col space-y-8 lg:flex-row lg:space-y-0 lg:space-x-8 mt-6">
-                    <aside className="lg:w-48 lg:shrink-0">
+                <div className="flex flex-col space-y-8 lg:flex-row lg:space-y-0 lg:space-x-12">
+                    <aside className="w-full max-w-xl lg:w-48">
                         <nav className="flex flex-col space-y-1 space-x-0">
-                            <Link
-                                href={route('tenants.show', tenantId)}
-                                className={cn(
-                                    'flex items-center text-sm px-3 py-2 rounded-md text-neutral-500 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-white',
-                                    activeTab === 'info' && 'bg-muted text-neutral-950 dark:text-white'
-                                )}
-                            >
-                                <InfoIcon className="mr-2 h-4 w-4" />
-                                {__('tenants.tabs.information')}
-                            </Link>
-                            <Link
-                                href={`/tenants/${tenantId}/domains`}
-                                className={cn(
-                                    'flex items-center text-sm px-3 py-2 rounded-md text-neutral-500 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-white',
-                                    activeTab === 'domains' && 'bg-muted text-neutral-950 dark:text-white'
-                                )}
-                            >
-                                <GlobeIcon className="mr-2 h-4 w-4" />
-                                {__('tenants.tabs.domains')}
-                            </Link>
-                            <Link
-                                href={route('tenants.users.index', tenantId)}
-                                className={cn(
-                                    'flex items-center text-sm px-3 py-2 rounded-md text-neutral-500 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-white',
-                                    activeTab === 'users' && 'bg-muted text-neutral-950 dark:text-white'
-                                )}
-                            >
-                                <UsersIcon className="mr-2 h-4 w-4" />
-                                {__('tenant_users.list.breadcrumb')}
-                            </Link>
+                            {sidebarNavItems.map((item, index) => (
+                                <Button
+                                    key={`${item.href}-${index}`}
+                                    size="sm"
+                                    variant="ghost"
+                                    asChild
+                                    className={cn('w-full justify-start', {
+                                        'bg-muted': item.href.endsWith(currentPath),
+                                    })}
+                                >
+                                    <Link href={item.href} prefetch>
+                                        {item.title}
+                                    </Link>
+                                </Button>
+                            ))}
                         </nav>
                     </aside>
 
+                    <Separator className="my-6 md:hidden" />
+
                     <div className="flex-1">
-                        <section>{children}</section>
+                        <section className="space-y-12">{children}</section>
                     </div>
                 </div>
             ) : (
-                <div>
-                    {children}
-                </div>
+                <div>{children}</div>
             )}
         </div>
     );
-} 
+}
