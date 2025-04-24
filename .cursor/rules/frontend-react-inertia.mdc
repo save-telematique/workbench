@@ -9,7 +9,7 @@ alwaysApply: true
     *   Récupérer les props via `usePage().props`.
     *   Navigation interne via `<Link href={route('...')}>`.
     *   **Layouts:** Utiliser des layouts persistants. Définir un layout différent pour `central` et `tenant` si nécessaire (ex: menus, sidebar dans `app-sidebar.tsx`).
-    *   **Formulaires:** Utiliser `useForm` pour la gestion des formulaires et la validation côté serveur. Définir des interfaces TS claires pour les données et props.
+    *   **Formulaires:** Utiliser `useForm` pour la gestion des formulaires et la validation côté serveur. Définir des interfaces TS claires pour les données et props. Mentionne correctement les fields obligatoires
     *   **Validation & Feedback:** Afficher les erreurs avec `<InputError message={errors.field} />`. Utiliser `recentlySuccessful` et `<Transition>` (ou équivalent) pour le feedback utilisateur après soumission.
 *   **Structure & Casing:**
     *   Pages Inertia: `resources/js/pages`.
