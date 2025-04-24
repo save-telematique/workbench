@@ -1,37 +1,31 @@
-import { useState, useEffect } from 'react';
-import { router } from '@inertiajs/react';
+import { useState } from 'react';
+import { router, usePage } from '@inertiajs/react';
 import axios from 'axios';
 
 export type Locale = 'en' | 'fr';
 
 export function useLocale() {
-    const [locale, setLocale] = useState<Locale>(() => {
-        // Check localStorage first
-        const savedLocale = localStorage.getItem('locale') as Locale;
-        
-        // If not in localStorage, use the html lang attribute which will be set by Laravel
-        return savedLocale || (document.documentElement.lang as Locale) || 'en';
-    });
-
-    useEffect(() => {
-        // Update the document lang attribute when locale changes
-        document.documentElement.lang = locale;
-        localStorage.setItem('locale', locale);
-        
-        // Send the locale to the server
-        axios.post(route('settings.locale.update'), { locale }, {
-            headers: { 'Accept-Language': locale }
-        });
-    }, [locale]);
+    // @ts-expect-error: typage inertia complexe
+    const user = usePage().props.auth?.user;
+    
+    const [locale, setLocale] = useState<Locale>(
+        // Utiliser la locale de l'utilisateur si disponible, sinon 'en'
+        (user?.locale as Locale) || 
+        // Fallback sur l'attribut HTML lang (défini par Laravel)
+        (document.documentElement.lang as Locale) || 
+        'en'
+    );
 
     const updateLocale = (newLocale: Locale) => {
+        // Mettre à jour l'état local
         setLocale(newLocale);
         
-        // Add the locale to all subsequent requests
-        axios.defaults.headers.common['Accept-Language'] = newLocale;
-        
-        // Refresh the current page to update translations
-        router.reload();
+        // Envoyer la mise à jour au serveur
+        axios.post(route('settings.locale.update'), { locale: newLocale })
+            .then(() => {
+                // Rafraîchir la page pour mettre à jour les traductions
+                router.reload();
+            });
     };
 
     return { locale, updateLocale };

@@ -15,6 +15,8 @@ return [
     'light' => 'Light',
     'dark' => 'Dark',
     'system' => 'System',
+    'theme' => 'Theme',
+    'language' => 'Language',
     
     // Languages
     'english' => 'English',

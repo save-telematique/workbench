@@ -1,16 +1,16 @@
 import { Locale, useLocale } from '@/hooks/use-locale';
 import { cn } from '@/lib/utils';
-import { LucideIcon, Flag } from 'lucide-react';
 import { HTMLAttributes } from 'react';
 import { useTranslation } from '@/utils/translation';
+import { FrenchFlag, UKFlag } from '@/components/icons/flags';
 
 export default function LocaleTabs({ className = '', ...props }: HTMLAttributes<HTMLDivElement>) {
     const { locale, updateLocale } = useLocale();
     const { __ } = useTranslation();
 
-    const tabs: { value: Locale; icon: LucideIcon; label: string }[] = [
-        { value: 'en', icon: Flag, label: __('common.english') },
-        { value: 'fr', icon: Flag, label: __('common.french') },
+    const tabs: { value: Locale; icon: React.FC<React.SVGProps<SVGSVGElement>>; label: string }[] = [
+        { value: 'en', icon: UKFlag, label: __('common.english') },
+        { value: 'fr', icon: FrenchFlag, label: __('common.french') },
     ];
 
     return (

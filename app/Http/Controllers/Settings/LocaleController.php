@@ -25,11 +25,13 @@ class LocaleController extends Controller
             'locale' => ['required', 'string', 'in:en,fr'],
         ]);
 
-        // Store locale in session
-        session(['locale' => $validated['locale']]);
-        
-        // If you want to store it in user preferences (optional)
-        // auth()->user()->update(['locale' => $validated['locale']]);
+        if ($request->user()) {
+            $request->user()->update([
+                'locale' => $validated['locale']
+            ]);
+        }
+
+        app()->setLocale($validated['locale']);
         
         return response()->json(['message' => 'Locale updated successfully']);
     }
