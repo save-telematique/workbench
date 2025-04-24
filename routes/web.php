@@ -17,6 +17,17 @@ foreach (config('tenancy.central_domains') as $domain) {
             
             // Global users routes
             Route::resource('users', \App\Http\Controllers\UsersController::class);
+            
+            /*
+            |--------------------------------------------------------------------------
+            | Device Routes
+            |--------------------------------------------------------------------------
+            */
+            Route::resource('devices', \App\Http\Controllers\Devices\DeviceController::class);
+            Route::put('devices/{device}/restore', [\App\Http\Controllers\Devices\DeviceController::class, 'restore'])->name('devices.restore');
+            Route::delete('devices/{device}/force', [\App\Http\Controllers\Devices\DeviceController::class, 'forceDelete'])->name('devices.force-delete');
+            Route::put('devices/{device}/assign-vehicle', [\App\Http\Controllers\Devices\DeviceController::class, 'assignVehicle'])->name('devices.assign-vehicle');
+            Route::put('devices/{device}/unassign-vehicle', [\App\Http\Controllers\Devices\DeviceController::class, 'unassignVehicle'])->name('devices.unassign-vehicle');
         });
         
         require __DIR__.'/settings.php';

@@ -1,0 +1,40 @@
+<?php
+
+return [
+    'title' => 'Vehicles',
+    'singular' => 'Vehicle',
+    'details' => 'Vehicle Details',
+    'empty_state' => 'No vehicles found.',
+    'fields' => [
+        'id' => 'ID',
+        'registration' => 'Registration',
+        'vin' => 'VIN',
+        'country_code' => 'Country Code',
+        'brand' => 'Brand',
+        'model' => 'Model',
+        'type' => 'Type',
+        'year' => 'Year',
+        'color' => 'Color',
+        'tenant' => 'Tenant',
+        'device' => 'Device',
+        'created_at' => 'Created At',
+        'updated_at' => 'Updated At',
+    ],
+    'actions' => [
+        'create' => 'Add Vehicle',
+        'edit' => 'Edit Vehicle',
+        'delete' => 'Delete Vehicle',
+        'restore' => 'Restore Vehicle',
+        'view' => 'View Vehicle',
+        'assign_device' => 'Assign Device',
+        'remove_device' => 'Remove Device',
+    ],
+    'messages' => [
+        'created' => 'Vehicle created successfully.',
+        'updated' => 'Vehicle updated successfully.',
+        'deleted' => 'Vehicle deleted successfully.',
+        'restored' => 'Vehicle restored successfully.',
+        'device_assigned' => 'Device assigned successfully.',
+        'device_removed' => 'Device removed successfully.',
+    ],
+]; 

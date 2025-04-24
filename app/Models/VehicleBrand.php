@@ -18,7 +18,7 @@ class VehicleBrand extends Model
     /**
      * Get the vehicle models associated with this brand.
      */
-    public function vehicleModels(): HasMany
+    public function models(): HasMany
     {
         return $this->hasMany(VehicleModel::class);
     }

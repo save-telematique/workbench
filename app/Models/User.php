@@ -6,11 +6,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Scout\Searchable;
+use Illuminate\Database\Eloquent\Builder;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, Searchable;
 
     protected $with = ['tenant'];
 
@@ -47,6 +49,33 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array
+     */
+    public function toSearchableArray()
+    {
+        return array_merge($this->toArray(), [
+            'id' => (string) $this->id,
+            'name' => $this->name,
+            'email' => $this->email,
+            'tenant_name' => $this->tenant?->name ?? '',
+            'created_at' => $this->created_at?->timestamp,
+        ]);
+    }
+
+    /**
+     * Modify the query used to retrieve models when making all models searchable.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    protected function makeAllSearchableUsing(Builder $query): Builder
+    {
+        return $query->with('tenant');
     }
 
     public function tenant()

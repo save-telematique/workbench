@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'created' => 'Type d\'appareil créé avec succès.',
-    'updated' => 'Type d\'appareil mis à jour avec succès.',
-    'deleted' => 'Type d\'appareil supprimé avec succès.',
+    'created' => 'Type de boitier créé avec succès.',
+    'updated' => 'Type de boitier mis à jour avec succès.',
+    'deleted' => 'Type de boitier supprimé avec succès.',
 ]; 

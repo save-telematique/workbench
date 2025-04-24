@@ -1,0 +1,40 @@
+<?php
+
+return [
+    'title' => 'Véhicules',
+    'singular' => 'Véhicule',
+    'details' => 'Détails du véhicule',
+    'empty_state' => 'Aucun véhicule trouvé.',
+    'fields' => [
+        'id' => 'ID',
+        'registration' => 'Immatriculation',
+        'vin' => 'NIV',
+        'country_code' => 'Code pays',
+        'brand' => 'Marque',
+        'model' => 'Modèle',
+        'type' => 'Type',
+        'year' => 'Année',
+        'color' => 'Couleur',
+        'tenant' => 'Client',
+        'device' => 'Boîtier',
+        'created_at' => 'Créé le',
+        'updated_at' => 'Mis à jour le',
+    ],
+    'actions' => [
+        'create' => 'Ajouter un véhicule',
+        'edit' => 'Modifier le véhicule',
+        'delete' => 'Supprimer le véhicule',
+        'restore' => 'Restaurer le véhicule',
+        'view' => 'Voir le véhicule',
+        'assign_device' => 'Assigner un boîtier',
+        'remove_device' => 'Retirer le boîtier',
+    ],
+    'messages' => [
+        'created' => 'Véhicule créé avec succès.',
+        'updated' => 'Véhicule mis à jour avec succès.',
+        'deleted' => 'Véhicule supprimé avec succès.',
+        'restored' => 'Véhicule restauré avec succès.',
+        'device_assigned' => 'Boîtier assigné avec succès.',
+        'device_removed' => 'Boîtier retiré avec succès.',
+    ],
+]; 
