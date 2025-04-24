@@ -16,9 +16,8 @@ import GlobalSettingsLayout from '@/layouts/global-settings/layout';
 export default function Create() {
     const { __ } = useTranslation();
     
-    const { data, setData, post, processing, errors, reset, progress } = useForm({
+    const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
-        logo: null as File | null,
     });
 
     const breadcrumbs: BreadcrumbItem[] = [
@@ -32,17 +31,10 @@ export default function Create() {
         },
     ];
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files.length > 0) {
-            setData('logo', e.target.files[0]);
-        }
-    };
-
     const submit = (e: FormEvent) => {
         e.preventDefault();
         post(route('global-settings.vehicle-brands.store'), {
             onSuccess: () => reset(),
-            forceFormData: true,
         });
     };
 
@@ -78,23 +70,6 @@ export default function Create() {
                                     required
                                 />
                                 <InputError message={errors.name} className="mt-2" />
-                            </div>
-
-                            <div>
-                                <Label htmlFor="logo">{__('common.logo')}</Label>
-                                <Input
-                                    id="logo"
-                                    type="file"
-                                    className="mt-1 block w-full"
-                                    onChange={handleFileChange}
-                                    accept="image/*"
-                                />
-                                {progress && (
-                                    <progress value={progress.percentage} max="100" className="mt-2 w-full">
-                                        {progress.percentage}%
-                                    </progress>
-                                )}
-                                <InputError message={errors.logo} className="mt-2" />
                             </div>
                         </div>
 

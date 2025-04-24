@@ -20,18 +20,13 @@ import {
 } from "@/components/ui/alert-dialog"
 
 import { VehicleBrand } from "../vehicle-brands/columns"
-import { VehicleType } from "../vehicle-types/columns"
 
 // Type for our data structure
 export interface VehicleModel {
     id: number
     name: string
-    year: number
-    description: string
     vehicle_brand_id: number
-    vehicle_type_id: number
     vehicle_brand: VehicleBrand
-    vehicle_type: VehicleType
     created_at: string
     updated_at: string
 }
@@ -52,16 +47,6 @@ export function useVehicleModelColumns(): ColumnDef<VehicleModel>[] {
             cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
         },
         {
-            accessorKey: "year",
-            header: ({ column }) => (
-                <DataTableColumnHeader 
-                    column={column} 
-                    title={__('common.year')} 
-                />
-            ),
-            cell: ({ row }) => <div>{row.getValue("year")}</div>,
-        },
-        {
             accessorKey: "vehicle_brand.name",
             header: ({ column }) => (
                 <DataTableColumnHeader 
@@ -72,28 +57,11 @@ export function useVehicleModelColumns(): ColumnDef<VehicleModel>[] {
             cell: ({ row }) => {
                 const brand = row.original.vehicle_brand
                 return (
-                    <div className="flex items-center">
-                        {brand.logo_url && (
-                            <img 
-                                src={brand.logo_url} 
-                                alt={brand.name} 
-                                className="h-6 w-6 mr-2 object-contain" 
-                            />
-                        )}
+                    <div>
                         <span>{brand.name}</span>
                     </div>
                 )
             },
-        },
-        {
-            accessorKey: "vehicle_type.name",
-            header: ({ column }) => (
-                <DataTableColumnHeader 
-                    column={column} 
-                    title={__('common.type')} 
-                />
-            ),
-            cell: ({ row }) => <div>{row.original.vehicle_type.name}</div>,
         },
         {
             id: "actions",

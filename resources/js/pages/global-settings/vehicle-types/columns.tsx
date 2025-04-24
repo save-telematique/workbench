@@ -23,7 +23,6 @@ import {
 export interface VehicleType {
     id: number
     name: string
-    description: string
     created_at: string
     updated_at: string
 }
@@ -42,16 +41,6 @@ export function useVehicleTypeColumns(): ColumnDef<VehicleType>[] {
                 />
             ),
             cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
-        },
-        {
-            accessorKey: "description",
-            header: ({ column }) => (
-                <DataTableColumnHeader 
-                    column={column} 
-                    title={__('common.description')} 
-                />
-            ),
-            cell: ({ row }) => <div>{row.getValue("description")}</div>,
         },
         {
             id: "actions",

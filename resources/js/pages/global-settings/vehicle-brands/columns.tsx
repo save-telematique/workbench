@@ -23,7 +23,6 @@ import {
 export interface VehicleBrand {
     id: number
     name: string
-    logo_url: string
     created_at: string
     updated_at: string
 }
@@ -42,29 +41,6 @@ export function useVehicleBrandColumns(): ColumnDef<VehicleBrand>[] {
                 />
             ),
             cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
-        },
-        {
-            accessorKey: "logo_url",
-            header: ({ column }) => (
-                <DataTableColumnHeader 
-                    column={column} 
-                    title={__('common.logo')} 
-                />
-            ),
-            cell: ({ row }) => {
-                const logoUrl = row.getValue("logo_url") as string;
-                return logoUrl ? (
-                    <div className="h-10 w-10">
-                        <img 
-                            src={logoUrl} 
-                            alt={`${row.getValue("name")} logo`} 
-                            className="h-full w-full object-contain"
-                        />
-                    </div>
-                ) : (
-                    <div>-</div>
-                );
-            },
         },
         {
             id: "actions",

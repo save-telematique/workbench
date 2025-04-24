@@ -5,7 +5,6 @@ import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import HeadingSmall from '@/components/heading-small';
 import InputError from '@/components/input-error';
 import { type BreadcrumbItem } from '@/types';
@@ -19,7 +18,6 @@ export default function Create() {
     
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
-        description: '',
     });
 
     const breadcrumbs: BreadcrumbItem[] = [
@@ -72,18 +70,6 @@ export default function Create() {
                                     required
                                 />
                                 <InputError message={errors.name} className="mt-2" />
-                            </div>
-
-                            <div>
-                                <Label htmlFor="description">{__('common.description')}</Label>
-                                <Textarea
-                                    id="description"
-                                    className="mt-1 block w-full"
-                                    value={data.description}
-                                    onChange={(e) => setData('description', e.target.value)}
-                                    rows={4}
-                                />
-                                <InputError message={errors.description} className="mt-2" />
                             </div>
                         </div>
 

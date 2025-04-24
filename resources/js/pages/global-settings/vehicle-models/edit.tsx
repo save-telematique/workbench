@@ -5,7 +5,6 @@ import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import {
     Select,
     SelectContent,
@@ -22,23 +21,18 @@ import AppLayout from '@/layouts/app-layout';
 import GlobalSettingsLayout from '@/layouts/global-settings/layout';
 import { VehicleModel } from './columns';
 import { VehicleBrand } from '../vehicle-brands/columns';
-import { VehicleType } from '../vehicle-types/columns';
 
 interface Props {
     vehicleModel: VehicleModel;
     vehicleBrands: VehicleBrand[];
-    vehicleTypes: VehicleType[];
 }
 
-export default function Edit({ vehicleModel, vehicleBrands, vehicleTypes }: Props) {
+export default function Edit({ vehicleModel, vehicleBrands }: Props) {
     const { __ } = useTranslation();
     
     const { data, setData, patch, processing, errors } = useForm({
         name: vehicleModel.name,
-        year: vehicleModel.year,
-        description: vehicleModel.description,
         vehicle_brand_id: vehicleModel.vehicle_brand_id.toString(),
-        vehicle_type_id: vehicleModel.vehicle_type_id.toString(),
     });
 
     const breadcrumbs: BreadcrumbItem[] = [
@@ -56,10 +50,6 @@ export default function Edit({ vehicleModel, vehicleBrands, vehicleTypes }: Prop
         e.preventDefault();
         patch(route('global-settings.vehicle-models.update', vehicleModel.id));
     };
-
-    // Get the current year for the year select
-    const currentYear = new Date().getFullYear();
-    const years = Array.from({ length: 30 }, (_, i) => currentYear - i);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -96,26 +86,6 @@ export default function Edit({ vehicleModel, vehicleBrands, vehicleTypes }: Prop
                             </div>
 
                             <div>
-                                <Label htmlFor="year">{__('common.year')}</Label>
-                                <Select
-                                    value={data.year.toString()}
-                                    onValueChange={(value) => setData('year', parseInt(value))}
-                                >
-                                    <SelectTrigger id="year" className="mt-1 w-full">
-                                        <SelectValue placeholder={__('common.select_year')} />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {years.map((year) => (
-                                            <SelectItem key={year} value={year.toString()}>
-                                                {year}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <InputError message={errors.year} className="mt-2" />
-                            </div>
-
-                            <div>
                                 <Label htmlFor="vehicle_brand_id">{__('common.brand')}</Label>
                                 <Select
                                     value={data.vehicle_brand_id}
@@ -133,38 +103,6 @@ export default function Edit({ vehicleModel, vehicleBrands, vehicleTypes }: Prop
                                     </SelectContent>
                                 </Select>
                                 <InputError message={errors.vehicle_brand_id} className="mt-2" />
-                            </div>
-
-                            <div>
-                                <Label htmlFor="vehicle_type_id">{__('common.type')}</Label>
-                                <Select
-                                    value={data.vehicle_type_id}
-                                    onValueChange={(value) => setData('vehicle_type_id', value)}
-                                >
-                                    <SelectTrigger id="vehicle_type_id" className="mt-1 w-full">
-                                        <SelectValue placeholder={__('common.select_type')} />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {vehicleTypes.map((type) => (
-                                            <SelectItem key={type.id} value={type.id.toString()}>
-                                                {type.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <InputError message={errors.vehicle_type_id} className="mt-2" />
-                            </div>
-
-                            <div>
-                                <Label htmlFor="description">{__('common.description')}</Label>
-                                <Textarea
-                                    id="description"
-                                    className="mt-1 block w-full"
-                                    value={data.description}
-                                    onChange={(e) => setData('description', e.target.value)}
-                                    rows={4}
-                                />
-                                <InputError message={errors.description} className="mt-2" />
                             </div>
                         </div>
 
