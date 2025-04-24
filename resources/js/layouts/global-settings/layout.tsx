@@ -24,6 +24,24 @@ export default function GlobalSettingsLayout({ children }: PropsWithChildren) {
             key: 'device-types',
             icon: null,
         },
+        {
+            title: __('common.vehicle_types'),
+            href: route('global-settings.vehicle-types.index'),
+            key: 'vehicle-types',
+            icon: null,
+        },
+        {
+            title: __('common.vehicle_brands'),
+            href: route('global-settings.vehicle-brands.index'),
+            key: 'vehicle-brands',
+            icon: null,
+        },
+        {
+            title: __('common.vehicle_models'),
+            href: route('global-settings.vehicle-models.index'),
+            key: 'vehicle-models',
+            icon: null,
+        },
     ];
 
     return (

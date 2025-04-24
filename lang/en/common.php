@@ -144,4 +144,35 @@ return [
     'name' => 'Name',
     'manufacturer' => 'Manufacturer',
     'devices' => 'Devices',
+    
+    // Vehicle Types
+    'vehicle_types' => 'Vehicle Types',
+    'vehicle_type' => 'Vehicle Type',
+    'manage_vehicle_types' => 'Manage vehicle types used in the system',
+    'create_vehicle_type' => 'Create Vehicle Type',
+    'edit_vehicle_type' => 'Edit Vehicle Type',
+    'description' => 'Description',
+    
+    // Vehicle Brands
+    'vehicle_brands' => 'Vehicle Brands',
+    'vehicle_brand' => 'Vehicle Brand',
+    'manage_vehicle_brands' => 'Manage vehicle brands used in the system',
+    'create_vehicle_brand' => 'Create Vehicle Brand',
+    'edit_vehicle_brand' => 'Edit Vehicle Brand',
+    'logo' => 'Logo',
+    'current_logo' => 'Current Logo',
+    'leave_empty_to_keep_current_logo' => 'Leave empty to keep current logo',
+    
+    // Vehicle Models
+    'vehicle_models' => 'Vehicle Models',
+    'vehicle_model' => 'Vehicle Model',
+    'manage_vehicle_models' => 'Manage vehicle models used in the system',
+    'create_vehicle_model' => 'Create Vehicle Model',
+    'edit_vehicle_model' => 'Edit Vehicle Model',
+    'year' => 'Year',
+    'brand' => 'Brand',
+    'type' => 'Type',
+    'select_year' => 'Select Year',
+    'select_brand' => 'Select Brand',
+    'select_type' => 'Select Type',
 ]; 

@@ -122,8 +122,8 @@ return [
         'next_page' => 'Aller à la page suivante',
         'last_page' => 'Aller à la dernière page',
         'sort' => [
-            'asc' => 'Ascendant',
-            'desc' => 'Descendant',
+            'asc' => 'Croissant',
+            'desc' => 'Décroissant',
         ],
         'hide_column' => 'Masquer la colonne',
     ],
@@ -146,5 +146,36 @@ return [
     'name' => 'Nom',
     'manufacturer' => 'Fabricant',
     'devices' => 'Appareils',
+    
+    // Vehicle Types
+    'vehicle_types' => 'Types de véhicules',
+    'vehicle_type' => 'Type de véhicule',
+    'manage_vehicle_types' => 'Gérer les types de véhicules utilisés dans le système',
+    'create_vehicle_type' => 'Créer un type de véhicule',
+    'edit_vehicle_type' => 'Modifier le type de véhicule',
+    'description' => 'Description',
+    
+    // Vehicle Brands
+    'vehicle_brands' => 'Marques de véhicules',
+    'vehicle_brand' => 'Marque de véhicule',
+    'manage_vehicle_brands' => 'Gérer les marques de véhicules utilisées dans le système',
+    'create_vehicle_brand' => 'Créer une marque de véhicule',
+    'edit_vehicle_brand' => 'Modifier la marque de véhicule',
+    'logo' => 'Logo',
+    'current_logo' => 'Logo actuel',
+    'leave_empty_to_keep_current_logo' => 'Laissez vide pour conserver le logo actuel',
+    
+    // Vehicle Models
+    'vehicle_models' => 'Modèles de véhicules',
+    'vehicle_model' => 'Modèle de véhicule',
+    'manage_vehicle_models' => 'Gérer les modèles de véhicules utilisés dans le système',
+    'create_vehicle_model' => 'Créer un modèle de véhicule',
+    'edit_vehicle_model' => 'Modifier le modèle de véhicule',
+    'year' => 'Année',
+    'brand' => 'Marque',
+    'type' => 'Type',
+    'select_year' => 'Sélectionner une année',
+    'select_brand' => 'Sélectionner une marque',
+    'select_type' => 'Sélectionner un type',
 ];
  
