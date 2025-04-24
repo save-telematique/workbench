@@ -1,17 +1,16 @@
-import { Appearance, useAppearance } from '@/hooks/use-appearance';
+import { Locale, useLocale } from '@/hooks/use-locale';
 import { cn } from '@/lib/utils';
-import { LucideIcon, Monitor, Moon, Sun } from 'lucide-react';
+import { LucideIcon, Flag } from 'lucide-react';
 import { HTMLAttributes } from 'react';
 import { useTranslation } from '@/utils/translation';
 
-export default function AppearanceToggleTab({ className = '', ...props }: HTMLAttributes<HTMLDivElement>) {
-    const { appearance, updateAppearance } = useAppearance();
+export default function LocaleTabs({ className = '', ...props }: HTMLAttributes<HTMLDivElement>) {
+    const { locale, updateLocale } = useLocale();
     const { __ } = useTranslation();
 
-    const tabs: { value: Appearance; icon: LucideIcon; label: string }[] = [
-        { value: 'light', icon: Sun, label: __('common.light') },
-        { value: 'dark', icon: Moon, label: __('common.dark') },
-        { value: 'system', icon: Monitor, label: __('common.system') },
+    const tabs: { value: Locale; icon: LucideIcon; label: string }[] = [
+        { value: 'en', icon: Flag, label: __('common.english') },
+        { value: 'fr', icon: Flag, label: __('common.french') },
     ];
 
     return (
@@ -19,10 +18,10 @@ export default function AppearanceToggleTab({ className = '', ...props }: HTMLAt
             {tabs.map(({ value, icon: Icon, label }) => (
                 <button
                     key={value}
-                    onClick={() => updateAppearance(value)}
+                    onClick={() => updateLocale(value)}
                     className={cn(
                         'flex items-center rounded-md px-3.5 py-1.5 transition-colors',
-                        appearance === value
+                        locale === value
                             ? 'bg-white shadow-xs dark:bg-neutral-700 dark:text-neutral-100'
                             : 'text-neutral-500 hover:bg-neutral-200/60 hover:text-black dark:text-neutral-400 dark:hover:bg-neutral-700/60',
                     )}
@@ -33,4 +32,4 @@ export default function AppearanceToggleTab({ className = '', ...props }: HTMLAt
             ))}
         </div>
     );
-}
+} 

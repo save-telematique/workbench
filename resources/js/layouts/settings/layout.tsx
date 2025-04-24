@@ -5,36 +5,44 @@ import { cn } from '@/lib/utils';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
 import { type PropsWithChildren } from 'react';
-
-const sidebarNavItems: NavItem[] = [
-    {
-        title: 'Profile',
-        href: '/settings/profile',
-        icon: null,
-    },
-    {
-        title: 'Password',
-        href: '/settings/password',
-        icon: null,
-    },
-    {
-        title: 'Appearance',
-        href: '/settings/appearance',
-        icon: null,
-    },
-];
+import { useTranslation } from '@/utils/translation';
 
 export default function SettingsLayout({ children }: PropsWithChildren) {
+    const { __ } = useTranslation();
+    
     // When server-side rendering, we only render the layout on the client...
     if (typeof window === 'undefined') {
         return null;
     }
 
     const currentPath = window.location.pathname;
+    
+    const sidebarNavItems: NavItem[] = [
+        {
+            title: 'Profile',
+            href: '/settings/profile',
+            icon: null,
+        },
+        {
+            title: 'Password',
+            href: '/settings/password',
+            icon: null,
+        },
+        {
+            title: __('common.appearance_settings'),
+            href: '/settings/appearance',
+            icon: null,
+        },
+        {
+            title: __('common.language_settings'),
+            href: '/settings/locale',
+            icon: null,
+        },
+    ];
 
     return (
         <div className="px-4 py-6">
-            <Heading title="Settings" description="Manage your profile and account settings" />
+            <Heading title={__('common.settings')} description="Manage your profile and account settings" />
 
             <div className="flex flex-col space-y-8 lg:flex-row lg:space-y-0 lg:space-x-12">
                 <aside className="w-full max-w-xl lg:w-48">

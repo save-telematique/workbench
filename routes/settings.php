@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Settings\PasswordController;
 use App\Http\Controllers\Settings\ProfileController;
+use App\Http\Controllers\Settings\LocaleController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -17,5 +18,8 @@ Route::middleware('auth', 'universal')->group(function () {
 
     Route::get('settings/appearance', function () {
         return Inertia::render('settings/appearance');
-    })->name('appearance');
+    })->name('settings.appearance');
+
+    Route::get('settings/locale', [LocaleController::class, 'index'])->name('settings.locale');
+    Route::post('settings/locale', [LocaleController::class, 'update'])->name('settings.locale.update');
 });

@@ -39,8 +39,7 @@ class HandleInertiaRequests extends Middleware
     {
         [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
 
-        return [
-            ...parent::share($request),
+        return array_merge(parent::share($request), [
             'name' => config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
@@ -51,6 +50,50 @@ class HandleInertiaRequests extends Middleware
                 'location' => $request->url(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
-        ];
+            'translations' => $this->getTranslations(),
+        ]);
+    }
+
+    /**
+     * Get the translation messages from language files.
+     *
+     * @return array
+     */
+    protected function getTranslations(): array
+    {
+        $locale = app()->getLocale();
+        $fallbackLocale = config('app.fallback_locale');
+
+        $translations = [];
+        
+        // Load common translations
+        $translations['common'] = $this->loadTranslations($locale, $fallbackLocale, 'common');
+        
+        return $translations;
+    }
+
+    /**
+     * Load translations for a specific file.
+     *
+     * @param string $locale
+     * @param string $fallbackLocale
+     * @param string $file
+     * @return array
+     */
+    protected function loadTranslations(string $locale, string $fallbackLocale, string $file): array
+    {
+        $translations = [];
+        
+        // Load from fallback locale first
+        if (file_exists(lang_path("$fallbackLocale/$file.php"))) {
+            $translations = require lang_path("$fallbackLocale/$file.php");
+        }
+        
+        // Then load from current locale, which will override any keys also present in the fallback
+        if ($locale !== $fallbackLocale && file_exists(lang_path("$locale/$file.php"))) {
+            $translations = array_merge($translations, require lang_path("$locale/$file.php"));
+        }
+        
+        return $translations;
     }
 }
