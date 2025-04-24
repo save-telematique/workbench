@@ -124,4 +124,13 @@ return [
         ],
         'hide_column' => 'Hide column',
     ],
+    
+    // Navigation actions
+    'back_to_list' => 'Back to list',
+    
+    // Status indicators
+    'status' => [
+        'active' => 'Active',
+        'inactive' => 'Inactive',
+    ],
 ]; 

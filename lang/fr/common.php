@@ -126,5 +126,14 @@ return [
         ],
         'hide_column' => 'Masquer la colonne',
     ],
+
+    // Navigation actions
+    'back_to_list' => 'Retour à la liste',
+    
+    // Status indicators
+    'status' => [
+        'active' => 'Actif',
+        'inactive' => 'Inactif',
+    ],
 ];
  

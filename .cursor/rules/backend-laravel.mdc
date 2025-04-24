@@ -10,7 +10,6 @@ alwaysApply: true
     *   **Controllers:** (`app/Http/Controllers/{FeatureName}`, `PascalCase`). Pour le CRUD, utiliser les méthodes standard (index, create, store, show, edit, update, destroy).
     *   **Form Requests:** (`app/Http/Requests/{FeatureName}`, `PascalCase`). Créer des requests distinctes pour `store` et `update` si les règles diffèrent.
     *   **Policies:** (`app/Policies/{FeatureName}`, `PascalCase`) pour la gestion des autorisations.
-    *   **API Resources:** (`app/Http/Resources/{FeatureName}`, `PascalCase`) pour transformer les modèles Eloquent.
     *   **Services/Actions:** (`app/Services`, `app/Actions`, `PascalCase`) pour la logique métier complexe.
     *   **Seeders:** (`database/seeders`, `PascalCase`).
     *   Utiliser les commandes `artisan make:` pour générer ces classes.

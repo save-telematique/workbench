@@ -36,6 +36,13 @@ return [
         'description' => 'Add a new tenant to your organization',
         'form_title' => 'Create new tenant',
         'form_description' => 'Complete the form below to create a new tenant',
+        'page_title' => 'Create Tenant',
+        'card' => [
+            'title' => 'Create new tenant',
+            'description' => 'Complete the form below to create a new tenant',
+        ],
+        'submit_button' => 'Create Tenant',
+        'success_message' => 'Tenant created successfully',
     ],
 
     // Edit page
@@ -109,5 +116,18 @@ return [
         'created' => 'Tenant created successfully',
         'updated' => 'Tenant updated successfully',
         'deleted' => 'Tenant deleted successfully',
+    ],
+
+    // Form
+    'form' => [
+        'name' => 'Name',
+        'name_placeholder' => 'Company name',
+        'email' => 'Email',
+        'email_placeholder' => 'contact@example.com',
+        'phone' => 'Phone',
+        'phone_placeholder' => '+1 (555) 000-0000',
+        'address' => 'Address',
+        'address_placeholder' => '123 Main St, City, Country',
+        'status' => 'Status',
     ],
 ]; 

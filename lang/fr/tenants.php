@@ -1,6 +1,9 @@
 <?php
 
 return [
+    // Breadcrumb
+    'breadcrumb' => 'Clients',
+    
     // Liste des tenants
     'list' => [
         'title' => 'Clients',
@@ -28,14 +31,36 @@ return [
         'domains' => 'Domaines',
     ],
 
+    // Formulaire
+    'form' => [
+        'name' => 'Nom',
+        'name_placeholder' => 'Nom de l\'entreprise',
+        'email' => 'Email',
+        'email_placeholder' => 'contact@exemple.com',
+        'phone' => 'Téléphone',
+        'phone_placeholder' => '+33 6 00 00 00 00',
+        'address' => 'Adresse',
+        'address_placeholder' => '123 Rue Principale, Ville, Pays',
+        'status' => 'Statut',
+    ],
+
     // Page création
     'create' => [
         'title' => 'Créer un client',
         'breadcrumb' => 'Créer',
-        'heading' => 'Créer un client',
-        'description' => 'Ajouter un nouveau client à votre organisation',
+        'heading' => [
+            'title' => 'Créer un client',
+            'description' => 'Ajouter un nouveau client à votre organisation',
+        ],
+        'page_title' => 'Créer un client',
         'form_title' => 'Créer un nouveau client',
         'form_description' => 'Complétez le formulaire ci-dessous pour créer un nouveau client',
+        'card' => [
+            'title' => 'Créer un nouveau client',
+            'description' => 'Complétez le formulaire ci-dessous pour créer un nouveau client',
+        ],
+        'submit_button' => 'Créer le client',
+        'success_message' => 'Client créé avec succès',
     ],
 
     // Page édition

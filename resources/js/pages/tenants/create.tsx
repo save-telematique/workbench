@@ -3,6 +3,7 @@ import { Transition } from '@headlessui/react';
 import { Head, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
 import { ArrowLeft, Save } from 'lucide-react';
+import { useTranslation } from '@/utils/translation';
 
 import HeadingSmall from '@/components/heading-small';
 import InputError from '@/components/input-error';
@@ -16,18 +17,19 @@ import AppLayout from '@/layouts/app-layout';
 import TenantsLayout from '@/layouts/tenants/layout';
 import SvgEditor from '@/components/svg-editor';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Tenants',
-        href: '/tenants',
-    },
-    {
-        title: 'Create',
-        href: '/tenants/create',
-    },
-];
-
 export default function TenantsCreate() {
+    const { __ } = useTranslation();
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: __('tenants.breadcrumb'),
+            href: '/tenants',
+        },
+        {
+            title: __('tenants.create.breadcrumb'),
+            href: '/tenants/create',
+        },
+    ];
+
     const { data, setData, post, processing, errors, recentlySuccessful } = useForm({
         name: '',
         email: '',
@@ -45,62 +47,71 @@ export default function TenantsCreate() {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Create Tenant" />
+            <Head title={__('tenants.create.page_title')} />
 
             <TenantsLayout showSidebar={false}>
                 <div className="flex items-center justify-between">
-                    <HeadingSmall title="Create Tenant" description="Add a new tenant to your organization" />
-                    <Button variant="outline"  asChild>
+                    <HeadingSmall 
+                        title={__('tenants.create.heading.title')} 
+                        description={__('tenants.create.heading.description')} 
+                    />
+                    <Button variant="outline" asChild>
                         <a href={route('tenants.index')}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to list
+                            {__('common.back_to_list')}
                         </a>
                     </Button>
                 </div>
 
                 <Card className="mt-6">
                     <CardHeader className="pb-4">
-                        <CardTitle>Create new tenant</CardTitle>
-                        <CardDescription>Complete the form below to create a new tenant</CardDescription>
+                        <CardTitle>{__('tenants.create.card.title')}</CardTitle>
+                        <CardDescription>{__('tenants.create.card.description')}</CardDescription>
                     </CardHeader>
                     <form onSubmit={submit}>
                         <CardContent className="space-y-6">
                             <div className="grid gap-6 md:grid-cols-2">
                                 <div className="space-y-4">
                                     <div>
-                                        <Label htmlFor="name" className="text-sm font-medium">Name</Label>
+                                        <Label htmlFor="name" className="text-sm font-medium">
+                                            {__('tenants.form.name')}
+                                        </Label>
                                         <Input
                                             id="name"
                                             value={data.name}
                                             onChange={(e) => setData('name', e.target.value)}
                                             required
                                             className="mt-1"
-                                            placeholder="Company name"
+                                            placeholder={__('tenants.form.name_placeholder')}
                                         />
                                         <InputError message={errors.name} />
                                     </div>
 
                                     <div>
-                                        <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+                                        <Label htmlFor="email" className="text-sm font-medium">
+                                            {__('tenants.form.email')}
+                                        </Label>
                                         <Input
                                             id="email"
                                             type="email"
                                             value={data.email}
                                             onChange={(e) => setData('email', e.target.value)}
                                             className="mt-1"
-                                            placeholder="contact@example.com"
+                                            placeholder={__('tenants.form.email_placeholder')}
                                         />
                                         <InputError message={errors.email} />
                                     </div>
 
                                     <div>
-                                        <Label htmlFor="phone" className="text-sm font-medium">Phone</Label>
+                                        <Label htmlFor="phone" className="text-sm font-medium">
+                                            {__('tenants.form.phone')}
+                                        </Label>
                                         <Input
                                             id="phone"
                                             value={data.phone}
                                             onChange={(e) => setData('phone', e.target.value)}
                                             className="mt-1"
-                                            placeholder="+1 (555) 000-0000"
+                                            placeholder={__('tenants.form.phone_placeholder')}
                                         />
                                         <InputError message={errors.phone} />
                                     </div>
@@ -108,13 +119,15 @@ export default function TenantsCreate() {
 
                                 <div className="space-y-4">
                                     <div>
-                                        <Label htmlFor="address" className="text-sm font-medium">Address</Label>
+                                        <Label htmlFor="address" className="text-sm font-medium">
+                                            {__('tenants.form.address')}
+                                        </Label>
                                         <Input
                                             id="address"
                                             value={data.address}
                                             onChange={(e) => setData('address', e.target.value)}
                                             className="mt-1"
-                                            placeholder="123 Main St, City, Country"
+                                            placeholder={__('tenants.form.address_placeholder')}
                                         />
                                         <InputError message={errors.address} />
                                     </div>
@@ -122,11 +135,14 @@ export default function TenantsCreate() {
                                     <div className="mt-4 border-t pt-4">
                                         <div className="flex items-center justify-between">
                                             <Label htmlFor="is_active" className="text-sm font-medium">
-                                                Status
+                                                {__('tenants.form.status')}
                                             </Label>
                                             <div className="flex items-center space-x-2">
                                                 <span className="text-sm text-neutral-600">
-                                                    {data.is_active ? 'Active' : 'Inactive'}
+                                                    {data.is_active 
+                                                        ? __('common.status.active') 
+                                                        : __('common.status.inactive')
+                                                    }
                                                 </span>
                                                 <Switch
                                                     id="is_active"
@@ -157,7 +173,7 @@ export default function TenantsCreate() {
                                 type="button" 
                                 onClick={() => window.location.href = route('tenants.index')}
                             >
-                                Cancel
+                                {__('common.cancel')}
                             </Button>
                             
                             <div className="flex items-center gap-4">
@@ -168,12 +184,14 @@ export default function TenantsCreate() {
                                     leave="transition ease-in-out"
                                     leaveTo="opacity-0"
                                 >
-                                    <p className="text-sm text-neutral-600">Tenant created successfully</p>
+                                    <p className="text-sm text-neutral-600">
+                                        {__('tenants.create.success_message')}
+                                    </p>
                                 </Transition>
                                 
                                 <Button type="submit" disabled={processing}>
                                     <Save className="mr-2 h-4 w-4" />
-                                    Create Tenant
+                                    {__('tenants.create.submit_button')}
                                 </Button>
                             </div>
                         </CardFooter>
