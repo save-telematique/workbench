@@ -3,6 +3,8 @@ description:
 globs: 
 alwaysApply: true
 ---
-- Le code TypeScript/JavaScript est formaté avec Prettier et linté avec ESLint.
-- Assurer que le code généré respecte les configurations définies dans `.prettierrc` et `eslint.config.js`.
-- Exécuter `npm run format` ou `npm run lint` si nécessaire pour vérifier/corriger.
+**6. Code Style & Formatting (Frontend):**
+
+*   Formatter avec Prettier, linter avec ESLint (configs: `.prettierrc`, `eslint.config.js`).
+*   **Assurer que TOUT le code (écrit ou généré) respecte ces configurations.**
+*   Exécuter `npm run format` / `npm run lint` via Sail (`sail npm run format`) pour vérifier/corriger.

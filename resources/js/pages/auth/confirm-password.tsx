@@ -2,6 +2,7 @@
 import { Head, useForm } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
 import { FormEventHandler } from 'react';
+import { useTranslation } from '@/utils/translation';
 
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -13,6 +14,7 @@ export default function ConfirmPassword() {
     const { data, setData, post, processing, errors, reset } = useForm<Required<{ password: string }>>({
         password: '',
     });
+    const { __ } = useTranslation();
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -24,20 +26,20 @@ export default function ConfirmPassword() {
 
     return (
         <AuthLayout
-            title="Confirm your password"
-            description="This is a secure area of the application. Please confirm your password before continuing."
+            title={__('auth.confirm_password_title')}
+            description={__('auth.confirm_password_description')}
         >
-            <Head title="Confirm password" />
+            <Head title={__('auth.confirm_password')} />
 
             <form onSubmit={submit}>
                 <div className="space-y-6">
                     <div className="grid gap-2">
-                        <Label htmlFor="password">Password</Label>
+                        <Label htmlFor="password">{__('common.password')}</Label>
                         <Input
                             id="password"
                             type="password"
                             name="password"
-                            placeholder="Password"
+                            placeholder={__('auth.password_placeholder')}
                             autoComplete="current-password"
                             value={data.password}
                             autoFocus
@@ -50,7 +52,7 @@ export default function ConfirmPassword() {
                     <div className="flex items-center">
                         <Button className="w-full" disabled={processing}>
                             {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
-                            Confirm password
+                            {__('auth.confirm_password_button')}
                         </Button>
                     </div>
                 </div>

@@ -1,8 +1,9 @@
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, router } from '@inertiajs/react';
 import { Globe, Plus, ArrowLeft, Trash2, Info, ExternalLink } from 'lucide-react';
 import { FormEventHandler, useMemo } from 'react';
 import { Transition } from '@headlessui/react';
+import { useTranslation } from '@/utils/translation';
 
 import HeadingSmall from '@/components/heading-small';
 import InputError from '@/components/input-error';
@@ -31,18 +32,20 @@ interface TenantsDomainsProps {
 }
 
 export default function TenantsDomains({ tenant, domains = [], app_url }: TenantsDomainsProps) {
+    const { __ } = useTranslation();
+
     const breadcrumbs: BreadcrumbItem[] = [
         {
-            title: 'Tenants',
-            href: '/tenants',
+            title: __('tenants.list.breadcrumb'),
+            href: route('tenants.index'),
         },
         {
-            title: tenant.name,
-            href: `/tenants/${tenant.id}`,
+            title: __('tenants.show.breadcrumb', { name: tenant.name }),
+            href: route('tenants.show', tenant.id),
         },
         {
-            title: 'Domains',
-            href: `/tenants/${tenant.id}/domains`,
+            title: __('tenants.domains.breadcrumb'),
+            href: route('tenants.domains.index', tenant.id),
         },
     ];
 
@@ -102,26 +105,29 @@ export default function TenantsDomains({ tenant, domains = [], app_url }: Tenant
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={`Tenant Domains: ${tenant.name}`} />
+            <Head title={__('tenants.domains.title', { name: tenant.name })} />
 
             <TenantsLayout showSidebar={true} tenantId={tenant.id} activeTab="domains">
                 <div className="space-y-6">
-                    <HeadingSmall title="Tenant Domains" description="Manage domains for this tenant" />
+                    <HeadingSmall 
+                        title={__('tenants.domains.heading')}
+                        description={__('tenants.domains.description')}
+                    />
                     
                     <div className="flex justify-end">
                         <Button variant="outline" size="sm" asChild>
                             <Link href={route('tenants.show', tenant.id)}>
                                 <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back to tenant
+                                {__('tenants.actions.back_to_tenant')}
                             </Link>
                         </Button>
                     </div>
 
                     <div className="rounded-lg border bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-950">
-                        <h3 className="text-lg font-medium mb-4">Add New Domain</h3>
+                        <h3 className="text-lg font-medium mb-4">{__('tenants.domains.add_domain_title')}</h3>
                         <form onSubmit={submit} className="space-y-6">
                             <div className="grid gap-2">
-                                <Label htmlFor="domain">Domain Name</Label>
+                                <Label htmlFor="domain">{__('tenants.domains.domain_name_label')}</Label>
                                 <div className="flex gap-4">
                                     <div className="flex-1">
                                         <Input
@@ -129,35 +135,36 @@ export default function TenantsDomains({ tenant, domains = [], app_url }: Tenant
                                             value={data.domain}
                                             onChange={(e) => setData('domain', e.target.value)}
                                             required
-                                            placeholder="example.com or subdomain"
+                                            placeholder={__('tenants.domains.domain_name_placeholder')}
                                         />
                                         <div className="flex items-center mt-2 text-xs text-neutral-500">
                                             <TooltipProvider>
                                                 <Tooltip>
                                                     <TooltipTrigger className="flex items-center">
                                                         <Info className="h-3.5 w-3.5 mr-1" />
-                                                        <span>Domain format</span>
+                                                        <span>{__('tenants.domains.domain_format_tooltip_trigger')}</span>
                                                     </TooltipTrigger>
                                                     <TooltipContent className="max-w-sm">
-                                                        <p>
-                                                            Use a full domain with a dot (example.com) or just a subdomain name (demo).
-                                                            <br /><br />
-                                                            Full domains are saved as-is, while subdomains will be used as <code className="px-1 py-0.5 rounded">[subdomain].{appHostname}</code> in your application.
-                                                        </p>
+                                                        <div dangerouslySetInnerHTML={{
+                                                            __html: __('tenants.domains.domain_format_tooltip_content', { hostname: appHostname })
+                                                        }} />
                                                     </TooltipContent>
                                                 </Tooltip>
                                             </TooltipProvider>
                                         </div>
                                         {isSubdomain && subdomainPreview && (
-                                            <p className="mt-2 text-sm text-blue-600">
-                                                Your subdomain will be used as: <span className="font-semibold">{subdomainPreview}</span>
-                                            </p>
+                                            <p 
+                                                className="mt-2 text-sm text-blue-600"
+                                                dangerouslySetInnerHTML={{
+                                                    __html: __('tenants.domains.subdomain_preview', { preview: subdomainPreview })
+                                                }}
+                                            />
                                         )}
                                         <InputError message={errors.domain} />
                                     </div>
                                     <Button type="submit" disabled={processing}>
                                         <Plus className="mr-2 h-4 w-4" />
-                                        Add Domain
+                                        {__('tenants.domains.add_domain_button')}
                                     </Button>
                                 </div>
                             </div>
@@ -169,27 +176,27 @@ export default function TenantsDomains({ tenant, domains = [], app_url }: Tenant
                                 leave="transition ease-in-out"
                                 leaveTo="opacity-0"
                             >
-                                <p className="text-sm text-green-600">Domain added successfully.</p>
+                                <p className="text-sm text-green-600">{__('tenants.domains.messages.added')}</p>
                             </Transition>
                         </form>
                     </div>
 
                     <div className="rounded-lg border bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-950">
-                        <h3 className="text-lg font-medium mb-4">Existing Domains</h3>
+                        <h3 className="text-lg font-medium mb-4">{__('tenants.domains.existing_domains_title')}</h3>
                         {domains.length === 0 ? (
                             <div className="py-4 text-center">
                                 <Globe className="mx-auto h-12 w-12 text-gray-400" />
-                                <h3 className="mt-2 text-sm font-medium text-gray-900">No domains</h3>
-                                <p className="mt-1 text-sm text-gray-500">Get started by adding a domain above.</p>
+                                <h3 className="mt-2 text-sm font-medium text-gray-900">{__('tenants.domains.no_domains')}</h3>
+                                <p className="mt-1 text-sm text-gray-500">{__('tenants.domains.get_started')}</p>
                             </div>
                         ) : (
                             <div className="overflow-hidden rounded-md border">
                                 <table className="w-full text-sm">
                                     <thead>
                                         <tr className="border-b bg-neutral-50 text-left text-xs font-medium uppercase tracking-wide text-neutral-500 dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-400">
-                                            <th className="px-4 py-3">Domain</th>
-                                            <th className="px-4 py-3">Type</th>
-                                            <th className="w-[120px] px-4 py-3 text-right">Actions</th>
+                                            <th className="px-4 py-3">{__('tenants.domains.table_header_domain')}</th>
+                                            <th className="px-4 py-3">{__('tenants.domains.table_header_type')}</th>
+                                            <th className="w-[120px] px-4 py-3 text-right">{__('common.actions')}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -198,14 +205,17 @@ export default function TenantsDomains({ tenant, domains = [], app_url }: Tenant
                                                 <td className="whitespace-nowrap px-4 py-3 font-medium">
                                                     {domain.domain}
                                                     {!isDomainWithDot(domain.domain) && appHostname && (
-                                                        <div className="text-xs text-neutral-500 mt-1">
-                                                            Will be used as: <span className="font-medium">{domain.domain}.{appHostname}</span>
-                                                        </div>
+                                                        <div 
+                                                            className="text-xs text-neutral-500 mt-1"
+                                                            dangerouslySetInnerHTML={{
+                                                                __html: __('tenants.domains.subdomain_usage_note', { domain: `${domain.domain}.${appHostname}`})
+                                                            }}
+                                                        />
                                                     )}
                                                 </td>
                                                 <td className="whitespace-nowrap px-4 py-3">
                                                     <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${isDomainWithDot(domain.domain) ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' : 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300'}`}>
-                                                        {isDomainWithDot(domain.domain) ? 'Full domain' : 'Subdomain'}
+                                                        {isDomainWithDot(domain.domain) ? __('tenants.domains.type_full') : __('tenants.domains.type_subdomain')}
                                                     </span>
                                                 </td>
                                                 <td className="whitespace-nowrap px-4 py-3 text-right">
@@ -215,25 +225,24 @@ export default function TenantsDomains({ tenant, domains = [], app_url }: Tenant
                                                             size="sm" 
                                                             className="text-blue-500 hover:text-blue-700"
                                                             onClick={() => openDomainInNewTab(domain.domain)}
-                                                            title="Open in new tab"
+                                                            title={__('tenants.domains.actions.open_tooltip')}
                                                         >
                                                             <ExternalLink className="h-4 w-4" />
-                                                            <span className="sr-only">Open</span>
+                                                            <span className="sr-only">{__('tenants.domains.actions.open')}</span>
                                                         </Button>
                                                         <Button 
                                                             variant="ghost" 
                                                             size="sm" 
                                                             className="text-red-500 hover:text-red-700"
                                                             onClick={() => {
-                                                                if (confirm('Are you sure you want to delete this domain?')) {
-                                                                    const url = route('tenants.domains.destroy', [tenant.id, domain.id]);
-                                                                    window.location.href = `${url}?_method=DELETE`;
+                                                                if (confirm(__('tenants.domains.actions.delete_confirm'))) {
+                                                                    router.delete(route('tenants.domains.destroy', [tenant.id, domain.id]), { preserveScroll: true });
                                                                 }
                                                             }}
-                                                            title="Delete domain"
+                                                            title={__('tenants.domains.actions.delete_tooltip')}
                                                         >
                                                             <Trash2 className="h-4 w-4" />
-                                                            <span className="sr-only">Delete</span>
+                                                            <span className="sr-only">{__('common.delete')}</span>
                                                         </Button>
                                                     </div>
                                                 </td>

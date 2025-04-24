@@ -16,6 +16,7 @@ import { Separator } from '@/components/ui/separator';
 import AppLayout from '@/layouts/app-layout';
 import TenantsLayout from '@/layouts/tenants/layout';
 import SvgEditor from '@/components/svg-editor';
+import { useTranslation } from '@/utils/translation';
 
 interface TenantShowProps {
     tenant: {
@@ -31,6 +32,7 @@ interface TenantShowProps {
 
 export default function TenantsShow({ tenant }: TenantShowProps) {
     const [isEditing, setIsEditing] = useState(false);
+    const { __ } = useTranslation();
 
     const { data, setData, patch, errors, processing, recentlySuccessful, reset } = useForm({
         name: tenant.name,
@@ -43,12 +45,12 @@ export default function TenantsShow({ tenant }: TenantShowProps) {
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
-            title: 'Tenants',
-            href: '/tenants',
+            title: __('tenants.list.breadcrumb'),
+            href: route('tenants.index'),
         },
         {
-            title: tenant.name,
-            href: `/tenants/${tenant.id}`,
+            title: __('tenants.show.breadcrumb', { name: tenant.name }),
+            href: route('tenants.show', tenant.id),
         },
     ];
 
@@ -66,23 +68,26 @@ export default function TenantsShow({ tenant }: TenantShowProps) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={`Tenant: ${tenant.name}`} />
+            <Head title={__('tenants.show.title', { name: tenant.name })} />
 
             <TenantsLayout showSidebar={true} tenantId={tenant.id} activeTab="info">
                 <div className="space-y-6">
-                    <HeadingSmall title="Tenant Information" description="View and manage tenant details" />
+                    <HeadingSmall 
+                        title={__('tenants.show.heading')}
+                        description={__('tenants.show.description')}
+                    />
                     
                     <div className="flex justify-end space-x-2">
                         {!isEditing ? (
                             <>
                                 <Button size="sm" onClick={() => setIsEditing(true)}>
                                     <Pencil className="mr-2 h-4 w-4" />
-                                    Edit
+                                    {__('common.edit')}
                                 </Button>
                                 <Button variant="outline" size="sm" asChild>
                                     <Link href={route('tenants.index')}>
                                         <ArrowLeft className="mr-2 h-4 w-4" />
-                                        Back to list
+                                        {__('tenants.actions.back_to_list')}
                                     </Link>
                                 </Button>
                             </>
@@ -92,7 +97,7 @@ export default function TenantsShow({ tenant }: TenantShowProps) {
                                 reset();
                             }}>
                                 <X className="mr-2 h-4 w-4" />
-                                Cancel
+                                {__('common.cancel')}
                             </Button>
                         )}
                     </div>
@@ -101,15 +106,15 @@ export default function TenantsShow({ tenant }: TenantShowProps) {
                         // Mode édition
                         <Card>
                             <CardHeader className="pb-4">
-                                <CardTitle>Edit tenant information</CardTitle>
-                                <CardDescription>Update the details for {tenant.name}</CardDescription>
+                                <CardTitle>{__('tenants.edit.form_title')}</CardTitle>
+                                <CardDescription>{__('tenants.edit.form_description', { name: tenant.name })}</CardDescription>
                             </CardHeader>
                             <form onSubmit={submit}>
                                 <CardContent className="space-y-6">
                                     <div className="grid gap-6 md:grid-cols-2">
                                         <div className="space-y-4">
                                             <div>
-                                                <Label htmlFor="name" className="text-sm font-medium">Name</Label>
+                                                <Label htmlFor="name" className="text-sm font-medium">{__('tenants.fields.name')}</Label>
                                                 <Input
                                                     id="name"
                                                     value={data.name}
@@ -121,7 +126,7 @@ export default function TenantsShow({ tenant }: TenantShowProps) {
                                             </div>
 
                                             <div>
-                                                <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+                                                <Label htmlFor="email" className="text-sm font-medium">{__('tenants.fields.email')}</Label>
                                                 <Input
                                                     id="email"
                                                     type="email"
@@ -133,7 +138,7 @@ export default function TenantsShow({ tenant }: TenantShowProps) {
                                             </div>
 
                                             <div>
-                                                <Label htmlFor="phone" className="text-sm font-medium">Phone</Label>
+                                                <Label htmlFor="phone" className="text-sm font-medium">{__('tenants.fields.phone')}</Label>
                                                 <Input
                                                     id="phone"
                                                     value={data.phone}
@@ -146,7 +151,7 @@ export default function TenantsShow({ tenant }: TenantShowProps) {
 
                                         <div className="space-y-4">
                                             <div>
-                                                <Label htmlFor="address" className="text-sm font-medium">Address</Label>
+                                                <Label htmlFor="address" className="text-sm font-medium">{__('tenants.fields.address')}</Label>
                                                 <Textarea
                                                     id="address"
                                                     value={data.address}
@@ -160,11 +165,11 @@ export default function TenantsShow({ tenant }: TenantShowProps) {
                                             <div className="mt-4 border-t pt-4">
                                                 <div className="flex items-center justify-between">
                                                     <Label htmlFor="is_active" className="text-sm font-medium flex items-center">
-                                                        Status
+                                                        {__('tenants.fields.status_label')}
                                                     </Label>
                                                     <div className="flex items-center space-x-2">
                                                         <span className="text-sm text-neutral-600">
-                                                            {data.is_active ? 'Active' : 'Inactive'}
+                                                            {data.is_active ? __('common.active') : __('common.inactive')}
                                                         </span>
                                                         <Switch
                                                             id="is_active"
@@ -194,7 +199,7 @@ export default function TenantsShow({ tenant }: TenantShowProps) {
                                         setIsEditing(false);
                                         reset();
                                     }}>
-                                        Cancel
+                                        {__('common.cancel')}
                                     </Button>
                                     
                                     <div className="flex items-center gap-4">
@@ -205,12 +210,12 @@ export default function TenantsShow({ tenant }: TenantShowProps) {
                                             leave="transition ease-in-out"
                                             leaveTo="opacity-0"
                                         >
-                                            <p className="text-sm text-neutral-600">Changes saved successfully</p>
+                                            <p className="text-sm text-neutral-600">{__('tenants.messages.updated')}</p>
                                         </Transition>
                                         
                                         <Button type="submit" disabled={processing}>
                                             <Save className="mr-2 h-4 w-4" />
-                                            Save Changes
+                                            {__('common.save_changes')}
                                         </Button>
                                     </div>
                                 </CardFooter>
@@ -223,7 +228,7 @@ export default function TenantsShow({ tenant }: TenantShowProps) {
                                 <div className="grid gap-8 md:grid-cols-2">
                                     <div>
                                         <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-4">
-                                            Information
+                                            {__('tenants.show.info_section_title')}
                                         </h3>
                                         <div className="space-y-4">
                                             <div className="flex items-start">
@@ -232,7 +237,7 @@ export default function TenantsShow({ tenant }: TenantShowProps) {
                                                     <span className="block font-medium text-base">{tenant.name}</span>
                                                     <div className="flex items-center mt-1 text-sm text-neutral-600">
                                                         <span className="inline-flex items-center">
-                                                            Status: {tenant.is_active ? 'Active' : 'Inactive'}
+                                                            {__('tenants.fields.status_label')}: {tenant.is_active ? __('common.active') : __('common.inactive')}
                                                         </span>
                                                     </div>
                                                 </div>
@@ -250,16 +255,14 @@ export default function TenantsShow({ tenant }: TenantShowProps) {
                                             {tenant.phone && (
                                                 <div className="flex items-center">
                                                     <Phone className="mr-3 h-5 w-5 text-neutral-500" />
-                                                    <a href={`tel:${tenant.phone}`} className="text-neutral-700 dark:text-neutral-300 hover:underline">
-                                                        {tenant.phone}
-                                                    </a>
+                                                    <span className="text-neutral-700 dark:text-neutral-300">{tenant.phone}</span>
                                                 </div>
                                             )}
                                             
                                             {tenant.address && (
                                                 <div className="flex items-start">
                                                     <MapPin className="mr-3 h-5 w-5 text-neutral-500 mt-0.5" />
-                                                    <div className="whitespace-pre-wrap text-neutral-700 dark:text-neutral-300">{tenant.address}</div>
+                                                    <span className="text-neutral-700 dark:text-neutral-300 whitespace-pre-line">{tenant.address}</span>
                                                 </div>
                                             )}
                                         </div>
@@ -268,11 +271,12 @@ export default function TenantsShow({ tenant }: TenantShowProps) {
                                     {tenant.svg_logo && (
                                         <div>
                                             <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-4">
-                                                Logo
+                                                {__('tenants.fields.logo')}
                                             </h3>
-                                            <div className="p-6 border rounded-md flex justify-center items-center bg-neutral-50 dark:bg-neutral-900 h-[200px]">
-                                                <div className="max-w-full max-h-[160px]" dangerouslySetInnerHTML={{ __html: tenant.svg_logo }} />
-                                            </div>
+                                            <div 
+                                                className="aspect-video w-full max-w-sm rounded-md border bg-white p-4 dark:bg-neutral-800"
+                                                dangerouslySetInnerHTML={{ __html: tenant.svg_logo }}
+                                            />
                                         </div>
                                     )}
                                 </div>

@@ -40,7 +40,7 @@ class HandleInertiaRequests extends Middleware
         [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
 
         return array_merge(parent::share($request), [
-            'name' => config('app.name'),
+            'name' => tenant() ? tenant()->name : config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
                 'user' => $request->user(),
@@ -63,11 +63,35 @@ class HandleInertiaRequests extends Middleware
     {
         $locale = app()->getLocale();
         $fallbackLocale = config('app.fallback_locale');
-
         $translations = [];
         
-        // Load common translations
-        $translations['common'] = $this->loadTranslations($locale, $fallbackLocale, 'common');
+        // Get all PHP files from the fallback locale directory
+        $translationFiles = [];
+        $fallbackPath = lang_path($fallbackLocale);
+        
+        if (is_dir($fallbackPath)) {
+            $files = glob($fallbackPath . '/*.php');
+            foreach ($files as $file) {
+                $translationFiles[] = basename($file, '.php');
+            }
+        }
+        
+        // Add files from current locale that might not exist in fallback
+        $localePath = lang_path($locale);
+        if ($locale !== $fallbackLocale && is_dir($localePath)) {
+            $files = glob($localePath . '/*.php');
+            foreach ($files as $file) {
+                $filename = basename($file, '.php');
+                if (!in_array($filename, $translationFiles)) {
+                    $translationFiles[] = $filename;
+                }
+            }
+        }
+        
+        // Load all translation files
+        foreach ($translationFiles as $file) {
+            $translations[$file] = $this->loadTranslations($locale, $fallbackLocale, $file);
+        }
         
         return $translations;
     }

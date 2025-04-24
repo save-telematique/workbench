@@ -15,6 +15,7 @@ import { Separator } from '@/components/ui/separator';
 import AppLayout from '@/layouts/app-layout';
 import TenantsLayout from '@/layouts/tenants/layout';
 import SvgEditor from '@/components/svg-editor';
+import { useTranslation } from '@/utils/translation';
 
 interface TenantEditProps {
     tenant: {
@@ -38,14 +39,16 @@ interface TenantForm {
 }
 
 export default function TenantsEdit({ tenant }: TenantEditProps) {
+    const { __ } = useTranslation();
+
     const breadcrumbs: BreadcrumbItem[] = [
         {
-            title: 'Tenants',
-            href: '/tenants',
+            title: __('tenants.list.breadcrumb'),
+            href: route('tenants.index'),
         },
         {
-            title: tenant.name,
-            href: `/tenants/${tenant.id}/edit`,
+            title: __('tenants.edit.breadcrumb', { name: tenant.name }),
+            href: route('tenants.edit', tenant.id),
         },
     ];
 
@@ -66,55 +69,58 @@ export default function TenantsEdit({ tenant }: TenantEditProps) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={`Edit Tenant: ${tenant.name}`} />
+            <Head title={__('tenants.edit.title', { name: tenant.name })} />
 
             <TenantsLayout>
                 <div className="space-y-6">
-                    <HeadingSmall title={`Edit Tenant: ${tenant.name}`} description="Update tenant information" />
+                    <HeadingSmall 
+                        title={__('tenants.edit.heading', { name: tenant.name })}
+                        description={__('tenants.edit.description')}
+                    />
 
                     <Card>
                         <CardHeader className="pb-4">
-                            <CardTitle>Edit tenant information</CardTitle>
-                            <CardDescription>Update the details for {tenant.name}</CardDescription>
+                            <CardTitle>{__('tenants.edit.form_title')}</CardTitle>
+                            <CardDescription>{__('tenants.edit.form_description', { name: tenant.name })}</CardDescription>
                         </CardHeader>
                         <form onSubmit={submit}>
                             <CardContent className="space-y-6">
                                 <div className="grid gap-6 md:grid-cols-2">
                                     <div className="space-y-4">
                                         <div>
-                                            <Label htmlFor="name" className="text-sm font-medium">Name</Label>
+                                            <Label htmlFor="name" className="text-sm font-medium">{__('tenants.fields.name')}</Label>
                                             <Input
                                                 id="name"
                                                 value={data.name}
                                                 onChange={(e) => setData('name', e.target.value)}
                                                 required
                                                 className="mt-1"
-                                                placeholder="Company name"
+                                                placeholder={__('tenants.fields.name_placeholder')}
                                             />
                                             <InputError message={errors.name} />
                                         </div>
 
                                         <div>
-                                            <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+                                            <Label htmlFor="email" className="text-sm font-medium">{__('tenants.fields.email')}</Label>
                                             <Input
                                                 id="email"
                                                 type="email"
                                                 value={data.email}
                                                 onChange={(e) => setData('email', e.target.value)}
                                                 className="mt-1"
-                                                placeholder="contact@example.com"
+                                                placeholder={__('tenants.fields.email_placeholder')}
                                             />
                                             <InputError message={errors.email} />
                                         </div>
 
                                         <div>
-                                            <Label htmlFor="phone" className="text-sm font-medium">Phone</Label>
+                                            <Label htmlFor="phone" className="text-sm font-medium">{__('tenants.fields.phone')}</Label>
                                             <Input
                                                 id="phone"
                                                 value={data.phone}
                                                 onChange={(e) => setData('phone', e.target.value)}
                                                 className="mt-1"
-                                                placeholder="+1 (555) 000-0000"
+                                                placeholder={__('tenants.fields.phone_placeholder')}
                                             />
                                             <InputError message={errors.phone} />
                                         </div>
@@ -122,13 +128,13 @@ export default function TenantsEdit({ tenant }: TenantEditProps) {
 
                                     <div className="space-y-4">
                                         <div>
-                                            <Label htmlFor="address" className="text-sm font-medium">Address</Label>
+                                            <Label htmlFor="address" className="text-sm font-medium">{__('tenants.fields.address')}</Label>
                                             <Input
                                                 id="address"
                                                 value={data.address}
                                                 onChange={(e) => setData('address', e.target.value)}
                                                 className="mt-1"
-                                                placeholder="123 Main St, City, Country"
+                                                placeholder={__('tenants.fields.address_placeholder')}
                                             />
                                             <InputError message={errors.address} />
                                         </div>
@@ -136,11 +142,11 @@ export default function TenantsEdit({ tenant }: TenantEditProps) {
                                         <div className="mt-4 border-t pt-4">
                                             <div className="flex items-center justify-between">
                                                 <Label htmlFor="is_active" className="text-sm font-medium">
-                                                    Status
+                                                    {__('tenants.fields.status')}
                                                 </Label>
                                                 <div className="flex items-center space-x-2">
                                                     <span className="text-sm text-neutral-600">
-                                                        {data.is_active ? 'Active' : 'Inactive'}
+                                                        {data.is_active ? __('tenants.status.active') : __('tenants.status.inactive')}
                                                     </span>
                                                     <Switch
                                                         id="is_active"
@@ -169,7 +175,7 @@ export default function TenantsEdit({ tenant }: TenantEditProps) {
                                 <div className="flex items-center gap-4">
                                     <Button type="submit" disabled={processing}>
                                         <Save className="mr-2 h-4 w-4" />
-                                        Save Changes
+                                        {__('common.save_changes')}
                                     </Button>
 
                                     <Transition
@@ -179,7 +185,7 @@ export default function TenantsEdit({ tenant }: TenantEditProps) {
                                         leave="transition ease-in-out"
                                         leaveTo="opacity-0"
                                     >
-                                        <p className="text-sm text-neutral-600">Saved</p>
+                                        <p className="text-sm text-neutral-600">{__('common.saved')}</p>
                                     </Transition>
                                 </div>
                             </CardFooter>

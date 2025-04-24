@@ -19,12 +19,12 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
     
     const sidebarNavItems: NavItem[] = [
         {
-            title: 'Profile',
+            title: __('common.profile'),
             href: '/settings/profile',
             icon: null,
         },
         {
-            title: 'Password',
+            title: __('common.password'),
             href: '/settings/password',
             icon: null,
         },
@@ -42,7 +42,7 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
 
     return (
         <div className="px-4 py-6">
-            <Heading title={__('common.settings')} description="Manage your profile and account settings" />
+            <Heading title={__('common.settings')} description={__('common.manage_account_settings')} />
 
             <div className="flex flex-col space-y-8 lg:flex-row lg:space-y-0 lg:space-x-12">
                 <aside className="w-full max-w-xl lg:w-48">

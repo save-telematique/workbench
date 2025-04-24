@@ -3,12 +3,11 @@ description:
 globs: 
 alwaysApply: true
 ---
-- Utiliser Tailwind CSS 4 pour le styling via des classes utilitaires.
-- **Configuration Tailwind 4**:
-  - La configuration se fait principalement via des variables CSS dans le fichier CSS principal (`@theme { ... }`). Éviter `tailwind.config.js` si possible pour la configuration du thème.
-  - Profiter des valeurs et variantes dynamiques (ex: `grid-cols-15`, `data-current:opacity-100`) sans configuration explicite.
-  - Utiliser la nouvelle palette de couleurs P3 (oklch) par défaut.
-- Utiliser les composants Shadcn UI pour construire l'interface.
-  - Ajouter de nouveaux composants via `npx shadcn-ui@latest add [component-name]`.
-  - Personnaliser les composants Shadcn en modifiant directement leur code source dans `resources/js/Components/ui`.
-  - Utiliser `cn()` de Shadcn pour fusionner conditionnellement les classes Tailwind.
+**5. Styling (Tailwind + Shadcn):**
+
+*   Utiliser Tailwind CSS 4 (classes utilitaires).
+*   **Tailwind 4 Config:** Via variables CSS (`@theme` dans CSS principal), valeurs/variantes dynamiques, palette P3 (oklch). Éviter `tailwind.config.js` pour le thème si possible.
+*   **Shadcn UI:**
+    *   Ajouter via `npx shadcn-ui@latest add [component-name]`.
+    *   Personnaliser dans `resources/js/Components/ui`.
+    *   Utiliser `cn()` pour fusionner les classes conditionnelles.

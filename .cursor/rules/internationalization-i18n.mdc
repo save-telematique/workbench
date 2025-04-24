@@ -1,0 +1,41 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+**8. Localisation & Internationalisation (i18n):**
+
+*   **Structure & Organisation:**
+    *   **Fichiers de Traduction:** Définir les traductions dans `lang/{locale}/{groupe}.php` (ex: `lang/fr/auth.php`)
+    *   **Structure Hiérarchique:** Utiliser des clés hiérarchiques (ex: `auth.login`) avec groupes sémantiques
+    *   **Cohérence:** Maintenir la même structure de clés entre toutes les langues supportées
+
+*   **Backend (Laravel):**
+    *   **Traductions PHP:** Utiliser la fonction `__('key')` ou `trans('key')` dans le code PHP
+    *   **Middleware:** Utiliser `app/Http/Middleware/SetLocale.php` pour gérer la langue active
+    *   **Partage Inertia:** Partager les traductions via props dans `HandleInertiaRequests`
+
+*   **Frontend (React):**
+    *   **Hook de Traduction:** Toujours utiliser `const { __ } = useTranslation()` importé depuis `@/utils/translation`
+    *   **Application Systématique:** Appliquer `__('key')` pour **TOUT** texte visible par l'utilisateur:
+        *   Labels, placeholders, boutons, titres, descriptions, messages d'erreur
+        *   Inclure tous les textes des composants UI (Shadcn)
+        *   N'utiliser **AUCUN texte en dur** dans les composants
+    *   **Paramètres Dynamiques:** Utiliser la syntaxe `:param` ou `{param}` pour les valeurs variables
+        *   Exemple: `__('messages.welcome', { name: user.name })`
+
+*   **Clés de Traduction:**
+    *   **Format:** `{groupe}.{sous_groupe?}.{identificateur}` (ex: `auth.password_reset.title`)
+    *   **Groupes Communs:** `auth`, `common`, `errors`, `validation`, `settings`, `tenants`
+    *   **Nommage Explicite:** Préférer des clés descriptives (`auth.password` plutôt que `auth.pwd`)
+    *   **Traduction** Assure toi que les clé aient bien leurs valeurs en français et en anglais dans les bons fichiers
+
+*   **Tests & Maintenance:**
+    *   **Recherche de Textes en Dur:** Vérifier régulièrement l'absence de textes non traduits
+    *   **Couverture de Tests:** Inclure des tests avec changement de locale pour valider les traductions
+    *   **Fichiers Complets:** S'assurer que toutes les clés existent dans toutes les langues supportées
+
+*   **Développement:**
+    *   **Locale de Développement:** Travailler en français (langue principale) par défaut
+    *   **Extraction de Clés:** Convertir les textes en dur existants en clés de traduction
+    *   **Commentaires:** Annoter les sections dans les fichiers de traduction pour faciliter la navigation

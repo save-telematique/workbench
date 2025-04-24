@@ -1,6 +1,6 @@
 import { usePage } from '@inertiajs/react';
 
-type TranslationParams = Record<string, string | number>;
+type TranslationParams = Record<string, string | number | null>;
 type TranslationValue = string | Record<string, unknown>;
 type TranslationsObject = Record<string, Record<string, TranslationValue>>;
 

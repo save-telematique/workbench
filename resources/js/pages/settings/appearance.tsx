@@ -1,7 +1,6 @@
 import { Head } from '@inertiajs/react';
 
 import AppearanceTabs from '@/components/appearance-tabs';
-import LocaleTabs from '@/components/locale-tabs';
 import HeadingSmall from '@/components/heading-small';
 import { type BreadcrumbItem } from '@/types';
 import { useTranslation } from '@/utils/translation';
@@ -15,7 +14,7 @@ export default function Appearance() {
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: __('common.appearance_settings'),
-            href: '/settings/appearance',
+            href: route('settings.appearance'),
         },
     ];
 
@@ -33,11 +32,6 @@ export default function Appearance() {
                         <div>
                             <h3 className="text-sm font-medium mb-3">{__('common.theme')}</h3>
                             <AppearanceTabs />
-                        </div>
-                        
-                        <div>
-                            <h3 className="text-sm font-medium mb-3">{__('common.language')}</h3>
-                            <LocaleTabs />
                         </div>
                     </div>
                 </div>

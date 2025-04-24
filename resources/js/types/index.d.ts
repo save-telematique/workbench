@@ -23,6 +23,7 @@ export interface NavItem {
 }
 
 export interface SharedData {
+    locale: string;
     name: string;
     quote: { message: string; author: string };
     auth: Auth;

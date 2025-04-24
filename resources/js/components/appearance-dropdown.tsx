@@ -3,9 +3,11 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useAppearance } from '@/hooks/use-appearance';
 import { Monitor, Moon, Sun } from 'lucide-react';
 import { HTMLAttributes } from 'react';
+import { useTranslation } from '@/utils/translation';
 
 export default function AppearanceToggleDropdown({ className = '', ...props }: HTMLAttributes<HTMLDivElement>) {
     const { appearance, updateAppearance } = useAppearance();
+    const { __ } = useTranslation();
 
     const getCurrentIcon = () => {
         switch (appearance) {
@@ -24,26 +26,26 @@ export default function AppearanceToggleDropdown({ className = '', ...props }: H
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-9 w-9 rounded-md">
                         {getCurrentIcon()}
-                        <span className="sr-only">Toggle theme</span>
+                        <span className="sr-only">{__('common.toggle_theme')}</span>
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => updateAppearance('light')}>
                         <span className="flex items-center gap-2">
                             <Sun className="h-5 w-5" />
-                            Light
+                            {__('common.light')}
                         </span>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => updateAppearance('dark')}>
                         <span className="flex items-center gap-2">
                             <Moon className="h-5 w-5" />
-                            Dark
+                            {__('common.dark')}
                         </span>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => updateAppearance('system')}>
                         <span className="flex items-center gap-2">
                             <Monitor className="h-5 w-5" />
-                            System
+                            {__('common.system')}
                         </span>
                     </DropdownMenuItem>
                 </DropdownMenuContent>

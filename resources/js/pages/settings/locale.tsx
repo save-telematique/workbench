@@ -14,7 +14,7 @@ export default function LocaleSettings() {
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: __('common.language_settings'),
-            href: '/settings/locale',
+            href: route('settings.locale'),
         },
     ];
 

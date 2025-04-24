@@ -2,6 +2,7 @@ import { Link } from '@inertiajs/react';
 import { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { InfoIcon, GlobeIcon } from 'lucide-react';
+import { useTranslation } from '@/utils/translation';
 
 interface TenantsLayoutProps {
     children: ReactNode;
@@ -11,6 +12,8 @@ interface TenantsLayoutProps {
 }
 
 export default function TenantsLayout({ children, showSidebar = false, tenantId, activeTab = 'info' }: TenantsLayoutProps) {
+    const { __ } = useTranslation();
+
     return (
         <div className="px-4 py-2">
             {showSidebar && tenantId ? (
@@ -25,7 +28,7 @@ export default function TenantsLayout({ children, showSidebar = false, tenantId,
                                 )}
                             >
                                 <InfoIcon className="mr-2 h-4 w-4" />
-                                Information
+                                {__('tenants.tabs.information')}
                             </Link>
                             <Link
                                 href={`/tenants/${tenantId}/domains`}
@@ -35,7 +38,7 @@ export default function TenantsLayout({ children, showSidebar = false, tenantId,
                                 )}
                             >
                                 <GlobeIcon className="mr-2 h-4 w-4" />
-                                Domains
+                                {__('tenants.tabs.domains')}
                             </Link>
                         </nav>
                     </aside>
