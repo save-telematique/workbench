@@ -138,14 +138,14 @@ return [
     ],
     
     // Device types
-    'device_types' => 'Types d\'appareils',
-    'device_type' => 'Type d\'appareil',
-    'manage_device_types' => 'Gérer les types d\'appareils utilisés dans le système',
-    'create_device_type' => 'Créer un type d\'appareil',
-    'edit_device_type' => 'Modifier le type d\'appareil',
+    'device_types' => 'Types de boitiers',
+    'device_type' => 'Type de boitier',
+    'manage_device_types' => 'Gérer les types de boitiers utilisés dans le système',
+    'create_device_type' => 'Créer un type de boitier',
+    'edit_device_type' => 'Modifier le type de boitier',
     'name' => 'Nom',
     'manufacturer' => 'Fabricant',
-    'devices' => 'Appareils',
+    'devices' => 'Boitiers',
     
     // Vehicle Types
     'vehicle_types' => 'Types de véhicules',
