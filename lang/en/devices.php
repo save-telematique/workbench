@@ -50,6 +50,12 @@ return [
         'updated' => 'Device updated successfully.',
     ],
     
+    // Confirmations for actions
+    'confirmations' => [
+        'delete' => 'Are you sure you want to delete this device?',
+        'restore' => 'Are you sure you want to restore this device?',
+    ],
+    
     // Breadcrumbs
     'breadcrumbs' => [
         'index' => 'Devices',
@@ -69,6 +75,7 @@ return [
     'filters' => [
         'tenant' => 'Tenant',
         'device_type' => 'Device Type',
+        'vehicle' => 'Vehicle',
         'deleted' => 'Deletion Status',
     ],
     

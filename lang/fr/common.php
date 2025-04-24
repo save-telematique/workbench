@@ -64,6 +64,7 @@ return [
     'reset_filters' => 'Réinitialiser les filtres',
     'all_tenants' => 'Tous les clients',
     'all_device_types' => 'Tous les types de boitiers',
+    'all_vehicles' => 'Tous les véhicules',
     'show_deleted' => 'Afficher les éléments supprimés',
     'without_deleted' => 'Sans les supprimés',
     'with_deleted' => 'Avec les supprimés',

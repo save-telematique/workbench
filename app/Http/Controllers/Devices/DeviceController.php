@@ -22,7 +22,6 @@ class DeviceController extends Controller
      */
     public function index(Request $request): Response
     {
-
         //$devices = Device::search($request->search)
         $devices = Device::query()
             ->with(['type', 'vehicle', 'tenant'])
@@ -41,12 +40,14 @@ class DeviceController extends Controller
 
         $deviceTypes = DeviceType::all();
         $tenants = Tenant::all();
+        $vehicles = Vehicle::all();
 
         return Inertia::render('devices/index', [
             'devices' => $devices,
             'filters' => $request->only(['search', 'trashed', 'tenant_id', 'device_type_id', 'vehicle_id']),
             'deviceTypes' => $deviceTypes,
             'tenants' => $tenants,
+            'vehicles' => $vehicles,
         ]);
     }
 

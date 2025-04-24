@@ -68,9 +68,10 @@ interface DevicesPageProps {
   };
   deviceTypes: { id: number; name: string; manufacturer: string }[];
   tenants: { id: string; name: string }[];
+  vehicles?: { id: string; registration: string }[];
 }
 
-export default function Index({ devices, filters, deviceTypes, tenants }: DevicesPageProps) {
+export default function Index({ devices, filters, deviceTypes, tenants, vehicles = [] }: DevicesPageProps) {
   const { __ } = useTranslation();
   const columns = useColumns();
   const [searchTerm, setSearchTerm] = useState(filters.search || "");
@@ -94,6 +95,7 @@ export default function Index({ devices, filters, deviceTypes, tenants }: Device
   const [filterValues, setFilterValues] = useState({
     tenant_id: filters.tenant_id || 'all',
     device_type_id: filters.device_type_id || 'all',
+    vehicle_id: filters.vehicle_id || 'all',
   });
 
   function handleFilterChange(key: string, value: string) {
@@ -111,6 +113,7 @@ export default function Index({ devices, filters, deviceTypes, tenants }: Device
     setFilterValues({
       tenant_id: 'all',
       device_type_id: 'all',
+      vehicle_id: 'all',
     });
     router.get(route('devices.index'), {}, { preserveState: true });
   }
@@ -118,7 +121,8 @@ export default function Index({ devices, filters, deviceTypes, tenants }: Device
   // Count active filters for the badge
   const activeFiltersCount = [
     filterValues.tenant_id !== 'all', 
-    filterValues.device_type_id !== 'all', 
+    filterValues.device_type_id !== 'all',
+    filterValues.vehicle_id !== 'all',
   ].filter(Boolean).length;
 
   return (
@@ -213,20 +217,23 @@ export default function Index({ devices, filters, deviceTypes, tenants }: Device
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-sm font-medium" htmlFor="trashed-filter">
-                        {__("devices.filters.deleted")}
+                      <label className="text-sm font-medium" htmlFor="vehicle-filter">
+                        {__("devices.filters.vehicle")}
                       </label>
                       <Select
-                        value={filterValues.trashed}
-                        onValueChange={(value) => handleFilterChange("trashed", value)}
+                        value={filterValues.vehicle_id}
+                        onValueChange={(value) => handleFilterChange("vehicle_id", value)}
                       >
-                        <SelectTrigger id="trashed-filter" className="w-full">
-                          <SelectValue placeholder={__("common.show_deleted")} />
+                        <SelectTrigger id="vehicle-filter" className="w-full">
+                          <SelectValue placeholder={__("devices.placeholders.vehicle")} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="default">{__("common.without_deleted")}</SelectItem>
-                          <SelectItem value="with">{__("common.with_deleted")}</SelectItem>
-                          <SelectItem value="only">{__("common.only_deleted")}</SelectItem>
+                          <SelectItem value="all">{__("common.all_vehicles")}</SelectItem>
+                          {vehicles.map((vehicle) => (
+                            <SelectItem key={vehicle.id} value={vehicle.id}>
+                              {vehicle.registration}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>

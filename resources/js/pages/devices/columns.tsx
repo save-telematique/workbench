@@ -4,7 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import { DataTableRowActions } from "@/components/ui/data-table-row-actions";
 import { useTranslation } from "@/utils/translation";
-import { Link } from "@inertiajs/react";
+import { Link, router } from "@inertiajs/react";
 import { LicensePlate } from "@/components/ui/license-plate";
 
 interface Device {
@@ -154,7 +154,9 @@ export const useColumns = () => {
               label: __("devices.actions.delete"),
               icon: "Trash",
               onClick: () => {
-                // Delete handling logic would go here
+                if (confirm(__("devices.confirmations.delete"))) {
+                  router.delete(route("devices.destroy", row.original.id));
+                }
               },
               variant: "destructive",
               hidden: !!row.original.deleted_at,
@@ -163,7 +165,9 @@ export const useColumns = () => {
               label: __("devices.actions.restore"),
               icon: "Undo",
               onClick: () => {
-                // Restore handling logic would go here
+                if (confirm(__("devices.confirmations.restore"))) {
+                  router.put(route("devices.restore", row.original.id));
+                }
               },
               variant: "default",
               hidden: !row.original.deleted_at,

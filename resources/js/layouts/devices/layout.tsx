@@ -35,16 +35,6 @@ export default function DevicesLayout({
             href: deviceId ? route('devices.show', deviceId) : '',
             icon: Info,
         },
-        {
-            title: __('devices.tabs.history'),
-            href: deviceId ? route('devices.history', deviceId) : '',
-            icon: History,
-        },
-        {
-            title: __('devices.tabs.maintenance'),
-            href: deviceId ? route('devices.maintenance', deviceId) : '',
-            icon: Wrench,
-        },
     ];
 
     return (

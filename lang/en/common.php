@@ -63,6 +63,7 @@ return [
     'reset_filters' => 'Reset filters',
     'all_tenants' => 'All tenants',
     'all_device_types' => 'All device types',
+    'all_vehicles' => 'All vehicles',
     'show_deleted' => 'Show deleted items',
     'without_deleted' => 'Without deleted',
     'with_deleted' => 'With deleted',

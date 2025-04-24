@@ -50,6 +50,12 @@ return [
         'updated' => 'Boitier mis à jour avec succès.',
     ],
     
+    // Confirmations for actions
+    'confirmations' => [
+        'delete' => 'Êtes-vous sûr de vouloir supprimer ce boitier ?',
+        'restore' => 'Êtes-vous sûr de vouloir restaurer ce boitier ?',
+    ],
+    
     // Breadcrumbs
     'breadcrumbs' => [
         'index' => 'Boitiers',
@@ -69,6 +75,7 @@ return [
     'filters' => [
         'tenant' => 'Client',
         'device_type' => 'Type de boitier',
+        'vehicle' => 'Véhicule',
         'deleted' => 'Statut de suppression',
     ],
     
