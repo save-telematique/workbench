@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, Pencil, Mail, Calendar, Globe, Trash, Clock } from 'lucide-react';
+import { ArrowLeft, Pencil, Mail, Calendar, Globe, Trash, Clock, CheckCircle, XCircle } from 'lucide-react';
 
-import EmailVerificationStatus from '@/components/email-verification-status';
 import FormattedDate from '@/components/formatted-date';
 import HeadingSmall from '@/components/heading-small';
 import { Button } from '@/components/ui/button';
@@ -21,6 +20,7 @@ import {
 import AppLayout from '@/layouts/app-layout';
 import TenantsLayout from '@/layouts/tenants/layout';
 import { useTranslation } from '@/utils/translation';
+import { Badge } from '@/components/ui/badge';
 
 interface TenantUserShowProps {
     tenant: {
@@ -95,12 +95,18 @@ export default function TenantUserShow({ tenant, user }: TenantUserShowProps) {
                         <CardHeader className="pb-4">
                             <div className="flex items-center justify-between">
                                 <CardTitle>{user.name}</CardTitle>
-                                <div className="translate-y-1">
-                                    <EmailVerificationStatus
-                                        isVerified={user.email_verified_at !== null}
-                                        verifiedAt={user.email_verified_at}
-                                        className="items-end"
-                                    />
+                                <div>
+                                    {user.email_verified_at ? (
+                                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                            <CheckCircle className="h-3 w-3 mr-1" />
+                                            {__('tenant_users.fields.email_verified_badge')}
+                                        </Badge>
+                                    ) : (
+                                        <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                                            <XCircle className="h-3 w-3 mr-1" />
+                                            {__('tenant_users.fields.email_not_verified_badge')}
+                                        </Badge>
+                                    )}
                                 </div>
                             </div>
                             <CardDescription>

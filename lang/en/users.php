@@ -1,0 +1,62 @@
+<?php
+
+return [
+    'list' => [
+        'title' => 'Global Users',
+        'heading' => 'Global User Management',
+        'description' => 'Manage users who have access to the central system.',
+        'breadcrumb' => 'Global Users',
+        'add_user' => 'Add User',
+        'no_users' => 'No users yet',
+        'get_started' => 'Get started by adding your first user.',
+        'create_user' => 'Add User',
+    ],
+    'create' => [
+        'title' => 'Add Global User',
+        'heading' => 'New Global User',
+        'description' => 'Create a new user for the central system.',
+        'breadcrumb' => 'Add User',
+        'form_title' => 'User Information',
+        'form_description' => 'Fill in the details for the new user account.',
+    ],
+    'edit' => [
+        'title' => 'Edit Global User',
+        'heading' => 'Edit Global User',
+        'description' => 'Update user information and settings.',
+        'breadcrumb' => 'Edit User',
+        'form_title' => 'Edit User Information',
+        'form_description' => 'Update the details for :name\'s account.',
+    ],
+    'show' => [
+        'title' => 'Global User: :name',
+        'heading' => 'Global User Details',
+        'description' => 'View and manage user information.',
+        'breadcrumb' => 'User: :name',
+    ],
+    'fields' => [
+        'name' => 'Name',
+        'email' => 'Email',
+        'password' => 'Password',
+        'password_confirmation' => 'Confirm Password',
+        'locale' => 'Language',
+        'created_at' => 'Created',
+        'updated_at' => 'Updated',
+        'email_verified' => 'Email verified',
+        'email_verified_at' => 'Email verified on',
+        'email_not_verified' => 'Email not verified',
+        'email_verified_badge' => 'Email verified',
+        'email_not_verified_badge' => 'Email not verified',
+    ],
+    'messages' => [
+        'created' => 'Global user created successfully.',
+        'updated' => 'Global user updated successfully.',
+        'deleted' => 'Global user deleted successfully.',
+    ],
+    'actions' => [
+        'save' => 'Save User',
+        'create' => 'Create User',
+        'edit' => 'Edit User',
+        'delete' => 'Delete User',
+        'back_to_list' => 'Back to Users',
+    ],
+]; 

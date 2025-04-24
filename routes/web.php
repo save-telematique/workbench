@@ -14,6 +14,9 @@ foreach (config('tenancy.central_domains') as $domain) {
             Route::get('dashboard', function () {
                 return Inertia::render('dashboard');
             })->name('dashboard');
+            
+            // Global users routes
+            Route::resource('users', \App\Http\Controllers\UsersController::class);
         });
         
         require __DIR__.'/settings.php';

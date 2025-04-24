@@ -1,0 +1,62 @@
+<?php
+
+return [
+    'list' => [
+        'title' => 'Utilisateurs globaux',
+        'heading' => 'Gestion des utilisateurs globaux',
+        'description' => 'Gérez les utilisateurs qui ont accès au système central.',
+        'breadcrumb' => 'Utilisateurs globaux',
+        'add_user' => 'Ajouter un utilisateur',
+        'no_users' => 'Pas encore d\'utilisateurs',
+        'get_started' => 'Commencez par ajouter votre premier utilisateur.',
+        'create_user' => 'Ajouter un utilisateur',
+    ],
+    'create' => [
+        'title' => 'Ajouter un utilisateur global',
+        'heading' => 'Nouvel utilisateur global',
+        'description' => 'Créez un nouvel utilisateur pour le système central.',
+        'breadcrumb' => 'Ajouter un utilisateur',
+        'form_title' => 'Informations de l\'utilisateur',
+        'form_description' => 'Remplissez les détails du nouveau compte utilisateur.',
+    ],
+    'edit' => [
+        'title' => 'Modifier un utilisateur global',
+        'heading' => 'Modifier l\'utilisateur global',
+        'description' => 'Mettez à jour les informations et les paramètres de l\'utilisateur.',
+        'breadcrumb' => 'Modifier l\'utilisateur',
+        'form_title' => 'Modifier les informations de l\'utilisateur',
+        'form_description' => 'Mettez à jour les détails du compte de :name.',
+    ],
+    'show' => [
+        'title' => 'Utilisateur global: :name',
+        'heading' => 'Détails de l\'utilisateur global',
+        'description' => 'Consultez et gérez les informations de l\'utilisateur.',
+        'breadcrumb' => 'Utilisateur: :name',
+    ],
+    'fields' => [
+        'name' => 'Nom',
+        'email' => 'Email',
+        'password' => 'Mot de passe',
+        'password_confirmation' => 'Confirmer le mot de passe',
+        'locale' => 'Langue',
+        'created_at' => 'Créé le',
+        'updated_at' => 'Mis à jour le',
+        'email_verified' => 'Email vérifié',
+        'email_verified_at' => 'Email vérifié le',
+        'email_not_verified' => 'Email non vérifié',
+        'email_verified_badge' => 'Email vérifié',
+        'email_not_verified_badge' => 'Email non vérifié',
+    ],
+    'messages' => [
+        'created' => 'Utilisateur global créé avec succès.',
+        'updated' => 'Utilisateur global mis à jour avec succès.',
+        'deleted' => 'Utilisateur global supprimé avec succès.',
+    ],
+    'actions' => [
+        'save' => 'Enregistrer l\'utilisateur',
+        'create' => 'Créer l\'utilisateur',
+        'edit' => 'Modifier l\'utilisateur',
+        'delete' => 'Supprimer l\'utilisateur',
+        'back_to_list' => 'Retour à la liste des utilisateurs',
+    ],
+]; 

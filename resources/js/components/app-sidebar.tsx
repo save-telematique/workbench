@@ -4,7 +4,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, Building2 } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, Building2, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 import { useTranslation } from '@/utils/translation';
 
@@ -21,6 +21,11 @@ export function AppSidebar() {
             title: __('common.tenants'),
             href: '/tenants',
             icon: Building2,
+        },
+        {
+            title: __('users.list.breadcrumb'),
+            href: '/users',
+            icon: Users,
         },
     ];
 

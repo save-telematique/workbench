@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Transition } from '@headlessui/react';
-import { Building2, Mail, Phone, MapPin, Check, X, ArrowLeft, Pencil, Save, CircleCheck } from 'lucide-react';
+import { Building2, Mail, Phone, MapPin, X, ArrowLeft, Pencil, Save, CheckCircle, XCircle } from 'lucide-react';
 
 import HeadingSmall from '@/components/heading-small';
 import InputError from '@/components/input-error';
@@ -17,6 +17,7 @@ import AppLayout from '@/layouts/app-layout';
 import TenantsLayout from '@/layouts/tenants/layout';
 import SvgEditor from '@/components/svg-editor';
 import { useTranslation } from '@/utils/translation';
+import { Badge } from '@/components/ui/badge';
 
 interface TenantShowProps {
     tenant: {
@@ -235,10 +236,18 @@ export default function TenantsShow({ tenant }: TenantShowProps) {
                                                 <Building2 className="mr-3 h-5 w-5 text-neutral-500 mt-0.5" />
                                                 <div>
                                                     <span className="block font-medium text-base">{tenant.name}</span>
-                                                    <div className="flex items-center mt-1 text-sm text-neutral-600">
-                                                        <span className="inline-flex items-center">
-                                                            {__('tenants.fields.status_label')}: {tenant.is_active ? __('common.active') : __('common.inactive')}
-                                                        </span>
+                                                    <div className="flex items-center mt-1">
+                                                        {tenant.is_active ? (
+                                                            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                                                <CheckCircle className="h-3 w-3 mr-1" />
+                                                                {__('common.active')}
+                                                            </Badge>
+                                                        ) : (
+                                                            <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                                                                <XCircle className="h-3 w-3 mr-1" />
+                                                                {__('common.inactive')}
+                                                            </Badge>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>

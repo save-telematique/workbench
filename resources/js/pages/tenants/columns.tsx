@@ -1,10 +1,11 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { Eye, Pencil } from "lucide-react"
+import { Eye, Pencil, CheckCircle, XCircle } from "lucide-react"
 import { Link } from "@inertiajs/react"
 
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { DataTableColumnHeader } from "@/components/ui/data-table"
 import { useTranslation } from "@/utils/translation"
 
@@ -64,9 +65,17 @@ export function useTenantsColumns(): ColumnDef<Tenant>[] {
       cell: ({ row }) => {
         const isActive = row.getValue("is_active")
         return (
-          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-            {isActive ? __('common.active') : __('common.inactive')}
-          </span>
+          isActive ? (
+            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+              <CheckCircle className="h-3 w-3 mr-1" />
+              {__('common.active')}
+            </Badge>
+          ) : (
+            <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+              <XCircle className="h-3 w-3 mr-1" />
+              {__('common.inactive')}
+            </Badge>
+          )
         )
       },
     },
