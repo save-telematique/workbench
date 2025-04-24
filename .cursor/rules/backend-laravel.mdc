@@ -3,12 +3,22 @@ description:
 globs: 
 alwaysApply: true
 ---
-- Utiliser Laravel 12 et ses conventions :
-  - Modèles Eloquent (`app/Models`).
-  - Form Requests (`app/Http/Requests`) pour la validation HTTP.
-  - Policies (`app/Policies`) pour l'autorisation.
-  - API Resources (`app/Http/Resources`) pour formatter les réponses JSON des API.
-  - Commandes `artisan` pour la génération et les migrations.
-- La base de données est **PostgreSQL**. Utiliser les fonctionnalités spécifiques si pertinent (JSONB, etc.).
-- Placer la logique métier complexe dans des Services (`app/Services`) ou des Actions.
-- Utiliser les jobs en file d'attente (`Queues`) pour les tâches longues ou asynchrones.
+**3. Backend (Laravel):**
+
+*   Utiliser Laravel 12 et ses conventions :
+    *   **Models:** Eloquent (`app/Models`, `PascalCase`). Utiliser `HasFactory` et `SoftDeletes` si pertinent.
+    *   **Controllers:** (`app/Http/Controllers/{FeatureName}`, `PascalCase`). Pour le CRUD, utiliser les méthodes standard (index, create, store, show, edit, update, destroy).
+    *   **Form Requests:** (`app/Http/Requests/{FeatureName}`, `PascalCase`). Créer des requests distinctes pour `store` et `update` si les règles diffèrent.
+    *   **Policies:** (`app/Policies/{FeatureName}`, `PascalCase`) pour la gestion des autorisations.
+    *   **API Resources:** (`app/Http/Resources/{FeatureName}`, `PascalCase`) pour transformer les modèles Eloquent.
+    *   **Services/Actions:** (`app/Services`, `app/Actions`, `PascalCase`) pour la logique métier complexe.
+    *   **Seeders:** (`database/seeders`, `PascalCase`).
+    *   Utiliser les commandes `artisan make:` pour générer ces classes.
+    *   Utiliser `to_route()` pour les redirections après action.
+*   **Migrations:** Créer des migrations atomiques et réversibles. Définir les champs et index avec précision. Gérer les relations via clés étrangères.
+*   **Base de Données:** PostgreSQL. Utiliser les fonctionnalités spécifiques (JSONB, etc.) si pertinent.
+*   **Multi-Tenancy (`stancl/tenancy`):**
+    *   Distinguer clairement les routes **`central`** (admin globale, domaines centraux) et **`tenant`** (spécifiques client/agence, domaines locataires).
+    *   Appliquer le scoping `stancl/tenancy` (middleware `InitializeTenancyBySubdomainOrDomain`, trait `TenantScoped`, etc.) pour l'isolation des données (single database).
+    *   Placer la logique `central`/`tenant` dans les contrôleurs/services appropriés.
+*   **Queues:** Utiliser les jobs Laravel pour les tâches longues/asynchrones.

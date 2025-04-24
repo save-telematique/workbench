@@ -3,15 +3,20 @@ description:
 globs: 
 alwaysApply: true
 ---
-Le projet Save Workbench utilise la stack suivante :
-- **Backend**: Laravel 12 (PHP)
-- **Frontend**: React 19 (TypeScript)
-- **Passerelle Backend/Frontend**: Inertia.js
-- **Styling**: Tailwind CSS 4
-- **Composants UI**: Shadcn UI (via CLI `npx shadcn-ui@latest add ...`)
-- **Base de données**: PostgreSQL
-- **Tests Backend/Inertia**: Pest PHP
-- **Containerisation**: Docker
-- **Linting/Formatting Frontend**: ESLint & Prettier
+**2. Tech Stack & Environment:**
+
+*   **Backend:** Laravel 12 (PHP)
+*   **Frontend:** React 19 (TypeScript)
+*   **Passerelle:** Inertia.js
+*   **Styling:** Tailwind CSS 4
+*   **UI Components:** Shadcn UI (`npx shadcn-ui@latest add ...`)
+*   **Database:** PostgreSQL
+*   **Multi-Tenancy:** `stancl/tenancy` (mode **single database**)
+*   **Internationalization (i18n):**
+    *   Backend: Laravel Localization (`lang/`, `__()`)
+    *   Frontend Access: Translations shared via Inertia (e.g., Middleware/Shared Props, potentially using `protonemedia/inertia-translation`)
+*   **Development Environment:** Laravel Sail (Docker) (run command using `sail artisan ...`)
+*   **Testing:** Pest PHP (Backend/Inertia), Laravel Dusk (Browser)
+*   **Linting/Formatting FE:** ESLint & Prettier
 
 Se référer aux règles spécifiques pour plus de détails sur chaque partie.

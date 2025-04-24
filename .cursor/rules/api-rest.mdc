@@ -1,9 +1,0 @@
----
-description: 
-globs: 
-alwaysApply: false
----
-- Implémenter les endpoints de l'API REST dans `routes/api.php` et les contrôleurs dédiés (`app/Http/Controllers/Api`).
-- Utiliser les API Resources de Laravel (`app/Http/Resources`) pour structurer les réponses JSON.
-- Suivre les principes RESTful (verbes HTTP corrects, codes de statut, etc.).
-- Gérer l'authentification via des clés d'API (par exemple avec Laravel Sanctum ou Passport) comme décrit dans le PRD.

@@ -3,59 +3,16 @@ description:
 globs: 
 alwaysApply: true
 ---
-**Produit : Save Workbench (v0.5)**
+**1. Global Context & Product:**
 
-**Objectif Principal :** Socle fonctionnel de l'application pour gestionnaires d'agences de transport (Save Télématique). Optimiser coûts, CO2, confort conducteurs.
+*   **Product:** Save Workbench (v0.5)
+*   **Objective:** Functional base for *Save Télématique*, the software suite aimed at transport agency managers. Optimize costs, CO2, driver comfort.
+*   **Accompanied by:** Save Copilot (driver portal), Interconnection APIs.
 
-**Accompagné de :**
-- Save Copilot (portail conducteur)
-- APIs d'interconnexion
+**Internationalization (i18n):**
+*   All user-facing text **MUST** use translation keys.
+*   Provide both French (`fr`) and English (`en`) translations by default, managed within Laravel's `lang/` directory structure.
 
-**Périmètre Fonctionnel v0.5 :**
-
-1.  **Accès/Sécurité:**
-    *   Auth (mot de passe, 2FA optionnel)
-    *   Multi-clients/agences
-    *   Rôles/Permissions granulaires (par agence)
-    *   Journalisation Admin
-
-2.  **Gestion Entités:**
-    *   CRUD Conducteurs (rattachement agence, historique, affectation)
-    *   CRUD Véhicules (rattachement agence, association multi-véhicules, données techniques)
-    *   Gestion Boîtiers (rattachés véhicule, réception données télématiques)
-
-3.  **Cartographie:**
-    *   Position temps réel
-    *   Historique 12 mois
-    *   Données associées (vitesse, trajets, etc.)
-
-4.  **Alertes:**
-    *   Heures de conduite (seuils personnalisables/agence)
-    *   Geofencing (entrée/sortie/durée zone, définition par rayon)
-
-5.  **Messagerie:**
-    *   Discussion Conducteur <-> Agence (texte, photos)
-    *   Permissions par agence
-
-6.  **Documents:**
-    *   Upload PDF par agence pour consultation conducteur
-
-7.  **Save Copilot (Interface Conducteur):**
-    *   Connexion
-    *   Infos véhicule (si affecté) / Scan QR
-    *   Accès Messagerie / Heures / Documents PDF
-
-8.  **API & Intégration:**
-    *   API REST (CRUD Conducteurs/Véhicules, Position historique)
-    *   Auth Clé API (lecture seule / lecture-écriture)
-    *   Imports CSV (Conducteurs, Véhicules, Boîtiers)
-    *   Imports C1B/V1B via FTP
-
-9.  **Administration Globale:**
-    *   Création Client/Agence/Admin
-    *   Fonction "Prendre le contrôle" (Admin Save)
-    *   Journalisation Support
-
-**Contraintes Techniques (Rappel):**
-- Stack: Laravel 12, React 19, Inertia.js, Tailwind 4, Shadcn UI, PostgreSQL.
-- UI modulaire, RESTful + SSR (Inertia).
+**Technical Constraints (Reminder):**
+*   Stack: Laravel 12, React 19, Inertia.js, Tailwind 4, Shadcn UI, PostgreSQL.
+*   Modular UI, RESTful + SSR (Inertia).

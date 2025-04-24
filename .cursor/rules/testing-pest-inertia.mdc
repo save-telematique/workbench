@@ -3,10 +3,47 @@ description:
 globs: 
 alwaysApply: true
 ---
-- Utiliser **Pest PHP** pour les tests backend et fonctionnels (`tests/Feature`, `tests/Unit`).
-- Pour tester les composants et pages **Inertia** :
-  - Utiliser les assertions spécifiques d'Inertia fournies par Laravel (`$response->assertInertia(...)`).
-  - Tester le rendu des composants, la présence des props attendues.
-  - Pour des tests d'interaction plus poussés (simulant un utilisateur), utiliser **Laravel Dusk** avec Pest. Configurer Dusk pour l'environnement de test.
-  - Écrire des tests Dusk dans `tests/Browser`.
-- S'assurer que la base de données de test (PostgreSQL) est correctement configurée et rafraîchie entre les tests (`RefreshDatabase` trait).
+- Utiliser **Pest PHP** pour les tests backend et fonctionnels.
+- **Structure des tests**:
+  - Organiser les tests par fonctionnalité dans `tests/Feature/Module`.
+  - Tester chaque endpoint HTTP séparément avec un test spécifique.
+  - Nommer les tests de façon descriptive (`test('module action works')` plutôt que des méthodes).
+- **Tests d'API et d'interface**:
+  - Vérifier le code HTTP et les redirections avec `assertOk()`, `assertRedirect()`.
+  - Valider les données en base avec `assertDatabaseHas()` et `assertDatabaseMissing()`.
+  - Vérifier la suppression logique avec `assertSoftDeleted()`.
+  - Tester les validations de formulaire avec `assertSessionHasErrors()`.
+- **Tests d'authentification**:
+  - Simuler un utilisateur connecté avec `actingAs($user)`.
+  - Tester les accès protégés et les autorisations.
+- **Préparation des données**:
+  - Utiliser les factories pour créer les entités de test.
+  - Réutiliser les modèles existants pour les tests CRUD.
+  - Rafraîchir la base de données entre les tests avec `RefreshDatabase`.
+- **Tests Inertia**:
+  - Vérifier le rendu des composants avec `assertInertia()`.
+  - Tester la présence des props attendues.
+  - Pour les tests d'interaction utilisateur complexes, configurer **Laravel Dusk** avec Pest.
+
+**7. Testing (Pest + Dusk):**
+
+*   **Framework:** Utiliser **Pest PHP** pour les tests backend (`Unit`, `Feature`) et **Laravel Dusk** (avec Pest) pour les tests navigateur (`Browser`).
+*   **Organisation:**
+    *   Structure: `tests/Feature/{Module}`, `tests/Unit/{Module}`, `tests/Browser/{Module}`.
+    *   Nommer les tests de façon descriptive (`it('does something specific')` ou `test('module action works')`).
+    *   Tester chaque endpoint/action de manière isolée.
+*   **Database:**
+    *   Utiliser le trait `RefreshDatabase` pour réinitialiser la BDD (PostgreSQL) entre les tests.
+    *   Utiliser les **Factories** pour la préparation des données.
+    *   Valider l'état de la BDD avec `assertDatabaseHas()`, `assertDatabaseMissing()`, `assertSoftDeleted()`.
+*   **HTTP/Feature Tests:**
+    *   Simuler un utilisateur authentifié avec `actingAs($user)`.
+    *   Tester les autorisations (Policies) et les accès protégés.
+    *   Vérifier les codes de statut HTTP (`assertOk()`, `assertNotFound()`, etc.) et les redirections (`assertRedirect()`).
+    *   Tester les validations de formulaire (`assertSessionHasErrors([...])`, `assertInvalid([...])`).
+*   **Inertia Tests (dans les Feature tests):**
+    *   Utiliser `$response->assertInertia(...)` pour vérifier le composant rendu.
+    *   Vérifier la présence et la structure des **props** passées au composant.
+*   **Browser Tests (Dusk):**
+    *   Configurer Dusk pour l'environnement de test et **Laravel Sail**.
+    *   Utiliser pour les tests d'interaction utilisateur complexes qui ne peuvent pas être couverts par les tests Feature/Inertia.

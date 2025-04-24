@@ -3,18 +3,21 @@ description:
 globs: 
 alwaysApply: true
 ---
-- Utiliser React 19 avec TypeScript (`.tsx`).
-- Écrire des composants fonctionnels. Utiliser les Hooks React.
-- **Nouveautés React 19**:
-  - Utiliser `ref` comme prop standard (éviter `forwardRef`).
-  - Utiliser le hook `use()` pour lire les promesses (via Suspense) et le contexte conditionnellement.
-  - Exploiter les Actions, `useActionState`, `useFormStatus`, `useOptimistic` pour la gestion des formulaires et des états asynchrones.
-  - Rendre les métadonnées (`<title>`, `<meta>`, `<link>`) directement dans les composants.
-- Utiliser Inertia.js (`@inertiajs/react`) pour lier Laravel et React.
-  - Récupérer les props via `usePage().props`.
-  - Utiliser `<Link href="...">` d'Inertia pour la navigation interne.
-- **Structure**:
-  - Pages Inertia dans `resources/js/Pages`.
-  - Composants React réutilisables dans `resources/js/Components`.
-  - Composants Shadcn UI dans `resources/js/Components/ui` (ajoutés via CLI).
-- Pas de librairie de gestion d'état externe (Zustand, Redux...) ; utiliser les props Inertia et les hooks React.
+*   **Core:** Utiliser React 19 avec TypeScript (`.tsx`). Composants fonctionnels + Hooks.
+*   **React 19 Features:** Exploiter `ref` prop, `use()` (Suspense, Context), Actions, `useActionState`, `useFormStatus`, `useOptimistic`. Rendre les métadonnées (`<title>`) directement ou via `<Head>` d'Inertia.
+*   **Inertia.js (`@inertiajs/react`):**
+    *   Récupérer les props via `usePage().props`.
+    *   Navigation interne via `<Link href={route('...')}>`.
+    *   **Layouts:** Utiliser des layouts persistants. Définir un layout différent pour `central` et `tenant` si nécessaire (ex: menus, sidebar dans `app-sidebar.tsx`).
+    *   **Formulaires:** Utiliser `useForm` pour la gestion des formulaires et la validation côté serveur. Définir des interfaces TS claires pour les données et props.
+    *   **Validation & Feedback:** Afficher les erreurs avec `<InputError message={errors.field} />`. Utiliser `recentlySuccessful` et `<Transition>` (ou équivalent) pour le feedback utilisateur après soumission.
+*   **Structure & Casing:**
+    *   Pages Inertia: `resources/js/pages`.
+    *   Sous-dossiers par fonctionnalité: `resources/js/pages/{feature_name_lowercase}` (ex: `pages/settings`, `pages/tenants`).
+    *   Fichiers de page/composant: `lowercase.tsx` (ex: `profile.tsx`).
+    *   Composants Réutilisables: `resources/js/components`.
+    *   Composants UI (Shadcn): `resources/js/components/ui`.
+- **Navigation**: 
+  - Utiliser `breadcrumbs` pour la navigation contextuelle.
+  - Ajouter les entrées de menu dans `app-sidebar.tsx` pour les sections principales / distringuer le menu de l'application centrale et de l'application tenant selon le context des features
+*   **State Management:** Principalement via props Inertia et hooks React (`useState`, `useReducer`, `useContext`, `use()`). Pas de librairie externe.
