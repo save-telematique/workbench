@@ -22,6 +22,7 @@ foreach (config('tenancy.central_domains') as $domain) {
         require __DIR__.'/settings.php';
         require __DIR__.'/tenants.php';
         require __DIR__.'/auth.php';
+        require __DIR__.'/global-settings.php';
     });
 }
 

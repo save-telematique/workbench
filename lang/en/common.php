@@ -14,6 +14,8 @@ return [
     'home' => 'Home',
     'profile' => 'Profile',
     'settings' => 'Settings',
+    'global_settings' => 'Global Settings',
+    'manage_global_settings' => 'Manage global settings',
     'logout' => 'Logout',
     'login' => 'Login',
     'register' => 'Register',
@@ -133,4 +135,13 @@ return [
         'active' => 'Active',
         'inactive' => 'Inactive',
     ],
+    
+    'device_types' => 'Device Types',
+    'device_type' => 'Device Type',
+    'manage_device_types' => 'Manage device types used in the system',
+    'create_device_type' => 'Create Device Type',
+    'edit_device_type' => 'Edit Device Type',
+    'name' => 'Name',
+    'manufacturer' => 'Manufacturer',
+    'devices' => 'Devices',
 ]; 

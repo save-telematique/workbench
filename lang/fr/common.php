@@ -9,18 +9,25 @@ return [
     'platform' => 'Plateforme',
     'dashboard' => 'Tableau de bord',
     'tenants' => 'Clients',
-    'repository' => 'Dépôt',
+    'repository' => 'Référentiel',
     'documentation' => 'Documentation',
+    'home' => 'Accueil',
+    'profile' => 'Profil',
+    'settings' => 'Paramètres',
+    'global_settings' => 'Paramètres globaux',
+    'manage_global_settings' => 'Gérer les paramètres globaux du système',
+
+    'logout' => 'Déconnexion',
+    'login' => 'Connexion',
+    'register' => 'S\'inscrire',
     
     // Settings
-    'settings' => 'Paramètres',
-    'manage_account_settings' => 'Gérez votre profil et les paramètres de votre compte',
-    'profile' => 'Profil',
+    'manage_account_settings' => 'Gérer votre profil et les paramètres de votre compte',
     'password' => 'Mot de passe',
     'appearance_settings' => 'Paramètres d\'apparence',
-    'update_appearance_settings' => 'Mettez à jour les paramètres d\'apparence de votre compte',
+    'update_appearance_settings' => 'Mettre à jour les paramètres d\'apparence de votre compte',
     'language_settings' => 'Paramètres de langue',
-    'update_language_settings' => 'Mettez à jour les préférences linguistiques de votre compte',
+    'update_language_settings' => 'Mettre à jour les préférences de langue de votre compte',
     
     // Appearance
     'light' => 'Clair',
@@ -33,8 +40,8 @@ return [
     // Languages
     'english' => 'Anglais',
     'french' => 'Français',
-
-    // Actions communes
+    
+    // Common actions
     'view' => 'Voir',
     'edit' => 'Modifier',
     'create' => 'Créer',
@@ -50,34 +57,28 @@ return [
     'submit' => 'Soumettre',
     'save_changes' => 'Enregistrer les modifications',
     
-    // Éléments d'interface
+    // UI elements
     'search' => 'Rechercher',
     'filter' => 'Filtrer',
     'sort' => 'Trier',
     'loading' => 'Chargement',
     'more' => 'Plus',
     'less' => 'Moins',
-    'show_more' => 'Voir plus',
-    'show_less' => 'Voir moins',
+    'show_more' => 'Afficher plus',
+    'show_less' => 'Afficher moins',
     
-    // Messages génériques
+    // Generic messages
     'success' => 'Succès',
     'error' => 'Erreur',
     'warning' => 'Avertissement',
     'info' => 'Information',
     'yes' => 'Oui',
     'no' => 'Non',
-    'are_you_sure' => 'Êtes-vous sûr ?',
+    'are_you_sure' => 'Êtes-vous sûr?',
     'confirm_delete' => 'Confirmer la suppression',
     'operation_cannot_be_undone' => 'Cette opération ne peut pas être annulée.',
     
-    // Navigation
-    'home' => 'Accueil',
-    'logout' => 'Déconnexion',
-    'login' => 'Connexion',
-    'register' => 'S\'inscrire',
-    
-    // États
+    // Status
     'status' => 'Statut',
     'active' => 'Actif',
     'inactive' => 'Inactif',
@@ -85,7 +86,7 @@ return [
     'completed' => 'Terminé',
     'cancelled' => 'Annulé',
     
-    // Dates et temps
+    // Dates and times
     'date' => 'Date',
     'time' => 'Heure',
     'created_at' => 'Créé le',
@@ -101,12 +102,12 @@ return [
     'first' => 'Premier',
     'last' => 'Dernier',
     'page' => 'Page',
-    'of' => 'sur',
-    'showing' => 'Affichage de',
+    'of' => 'de',
+    'showing' => 'Affichage',
     'to' => 'à',
     'total' => 'total',
     'results' => 'résultats',
-    'delete_confirmation' => 'Êtes-vous sûr de vouloir supprimer :item ?',
+    'delete_confirmation' => 'Êtes-vous sûr de vouloir supprimer :item?',
     'leave_blank_to_keep_unchanged' => 'Laissez vide pour conserver le mot de passe actuel',
     
     // Table
@@ -116,17 +117,17 @@ return [
         'total_rows' => ':total ligne(s) au total.',
         'rows_per_page' => 'Lignes par page',
         'page_of' => 'Page :current sur :total',
-        'first_page' => 'Première page',
-        'previous_page' => 'Page précédente',
-        'next_page' => 'Page suivante',
-        'last_page' => 'Dernière page',
+        'first_page' => 'Aller à la première page',
+        'previous_page' => 'Aller à la page précédente',
+        'next_page' => 'Aller à la page suivante',
+        'last_page' => 'Aller à la dernière page',
         'sort' => [
-            'asc' => 'Croissant',
-            'desc' => 'Décroissant',
+            'asc' => 'Ascendant',
+            'desc' => 'Descendant',
         ],
         'hide_column' => 'Masquer la colonne',
     ],
-
+    
     // Navigation actions
     'back_to_list' => 'Retour à la liste',
     
@@ -135,5 +136,15 @@ return [
         'active' => 'Actif',
         'inactive' => 'Inactif',
     ],
+    
+    // Device types
+    'device_types' => 'Types d\'appareils',
+    'device_type' => 'Type d\'appareil',
+    'manage_device_types' => 'Gérer les types d\'appareils utilisés dans le système',
+    'create_device_type' => 'Créer un type d\'appareil',
+    'edit_device_type' => 'Modifier le type d\'appareil',
+    'name' => 'Nom',
+    'manufacturer' => 'Fabricant',
+    'devices' => 'Appareils',
 ];
  

@@ -17,6 +17,8 @@ alwaysApply: true
     *   Fichiers de page/composant: `lowercase.tsx` (ex: `profile.tsx`).
     *   Composants Réutilisables: `resources/js/components`.
     *   Composants UI (Shadcn): `resources/js/components/ui`.
+    *   Utilise toujours des DataTable, avec toujours une pagination, le sorting (optionnel) et les filtrage de colonne 
+    *   Utilise les icones venant de `lucide`
 - **Navigation**: 
   - Utiliser `breadcrumbs` pour la navigation contextuelle.
   - Ajouter les entrées de menu dans `app-sidebar.tsx` pour les sections principales / distringuer le menu de l'application centrale et de l'application tenant selon le context des features

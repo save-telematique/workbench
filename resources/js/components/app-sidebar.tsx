@@ -4,7 +4,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, Building2, Users } from 'lucide-react';
+import { LayoutGrid, Building2, Users, Settings } from 'lucide-react';
 import AppLogo from './app-logo';
 import { useTranslation } from '@/utils/translation';
 
@@ -27,19 +27,15 @@ export function AppSidebar() {
             href: '/users',
             icon: Users,
         },
+        {
+            title: __('common.global_settings'),
+            href: '/global-settings',
+            icon: Settings,
+        },
     ];
 
     const footerNavItems: NavItem[] = [
-        {
-            title: __('common.repository'),
-            href: 'https://github.com/laravel/react-starter-kit',
-            icon: Folder,
-        },
-        {
-            title: __('common.documentation'),
-            href: 'https://laravel.com/docs/starter-kits',
-            icon: BookOpen,
-        },
+
     ];
 
     return (
