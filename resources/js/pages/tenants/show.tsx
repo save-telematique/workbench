@@ -80,11 +80,11 @@ export default function TenantsShow({ tenant }: TenantShowProps) {
                     <div className="flex justify-end space-x-2">
                         {!isEditing ? (
                             <>
-                                <Button size="sm" onClick={() => setIsEditing(true)}>
+                                <Button  onClick={() => setIsEditing(true)}>
                                     <Pencil className="mr-2 h-4 w-4" />
                                     {__('common.edit')}
                                 </Button>
-                                <Button variant="outline" size="sm" asChild>
+                                <Button variant="outline"  asChild>
                                     <Link href={route('tenants.index')}>
                                         <ArrowLeft className="mr-2 h-4 w-4" />
                                         {__('tenants.actions.back_to_list')}
@@ -92,7 +92,7 @@ export default function TenantsShow({ tenant }: TenantShowProps) {
                                 </Button>
                             </>
                         ) : (
-                            <Button variant="outline" size="sm" onClick={() => {
+                            <Button variant="outline"  onClick={() => {
                                 setIsEditing(false);
                                 reset();
                             }}>

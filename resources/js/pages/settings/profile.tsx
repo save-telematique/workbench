@@ -1,14 +1,23 @@
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Transition } from '@headlessui/react';
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { Head, useForm, usePage } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
 
 import DeleteUser from '@/components/delete-user';
+import EmailVerificationStatus from '@/components/email-verification-status';
+import FormattedDate from '@/components/formatted-date';
 import HeadingSmall from '@/components/heading-small';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { 
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle 
+} from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { useTranslation } from '@/utils/translation';
@@ -85,29 +94,15 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                             />
 
                             <InputError className="mt-2" message={errors.email} />
+                            
+                            <EmailVerificationStatus
+                                isVerified={auth.user.email_verified_at !== null}
+                                verifiedAt={auth.user.email_verified_at}
+                                resendRoute={mustVerifyEmail && auth.user.email_verified_at === null ? route('verification.send') : undefined}
+                                verificationStatus={status}
+                                className="mt-1"
+                            />
                         </div>
-
-                        {mustVerifyEmail && auth.user.email_verified_at === null && (
-                            <div>
-                                <p className="text-muted-foreground -mt-4 text-sm">
-                                    {__('settings.profile.email_unverified')}{' '}
-                                    <Link
-                                        href={route('verification.send')}
-                                        method="post"
-                                        as="button"
-                                        className="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
-                                    >
-                                        {__('settings.profile.resend_verification')}
-                                    </Link>
-                                </p>
-
-                                {status === 'verification-link-sent' && (
-                                    <div className="mt-2 text-sm font-medium text-green-600">
-                                        {__('settings.profile.verification_sent')}
-                                    </div>
-                                )}
-                            </div>
-                        )}
 
                         <div className="flex items-center gap-4">
                             <Button disabled={processing}>{__('common.save')}</Button>
@@ -124,6 +119,36 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                         </div>
                     </form>
                 </div>
+
+                <Card className="mt-8">
+                    <CardHeader>
+                        <CardTitle>{__('settings.profile.account_info')}</CardTitle>
+                        <CardDescription>{__('settings.profile.account_details')}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                                <div className="text-muted-foreground">{__('settings.profile.account_created')}</div>
+                                <div>
+                                    <FormattedDate 
+                                        date={auth.user.created_at} 
+                                        format="DATE_FULL" 
+                                        className="font-medium" 
+                                    />
+                                </div>
+                                
+                                <div className="text-muted-foreground">{__('settings.profile.last_updated')}</div>
+                                <div>
+                                    <FormattedDate 
+                                        date={auth.user.updated_at} 
+                                        format="DATETIME_FULL" 
+                                        className="font-medium" 
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
 
                 <DeleteUser />
             </SettingsLayout>

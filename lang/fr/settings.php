@@ -16,8 +16,14 @@ return [
         'email' => 'Adresse email',
         'email_placeholder' => 'Adresse email',
         'email_unverified' => 'Votre adresse email n\'est pas vérifiée.',
-        'resend_verification' => 'Cliquez ici pour renvoyer l\'email de vérification.',
+        'email_verified' => 'Email vérifié',
+        'verified_at' => 'Vérifié le :',
+        'resend_verification' => 'Renvoyer l\'email de vérification',
         'verification_sent' => 'Un nouveau lien de vérification a été envoyé à votre adresse email.',
+        'account_info' => 'Informations du compte',
+        'account_details' => 'Détails et dates de votre compte',
+        'account_created' => 'Compte créé le',
+        'last_updated' => 'Dernière mise à jour',
     ],
     
     // Mot de passe

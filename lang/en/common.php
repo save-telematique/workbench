@@ -72,7 +72,7 @@ return [
     'yes' => 'Yes',
     'no' => 'No',
     'are_you_sure' => 'Are you sure?',
-    'confirm_delete' => 'Are you sure you want to delete this item?',
+    'confirm_delete' => 'Confirm Delete',
     'operation_cannot_be_undone' => 'This operation cannot be undone.',
     
     // Status
@@ -104,4 +104,24 @@ return [
     'to' => 'to',
     'total' => 'total',
     'results' => 'results',
+    'delete_confirmation' => 'Are you sure you want to delete :item?',
+    'leave_blank_to_keep_unchanged' => 'Leave blank to keep current password',
+    
+    // Table
+    'no_results' => 'No results found.',
+    'table' => [
+        'selected_rows' => ':selected of :total row(s) selected.',
+        'total_rows' => ':total row(s) total.',
+        'rows_per_page' => 'Rows per page',
+        'page_of' => 'Page :current of :total',
+        'first_page' => 'Go to first page',
+        'previous_page' => 'Go to previous page',
+        'next_page' => 'Go to next page',
+        'last_page' => 'Go to last page',
+        'sort' => [
+            'asc' => 'Ascending',
+            'desc' => 'Descending',
+        ],
+        'hide_column' => 'Hide column',
+    ],
 ]; 

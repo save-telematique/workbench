@@ -61,6 +61,7 @@ return [
     'tabs' => [
         'information' => 'Informations',
         'domains' => 'Domaines',
+        'users' => 'Utilisateurs',
     ],
 
     // Gestion des domaines

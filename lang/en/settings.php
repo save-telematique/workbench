@@ -16,8 +16,14 @@ return [
         'email' => 'Email address',
         'email_placeholder' => 'Email address',
         'email_unverified' => 'Your email address is unverified.',
-        'resend_verification' => 'Click here to resend the verification email.',
+        'email_verified' => 'Email verified',
+        'verified_at' => 'Verified on:',
+        'resend_verification' => 'Resend verification email',
         'verification_sent' => 'A new verification link has been sent to your email address.',
+        'account_info' => 'Account information',
+        'account_details' => 'Your account details and dates',
+        'account_created' => 'Account created',
+        'last_updated' => 'Last updated',
     ],
     
     // Password

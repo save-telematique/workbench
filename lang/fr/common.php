@@ -68,7 +68,7 @@ return [
     'yes' => 'Oui',
     'no' => 'Non',
     'are_you_sure' => 'Êtes-vous sûr ?',
-    'confirm_delete' => 'Êtes-vous sûr de vouloir supprimer cet élément ?',
+    'confirm_delete' => 'Confirmer la suppression',
     'operation_cannot_be_undone' => 'Cette opération ne peut pas être annulée.',
     
     // Navigation
@@ -106,5 +106,25 @@ return [
     'to' => 'à',
     'total' => 'total',
     'results' => 'résultats',
+    'delete_confirmation' => 'Êtes-vous sûr de vouloir supprimer :item ?',
+    'leave_blank_to_keep_unchanged' => 'Laissez vide pour conserver le mot de passe actuel',
+    
+    // Table
+    'no_results' => 'Aucun résultat trouvé.',
+    'table' => [
+        'selected_rows' => ':selected sur :total ligne(s) sélectionnée(s).',
+        'total_rows' => ':total ligne(s) au total.',
+        'rows_per_page' => 'Lignes par page',
+        'page_of' => 'Page :current sur :total',
+        'first_page' => 'Première page',
+        'previous_page' => 'Page précédente',
+        'next_page' => 'Page suivante',
+        'last_page' => 'Dernière page',
+        'sort' => [
+            'asc' => 'Croissant',
+            'desc' => 'Décroissant',
+        ],
+        'hide_column' => 'Masquer la colonne',
+    ],
 ];
  

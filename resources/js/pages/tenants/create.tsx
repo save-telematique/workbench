@@ -50,7 +50,7 @@ export default function TenantsCreate() {
             <TenantsLayout showSidebar={false}>
                 <div className="flex items-center justify-between">
                     <HeadingSmall title="Create Tenant" description="Add a new tenant to your organization" />
-                    <Button variant="outline" size="sm" asChild>
+                    <Button variant="outline"  asChild>
                         <a href={route('tenants.index')}>
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to list

@@ -13,7 +13,7 @@ alwaysApply: true
     *   **Validation & Feedback:** Afficher les erreurs avec `<InputError message={errors.field} />`. Utiliser `recentlySuccessful` et `<Transition>` (ou équivalent) pour le feedback utilisateur après soumission.
 *   **Structure & Casing:**
     *   Pages Inertia: `resources/js/pages`.
-    *   Sous-dossiers par fonctionnalité: `resources/js/pages/{feature_name_lowercase}` (ex: `pages/settings`, `pages/tenants`).
+    *   Sous-dossiers par fonctionnalité: `resources/js/pages/{feature_name_lowercase}` (ex: `pages/settings`, `pages/tenants`), the folder name of a ressource is plural for exemple `pages/settings` ou `pages/tenants` ou `pages/vehicles`.
     *   Fichiers de page/composant: `lowercase.tsx` (ex: `profile.tsx`).
     *   Composants Réutilisables: `resources/js/components`.
     *   Composants UI (Shadcn): `resources/js/components/ui`.

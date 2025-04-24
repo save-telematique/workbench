@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\TenantDomainsController;
+use App\Http\Controllers\TenantUsersController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth', 'universal')->group(function () {
@@ -11,4 +12,7 @@ Route::middleware('auth', 'universal')->group(function () {
     Route::get('tenants/{tenant}/domains', [TenantDomainsController::class, 'index'])->name('tenants.domains.index');
     Route::post('tenants/{tenant}/domains', [TenantDomainsController::class, 'store'])->name('tenants.domains.store');
     Route::delete('tenants/{tenant}/domains/{domain}', [TenantDomainsController::class, 'destroy'])->name('tenants.domains.destroy');
+    
+    // Tenant Users routes
+    Route::resource('tenants.users', TenantUsersController::class);
 }); 

@@ -1,0 +1,62 @@
+<?php
+
+return [
+    'list' => [
+        'title' => 'Users - :tenant',
+        'heading' => 'Manage Users',
+        'description' => 'Manage the users who have access to this tenant workspace.',
+        'breadcrumb' => 'Users',
+        'add_user' => 'Add User',
+        'no_users' => 'No users yet',
+        'get_started' => 'Get started by adding your first user.',
+        'create_user' => 'Add User',
+    ],
+    'create' => [
+        'title' => 'Add User - :tenant',
+        'heading' => 'New User',
+        'description' => 'Create a new user for this tenant workspace.',
+        'breadcrumb' => 'Add User',
+        'form_title' => 'User Information',
+        'form_description' => 'Fill in the details for the new user account.',
+    ],
+    'edit' => [
+        'title' => 'Edit User - :tenant',
+        'heading' => 'Edit User',
+        'description' => 'Update user information and settings.',
+        'breadcrumb' => 'Edit User',
+        'form_title' => 'Edit User Information',
+        'form_description' => 'Update the details for :name\'s account.',
+    ],
+    'show' => [
+        'title' => 'User: :name - :tenant',
+        'heading' => 'User Details',
+        'description' => 'View and manage user information.',
+        'breadcrumb' => 'User: :name',
+    ],
+    'fields' => [
+        'name' => 'Name',
+        'email' => 'Email',
+        'password' => 'Password',
+        'password_confirmation' => 'Confirm Password',
+        'locale' => 'Language',
+        'created_at' => 'Created',
+        'updated_at' => 'Updated',
+        'email_verified' => 'Email verified',
+        'email_verified_at' => 'Email verified on',
+        'email_not_verified' => 'Email not verified',
+        'email_verified_badge' => 'Email verified',
+        'email_not_verified_badge' => 'Email not verified',
+    ],
+    'messages' => [
+        'created' => 'User created successfully.',
+        'updated' => 'User updated successfully.',
+        'deleted' => 'User deleted successfully.',
+    ],
+    'actions' => [
+        'save' => 'Save User',
+        'create' => 'Create User',
+        'edit' => 'Edit User',
+        'delete' => 'Delete User',
+        'back_to_list' => 'Back to Users',
+    ],
+]; 

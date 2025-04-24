@@ -1,0 +1,62 @@
+<?php
+
+return [
+    'list' => [
+        'title' => 'Utilisateurs - :tenant',
+        'heading' => 'Gestion des utilisateurs',
+        'description' => 'Gérez les utilisateurs qui ont accès à cet espace de travail.',
+        'breadcrumb' => 'Utilisateurs',
+        'add_user' => 'Ajouter un utilisateur',
+        'no_users' => 'Pas encore d\'utilisateurs',
+        'get_started' => 'Commencez par ajouter votre premier utilisateur.',
+        'create_user' => 'Ajouter un utilisateur',
+    ],
+    'create' => [
+        'title' => 'Ajouter un utilisateur - :tenant',
+        'heading' => 'Nouvel utilisateur',
+        'description' => 'Créez un nouvel utilisateur pour cet espace de travail.',
+        'breadcrumb' => 'Ajouter un utilisateur',
+        'form_title' => 'Informations de l\'utilisateur',
+        'form_description' => 'Remplissez les détails du nouveau compte utilisateur.',
+    ],
+    'edit' => [
+        'title' => 'Modifier un utilisateur - :tenant',
+        'heading' => 'Modifier l\'utilisateur',
+        'description' => 'Mettez à jour les informations et les paramètres de l\'utilisateur.',
+        'breadcrumb' => 'Modifier l\'utilisateur',
+        'form_title' => 'Modifier les informations de l\'utilisateur',
+        'form_description' => 'Mettez à jour les détails du compte de :name.',
+    ],
+    'show' => [
+        'title' => 'Utilisateur: :name - :tenant',
+        'heading' => 'Détails de l\'utilisateur',
+        'description' => 'Consultez et gérez les informations de l\'utilisateur.',
+        'breadcrumb' => 'Utilisateur: :name',
+    ],
+    'fields' => [
+        'name' => 'Nom',
+        'email' => 'Email',
+        'password' => 'Mot de passe',
+        'password_confirmation' => 'Confirmer le mot de passe',
+        'locale' => 'Langue',
+        'created_at' => 'Créé le',
+        'updated_at' => 'Mis à jour le',
+        'email_verified' => 'Email vérifié',
+        'email_verified_at' => 'Email vérifié le',
+        'email_not_verified' => 'Email non vérifié',
+        'email_verified_badge' => 'Email vérifié',
+        'email_not_verified_badge' => 'Email non vérifié',
+    ],
+    'messages' => [
+        'created' => 'Utilisateur créé avec succès.',
+        'updated' => 'Utilisateur mis à jour avec succès.',
+        'deleted' => 'Utilisateur supprimé avec succès.',
+    ],
+    'actions' => [
+        'save' => 'Enregistrer l\'utilisateur',
+        'create' => 'Créer l\'utilisateur',
+        'edit' => 'Modifier l\'utilisateur',
+        'delete' => 'Supprimer l\'utilisateur',
+        'back_to_list' => 'Retour à la liste des utilisateurs',
+    ],
+]; 

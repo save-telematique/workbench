@@ -1,14 +1,14 @@
 import { Link } from '@inertiajs/react';
 import { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
-import { InfoIcon, GlobeIcon } from 'lucide-react';
+import { InfoIcon, GlobeIcon, UsersIcon } from 'lucide-react';
 import { useTranslation } from '@/utils/translation';
 
 interface TenantsLayoutProps {
     children: ReactNode;
     showSidebar?: boolean;
     tenantId?: string;
-    activeTab?: 'info' | 'domains';
+    activeTab?: 'info' | 'domains' | 'users';
 }
 
 export default function TenantsLayout({ children, showSidebar = false, tenantId, activeTab = 'info' }: TenantsLayoutProps) {
@@ -39,6 +39,16 @@ export default function TenantsLayout({ children, showSidebar = false, tenantId,
                             >
                                 <GlobeIcon className="mr-2 h-4 w-4" />
                                 {__('tenants.tabs.domains')}
+                            </Link>
+                            <Link
+                                href={route('tenants.users.index', tenantId)}
+                                className={cn(
+                                    'flex items-center text-sm px-3 py-2 rounded-md text-neutral-500 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-white',
+                                    activeTab === 'users' && 'bg-muted text-neutral-950 dark:text-white'
+                                )}
+                            >
+                                <UsersIcon className="mr-2 h-4 w-4" />
+                                {__('tenant_users.list.breadcrumb')}
                             </Link>
                         </nav>
                     </aside>
