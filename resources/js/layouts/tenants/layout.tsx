@@ -11,7 +11,6 @@ interface TenantsLayoutProps {
     children: ReactNode;
     showSidebar?: boolean;
     tenantId?: string;
-    activeTab?: 'info' | 'domains' | 'users';
 }
 
 export default function TenantsLayout({ children, showSidebar = false, tenantId }: TenantsLayoutProps) {
@@ -28,17 +27,14 @@ export default function TenantsLayout({ children, showSidebar = false, tenantId 
         {
             title: __('tenants.tabs.information'),
             href: tenantId ? route('tenants.show', tenantId) : '',
-            icon: null,
         },
         {
             title: __('tenants.tabs.domains'),
             href: tenantId ? route('tenants.domains.index', tenantId) : '',
-            icon: null,
         },
         {
             title: __('tenant_users.list.breadcrumb'),
             href: tenantId ? route('tenants.users.index', tenantId) : '',
-            icon: null,
         },
     ];
 

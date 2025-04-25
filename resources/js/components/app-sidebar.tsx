@@ -4,7 +4,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { LayoutGrid, Building2, Users, Settings, Cpu } from 'lucide-react';
+import { LayoutGrid, Building2, Users, Settings, Cpu, Car } from 'lucide-react';
 import AppLogo from './app-logo';
 import { useTranslation } from '@/utils/translation';
 
@@ -31,6 +31,11 @@ export function AppSidebar() {
             title: __('devices.title'),
             href: '/devices',
             icon: Cpu,
+        },
+        {
+            title: __('vehicles.title'),
+            href: '/vehicles',
+            icon: Car,
         },
         {
             title: __('common.global_settings'),

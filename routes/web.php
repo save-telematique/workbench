@@ -28,6 +28,16 @@ foreach (config('tenancy.central_domains') as $domain) {
             Route::delete('devices/{device}/force', [\App\Http\Controllers\Devices\DeviceController::class, 'forceDelete'])->name('devices.force-delete');
             Route::put('devices/{device}/assign-vehicle', [\App\Http\Controllers\Devices\DeviceController::class, 'assignVehicle'])->name('devices.assign-vehicle');
             Route::put('devices/{device}/unassign-vehicle', [\App\Http\Controllers\Devices\DeviceController::class, 'unassignVehicle'])->name('devices.unassign-vehicle');
+
+            // Vehicles Routes
+            Route::get('/vehicles', [App\Http\Controllers\Vehicles\VehicleController::class, 'index'])->name('vehicles.index');
+            Route::get('/vehicles/create', [App\Http\Controllers\Vehicles\VehicleController::class, 'create'])->name('vehicles.create');
+            Route::post('/vehicles', [App\Http\Controllers\Vehicles\VehicleController::class, 'store'])->name('vehicles.store');
+            Route::get('/vehicles/{vehicle}', [App\Http\Controllers\Vehicles\VehicleController::class, 'show'])->name('vehicles.show');
+            Route::get('/vehicles/{vehicle}/edit', [App\Http\Controllers\Vehicles\VehicleController::class, 'edit'])->name('vehicles.edit');
+            Route::put('/vehicles/{vehicle}', [App\Http\Controllers\Vehicles\VehicleController::class, 'update'])->name('vehicles.update');
+            Route::delete('/vehicles/{vehicle}', [App\Http\Controllers\Vehicles\VehicleController::class, 'destroy'])->name('vehicles.destroy');
+            Route::put('/vehicles/{vehicle}/restore', [App\Http\Controllers\Vehicles\VehicleController::class, 'restore'])->name('vehicles.restore');
         });
         
         require __DIR__.'/settings.php';

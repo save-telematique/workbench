@@ -62,6 +62,11 @@ class Vehicle extends Model
         return $this->hasMany(Device::class);
     }
 
+    public function device()
+    {
+        return $this->hasOne(Device::class);
+    }
+
     public function model()
     {
         return $this->belongsTo(VehicleModel::class, 'vehicle_model_id');
