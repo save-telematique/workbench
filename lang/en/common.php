@@ -55,6 +55,9 @@ return [
     'close' => 'Close',
     'submit' => 'Submit',
     'save_changes' => 'Save Changes',
+    'select' => 'Select',
+    'deleted' => 'Deleted',
+    'changes_saved' => 'Changes saved successfully',
     
     // UI elements
     'search' => 'Search',

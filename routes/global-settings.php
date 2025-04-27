@@ -11,6 +11,10 @@ Route::middleware(['auth', 'verified'])->prefix('global-settings')->name('global
     Route::resource('vehicle-types', VehicleTypeController::class);
     Route::resource('vehicle-brands', VehicleBrandController::class);
     Route::resource('vehicle-models', VehicleModelController::class);
+    
+    // Route pour obtenir les modèles par marque
+    Route::get('vehicle-brands/{vehicleBrand}/models', [VehicleModelController::class, 'getByBrand'])
+        ->name('vehicle-brands.models');
 
     Route::get('/', function () {
         return redirect()->route('global-settings.device-types.index');

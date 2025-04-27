@@ -2,11 +2,16 @@
 
 return [
     'title' => 'Vehicles',
+    'single' => 'Vehicle',
     'breadcrumbs' => [
         'index' => 'Vehicles',
         'create' => 'Add Vehicle',
         'edit' => 'Edit Vehicle',
         'show' => 'Vehicle Details',
+    ],
+    'list' => [
+        'heading' => 'Vehicles List',
+        'description' => 'Manage all vehicles in the system',
     ],
     'fields' => [
         'registration' => 'Registration',
@@ -15,8 +20,12 @@ return [
         'color' => 'Color',
         'year' => 'Year',
         'vin' => 'VIN',
+        'imei' => 'IMEI',
         'tenant' => 'Tenant',
         'device' => 'Device',
+        'tenant_name' => 'Tenant Name',
+        'device_serial' => 'Serial Number',
+        'device_type' => 'Device Type',
     ],
     'actions' => [
         'create' => 'Add Vehicle',
@@ -24,6 +33,11 @@ return [
         'view' => 'View',
         'delete' => 'Delete',
         'restore' => 'Restore',
+        'back_to_list' => 'Back to List',
+        'assign_tenant' => 'Assign Tenant',
+        'change_tenant' => 'Change Tenant',
+        'assign_device' => 'Assign Device',
+        'change_device' => 'Change Device',
     ],
     'placeholders' => [
         'registration' => 'Enter vehicle registration',
@@ -32,10 +46,12 @@ return [
         'color' => 'Enter vehicle color',
         'year' => 'Enter vehicle year',
         'vin' => 'Enter vehicle identification number',
+        'imei' => 'Enter 15-digit IMEI number',
         'tenant' => 'Select tenant',
         'device' => 'Select device',
         'has_device' => 'Filter by device status',
     ],
+    'loading_models' => 'Loading models...',
     'create' => [
         'heading' => 'Add New Vehicle',
         'description' => 'Create a new vehicle in the system',
@@ -55,11 +71,17 @@ return [
         ],
         'success_message' => 'Vehicle updated successfully',
         'submit_button' => 'Update Vehicle',
+        'form_title' => 'Edit Vehicle',
+        'form_description' => 'Modify details for vehicle :registration',
     ],
     'show' => [
         'title' => 'Vehicle: :registration',
         'heading' => 'Vehicle Details',
         'description' => 'View complete information about this vehicle',
+        'edit_details' => [
+            'title' => 'Edit Vehicle Details',
+            'description' => 'Update vehicle information',
+        ],
         'sections' => [
             'details' => [
                 'title' => 'Vehicle Details',
@@ -89,5 +111,17 @@ return [
     'sidebar' => [
         'information' => 'Vehicles',
         'settings' => 'Settings',
+    ],
+    'dialogs' => [
+        'tenant_assignment' => [
+            'title' => 'Assign Tenant',
+            'description' => 'Select a tenant for this vehicle',
+            'search_placeholder' => 'Search for a tenant...',
+        ],
+        'device_assignment' => [
+            'title' => 'Assign Device',
+            'description' => 'Select a device for this vehicle',
+            'search_placeholder' => 'Search for a device...',
+        ],
     ],
 ]; 

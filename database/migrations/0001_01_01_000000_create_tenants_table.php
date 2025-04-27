@@ -27,8 +27,9 @@ class CreateTenantsTable extends Migration
           
             $table->json('data')->nullable();
           
-            $table->softDeletes();
             $table->timestamps();
+            $table->softDeletes();
+
         });
     }
 

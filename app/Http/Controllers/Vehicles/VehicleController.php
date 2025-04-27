@@ -45,15 +45,15 @@ class VehicleController extends Controller
             })
             ->when($request->filled('has_device') && $request->input('has_device') !== 'all', function ($query) use ($request) {
                 return $request->input('has_device') === 'yes'
-                    ? $query->whereNotNull('device_id')
-                    : $query->whereNull('device_id');
+                    ? $query->whereHas('device')
+                    : $query->doesntHave('device');
             });
 
         // Get unique brands for the filter
         $brands = VehicleBrand::select('name')->distinct()->pluck('name')->toArray();
 
         // Get all tenants for the filter
-        $tenants = Tenant::select('id', 'name')->get();
+        $tenants = Tenant::select(['id', 'name'])->get();
 
         // Paginate vehicles and transform data
         $vehicles = $query->paginate(10)->withQueryString()->through(function ($vehicle) {
@@ -62,9 +62,7 @@ class VehicleController extends Controller
                 'registration' => $vehicle->registration,
                 'brand' => $vehicle->model->vehicleBrand->name ?? null,
                 'model' => $vehicle->model->name ?? null,
-                'color' => $vehicle->color,
                 'vin' => $vehicle->vin,
-                'year' => $vehicle->year,
                 'tenant' => $vehicle->tenant ? [
                     'id' => $vehicle->tenant->id,
                     'name' => $vehicle->tenant->name,
@@ -159,14 +157,27 @@ class VehicleController extends Controller
     {
         $vehicle->load(['tenant', 'device', 'device.type', 'model', 'model.vehicleBrand', 'type']);
 
+        // Get all tenants and devices for the select dialogs
+        $tenants = Tenant::select(['id', 'name'])->get();
+        $devices = Device::where(function ($query) use ($vehicle) {
+                $query->whereNull('vehicle_id')
+                      ->orWhere('vehicle_id', $vehicle->id);
+            })
+            ->with('type')
+            ->get();
+
+        // Get brands as objects with id and name
+        $brands = VehicleBrand::select('id', 'name')->get();
+
         $vehicleData = [
             'id' => $vehicle->id,
             'registration' => $vehicle->registration,
-            'brand' => $vehicle->model->vehicleBrand->name ?? null,
-            'model' => $vehicle->model->name ?? null,
-            'color' => $vehicle->color,
+            'brand' => $vehicle->model->vehicleBrand->name ?? '',
+            'model' => $vehicle->model->name ?? '',
             'vin' => $vehicle->vin,
-            'year' => $vehicle->year,
+            'imei' => $vehicle->imei,
+            'tenant_id' => $vehicle->tenant_id,
+            'device_id' => $vehicle->device_id,
             'tenant' => $vehicle->tenant ? [
                 'id' => $vehicle->tenant->id,
                 'name' => $vehicle->tenant->name,
@@ -174,11 +185,18 @@ class VehicleController extends Controller
             'device' => $vehicle->device ? [
                 'id' => $vehicle->device->id,
                 'serial_number' => $vehicle->device->serial_number,
+                'type' => $vehicle->device->type,
             ] : null,
+            'created_at' => $vehicle->created_at,
+            'updated_at' => $vehicle->updated_at,
+            'deleted_at' => $vehicle->deleted_at,
         ];
 
         return Inertia::render('vehicles/show', [
             'vehicle' => $vehicleData,
+            'tenants' => $tenants,
+            'devices' => $devices,
+            'brands' => $brands,
         ]);
     }
 
@@ -221,6 +239,7 @@ class VehicleController extends Controller
             'brand_id' => $vehicle->model->vehicle_brand_id ?? null,
             'color' => $vehicle->color,
             'vin' => $vehicle->vin,
+            'imei' => $vehicle->imei,
             'year' => $vehicle->year,
             'tenant_id' => $vehicle->tenant_id,
             'device_id' => $vehicle->device_id,
@@ -243,43 +262,40 @@ class VehicleController extends Controller
         $validatedData = $request->validated();
 
         // Handle nullable relationships
-        if ($validatedData['tenant_id'] === 'none') {
+        if (isset($validatedData['tenant_id']) && $validatedData['tenant_id'] === 'none') {
             $validatedData['tenant_id'] = null;
         }
 
         // Handle device relationship
         $oldDeviceId = $vehicle->device_id;
-        $newDeviceId = $validatedData['device_id'] === 'none' ? null : $validatedData['device_id'];
+        $newDeviceId = isset($validatedData['device_id']) ? 
+            ($validatedData['device_id'] === 'none' ? null : $validatedData['device_id']) : 
+            $oldDeviceId;
 
-        if ($validatedData['device_id'] === 'none') {
-            $validatedData['device_id'] = null;
-        }
-
-        // Get vehicle_model_id based on the selected model
-        if (!empty($validatedData['model_id'])) {
-            $validatedData['vehicle_model_id'] = $validatedData['model_id'];
-            unset($validatedData['model_id']);
-        }
-        
-        // Remove brand field as it's not in the database
-        if (isset($validatedData['brand'])) {
-            unset($validatedData['brand']);
-        }
-
-        $vehicle->update($validatedData);
-
-        // Update device associations
+        // Remove the old association
         if ($oldDeviceId && $oldDeviceId !== $newDeviceId) {
-            // Clear the vehicle_id from the old device
             Device::where('id', $oldDeviceId)->update(['vehicle_id' => null]);
         }
 
-        if ($newDeviceId && $oldDeviceId !== $newDeviceId) {
-            // Set the vehicle_id on the new device
+        // Create the new association
+        if ($newDeviceId) {
             Device::where('id', $newDeviceId)->update(['vehicle_id' => $vehicle->id]);
         }
 
-        return to_route('vehicles.show', $vehicle);
+        // Update the vehicle
+        $vehicle->update($validatedData);
+
+        if ($request->wantsJson()) {
+            return response()->json(['message' => 'Vehicle updated successfully']);
+        }
+
+        // Determine where to redirect based on the route
+        $routeName = $request->route()->getName();
+        if ($routeName === 'vehicles.update') {
+            return to_route('vehicles.show', $vehicle);
+        }
+
+        return back();
     }
 
     /**

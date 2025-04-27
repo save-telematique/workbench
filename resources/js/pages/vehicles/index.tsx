@@ -121,12 +121,14 @@ export default function Index({ vehicles, filters, brands, tenants }: VehiclesPa
     filterValues.has_device !== 'all',
   ].filter(Boolean).length;
 
+  console.log(tenants);
+
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title={__("vehicles.title")} />
 
       <VehiclesLayout>
-        <div className="space-y-6 p-6">
+        <div className="space-y-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <form onSubmit={handleSearch} className="flex items-center gap-2 w-full md:w-auto">
               <div className="relative w-full md:w-80">

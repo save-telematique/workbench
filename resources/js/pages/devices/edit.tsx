@@ -58,7 +58,7 @@ interface DeviceEditProps {
 export default function Edit({ device, deviceTypes, tenants, vehicles }: DeviceEditProps) {
   const { __ } = useTranslation();
   const { data, setData, put, processing, errors, recentlySuccessful } = useForm({
-    device_type_id: device.device_type_id.toString(),
+    device_type_id: device.device_type_id ? device.device_type_id.toString() : "",
     tenant_id: device.tenant_id || "none",
     vehicle_id: device.vehicle_id || "none",
     firmware_version: device.firmware_version || "",

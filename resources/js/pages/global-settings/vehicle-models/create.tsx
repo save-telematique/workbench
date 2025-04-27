@@ -14,12 +14,16 @@ import {
 } from "@/components/ui/select";
 import HeadingSmall from '@/components/heading-small';
 import InputError from '@/components/input-error';
-import { type BreadcrumbItem } from '@/types';
 import { useTranslation } from '@/utils/translation';
 
 import AppLayout from '@/layouts/app-layout';
 import GlobalSettingsLayout from '@/layouts/global-settings/layout';
 import { VehicleBrand } from '../vehicle-brands/columns';
+
+interface BreadcrumbItem {
+    title: string;
+    href: string;
+}
 
 interface Props {
     vehicleBrands: VehicleBrand[];
@@ -88,7 +92,7 @@ export default function Create({ vehicleBrands }: Props) {
                             <div>
                                 <Label htmlFor="vehicle_brand_id">{__('common.brand')}</Label>
                                 <Select
-                                    value={data.vehicle_brand_id.toString()}
+                                    value={data.vehicle_brand_id}
                                     onValueChange={(value) => setData('vehicle_brand_id', value)}
                                 >
                                     <SelectTrigger id="vehicle_brand_id" className="mt-1 w-full">

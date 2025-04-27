@@ -85,4 +85,23 @@ class VehicleModelController extends Controller
         return to_route('global-settings.vehicle-models.index')
             ->with('success', 'vehicle_models.deleted');
     }
+    
+    /**
+     * Get vehicle models by brand
+     */
+    public function getByBrand(VehicleBrand $vehicleBrand)
+    {
+        $models = VehicleModel::where('vehicle_brand_id', $vehicleBrand->id)
+            ->orderBy('name')
+            ->get()
+            ->map(function ($model) {
+                return [
+                    'id' => $model->id,
+                    'name' => $model->name,
+                    'brand_id' => $model->vehicle_brand_id,
+                ];
+            });
+            
+        return response()->json($models);
+    }
 } 

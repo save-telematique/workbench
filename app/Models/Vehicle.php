@@ -23,6 +23,7 @@ class Vehicle extends Model
         'year',
         'color',
         'notes',
+        'imei',
     ];
 
     /**
@@ -37,6 +38,7 @@ class Vehicle extends Model
             'tenant_id' => (string) $this->tenant_id,
             'registration' => (string) $this->registration,
             'vin' => (string) $this->vin,
+            'imei' => (string) ($this->imei ?? ''),
             'model_name' => (string) ($this->model?->name ?? ''),
             'brand_name' => (string) ($this->model?->vehicleBrand?->name ?? ''),
             'type_name' => (string) ($this->type?->name ?? ''),

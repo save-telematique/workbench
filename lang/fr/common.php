@@ -56,6 +56,9 @@ return [
     'close' => 'Fermer',
     'submit' => 'Soumettre',
     'save_changes' => 'Enregistrer les modifications',
+    'select' => 'Sélectionner',
+    'deleted' => 'Supprimé',
+    'changes_saved' => 'Modifications enregistrées',
     
     // UI elements
     'search' => 'Rechercher',

@@ -1,5 +1,5 @@
 import { Head, useForm, Link } from '@inertiajs/react';
-import { FormEvent } from 'react';
+import { FormEvent, useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -14,13 +14,17 @@ import {
 } from "@/components/ui/select";
 import HeadingSmall from '@/components/heading-small';
 import InputError from '@/components/input-error';
-import { type BreadcrumbItem } from '@/types';
 import { useTranslation } from '@/utils/translation';
 
 import AppLayout from '@/layouts/app-layout';
 import GlobalSettingsLayout from '@/layouts/global-settings/layout';
 import { VehicleModel } from './columns';
 import { VehicleBrand } from '../vehicle-brands/columns';
+
+interface BreadcrumbItem {
+    title: string;
+    href: string;
+}
 
 interface Props {
     vehicleModel: VehicleModel;
@@ -32,8 +36,14 @@ export default function Edit({ vehicleModel, vehicleBrands }: Props) {
     
     const { data, setData, patch, processing, errors } = useForm({
         name: vehicleModel.name,
-        vehicle_brand_id: vehicleModel.vehicle_brand_id.toString(),
+        vehicle_brand_id: '',
     });
+
+    useEffect(() => {
+        if (vehicleModel && vehicleModel.vehicle_brand_id) {
+            setData('vehicle_brand_id', vehicleModel.vehicle_brand_id.toString());
+        }
+    }, [vehicleModel]);
 
     const breadcrumbs: BreadcrumbItem[] = [
         {

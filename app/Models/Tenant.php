@@ -56,6 +56,22 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         ]);
     }
 
+    public static function getCustomColumns(): array
+{
+    return [
+        'id',
+        'name',
+        'email',
+        'address',
+        'phone',
+        'is_active',
+        'svg_logo',
+        'deleted_at',
+        'created_at',
+        'updated_at',
+    ];
+}
+
     public function users()
     {
         return $this->hasMany(User::class);
