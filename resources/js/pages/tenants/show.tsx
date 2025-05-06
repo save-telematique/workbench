@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Transition } from '@headlessui/react';
-import { Building2, Mail, Phone, MapPin, X, ArrowLeft, Pencil, Save, CheckCircle, XCircle } from 'lucide-react';
+import { X, ArrowLeft, Pencil, Save, CheckCircle, XCircle } from 'lucide-react';
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 
 import HeadingSmall from '@/components/heading-small';
 import InputError from '@/components/input-error';
@@ -71,7 +72,7 @@ export default function TenantsShow({ tenant }: TenantShowProps) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={__('tenants.show.title', { name: tenant.name })} />
 
-            <TenantsLayout showSidebar={true} tenantId={tenant.id} activeTab="info">
+            <TenantsLayout showSidebar={true} tenantId={tenant.id}>
                 <div className="space-y-6">
                     <HeadingSmall 
                         title={__('tenants.show.heading')}
@@ -225,70 +226,58 @@ export default function TenantsShow({ tenant }: TenantShowProps) {
                     ) : (
                         // Mode affichage
                         <Card>
-                            <CardContent className="p-6">
-                                <div className="grid gap-8 md:grid-cols-2">
-                                    <div>
-                                        <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-4">
-                                            {__('tenants.show.info_section_title')}
-                                        </h3>
-                                        <div className="space-y-4">
-                                            <div className="flex items-start">
-                                                <Building2 className="mr-3 h-5 w-5 text-neutral-500 mt-0.5" />
-                                                <div>
-                                                    <span className="block font-medium text-base">{tenant.name}</span>
-                                                    <div className="flex items-center mt-1">
-                                                        {tenant.is_active ? (
-                                                            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                                                                <CheckCircle className="h-3 w-3 mr-1" />
-                                                                {__('common.active')}
-                                                            </Badge>
-                                                        ) : (
-                                                            <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
-                                                                <XCircle className="h-3 w-3 mr-1" />
-                                                                {__('common.inactive')}
-                                                            </Badge>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            {tenant.email && (
-                                                <div className="flex items-center">
-                                                    <Mail className="mr-3 h-5 w-5 text-neutral-500" />
-                                                    <a href={`mailto:${tenant.email}`} className="text-neutral-700 dark:text-neutral-300 hover:underline">
-                                                        {tenant.email}
-                                                    </a>
-                                                </div>
-                                            )}
-                                            
-                                            {tenant.phone && (
-                                                <div className="flex items-center">
-                                                    <Phone className="mr-3 h-5 w-5 text-neutral-500" />
-                                                    <span className="text-neutral-700 dark:text-neutral-300">{tenant.phone}</span>
-                                                </div>
-                                            )}
-                                            
-                                            {tenant.address && (
-                                                <div className="flex items-start">
-                                                    <MapPin className="mr-3 h-5 w-5 text-neutral-500 mt-0.5" />
-                                                    <span className="text-neutral-700 dark:text-neutral-300 whitespace-pre-line">{tenant.address}</span>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                    
-                                    {tenant.svg_logo && (
-                                        <div>
-                                            <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-4">
-                                                {__('tenants.fields.logo')}
-                                            </h3>
-                                            <div 
-                                                className="aspect-video w-full max-w-sm rounded-md border bg-white p-4 dark:bg-neutral-800"
-                                                dangerouslySetInnerHTML={{ __html: tenant.svg_logo }}
-                                            />
-                                        </div>
-                                    )}
-                                </div>
+                            <CardHeader>
+                                <CardTitle>{__('tenants.show.info_section_title')}</CardTitle>
+                                <CardDescription>{__('tenants.show.description')}</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <Table>
+                                    <TableBody>
+                                        <TableRow>
+                                            <TableCell className="font-medium">{__('tenants.fields.name')}</TableCell>
+                                            <TableCell>{tenant.name}</TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell className="font-medium">{__('tenants.fields.email')}</TableCell>
+                                            <TableCell>{tenant.email || '-'}</TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell className="font-medium">{__('tenants.fields.phone')}</TableCell>
+                                            <TableCell>{tenant.phone || '-'}</TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell className="font-medium">{__('tenants.fields.address')}</TableCell>
+                                            <TableCell>{tenant.address || '-'}</TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell className="font-medium">{__('tenants.fields.status')}</TableCell>
+                                            <TableCell>
+                                                {tenant.is_active ? (
+                                                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                                        <CheckCircle className="h-3 w-3 mr-1" />
+                                                        {__('common.active')}
+                                                    </Badge>
+                                                ) : (
+                                                    <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                                                        <XCircle className="h-3 w-3 mr-1" />
+                                                        {__('common.inactive')}
+                                                    </Badge>
+                                                )}
+                                            </TableCell>
+                                        </TableRow>
+                                        {tenant.svg_logo && (
+                                            <TableRow>
+                                                <TableCell className="font-medium">{__('tenants.fields.logo')}</TableCell>
+                                                <TableCell>
+                                                    <div 
+                                                        className="w-28 h-28 border rounded p-2 flex items-center justify-center"
+                                                        dangerouslySetInnerHTML={{ __html: tenant.svg_logo }}
+                                                    />
+                                                </TableCell>
+                                            </TableRow>
+                                        )}
+                                    </TableBody>
+                                </Table>
                             </CardContent>
                         </Card>
                     )}
