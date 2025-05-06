@@ -19,8 +19,37 @@ alwaysApply: true
     *   Composants Réutilisables: `resources/js/components`.
     *   Composants UI (Shadcn): `resources/js/components/ui`.
     *   Utilise toujours des DataTable, avec toujours une pagination, le sorting (optionnel) et les filtrage de colonne, sur les data table il doit toujours être possible de selectionner les colonnes afficher et leur ordre
+    *   **DataTableRowActions:**
+        *   Utiliser le composant `DataTableRowActions` (`components/ui/data-table-row-actions.tsx`) pour les actions contextuelles sur chaque ligne du tableau.
+        *   Toujours créer une colonne avec `id: "actions"` à la fin du tableau et utiliser `DataTableRowActions` dans sa cellule.
+        *   Utiliser le hook `useStandardActions` depuis `@/utils/actions` pour générer les actions standard (voir, éditer, supprimer, restaurer) avec les vérifications de permissions appropriées.
+        *   Exemple d'implémentation:
+        ```tsx
+        {
+          id: "actions",
+          cell: ({ row }) => {
+            const resource = { ...row.original, resourceName: "resources" };
+            
+            return (
+              <DataTableRowActions
+                row={row}
+                actions={getStandardActions(resource)}
+                menuLabel={__("common.actions_header")}
+              />
+            );
+          },
+        }
+        ```
+        *   Le paramètre `resourceName` doit correspondre au nom de la ressource côté backend pour le routage et les vérifications de permissions.
+        *   Pour ajouter des actions personnalisées, utiliser l'option `customActions` de `useStandardActions` ou étendre le tableau d'actions retourné.
     *   Utilise les icones venant de `lucide`
-- **Navigation**: 
+*   **Detail/Show Pages:**
+    *   Toujours utiliser le composant `Table` dans une `Card` pour afficher les informations détaillées d'une entité.
+    *   Utiliser le composant `FormattedDate` pour tout affichage de dates (avec le format approprié).
+    *   Ne pas permettre de modifier le compte utilisateur ou le tenant depuis les pages de détail - ces relations doivent être éditées via les pages dédiées.
+    *   Standardiser l'affichage des associations (tenant, device, user) avec des liens cliquables et des icônes appropriées.
+    *   Pour les entités supprimées, afficher un badge de statut avec une option de restauration.
+*   **Navigation**: 
   - Utiliser `breadcrumbs` pour la navigation contextuelle.
   - Ajouter les entrées de menu dans `app-sidebar.tsx` pour les sections principales / distringuer le menu de l'application centrale et de l'application tenant selon le context des features
 *   **State Management:** Principalement via props Inertia et hooks React (`useState`, `useReducer`, `useContext`, `use()`). Pas de librairie externe.
