@@ -19,29 +19,29 @@ import { Separator } from "@/components/ui/separator";
 import axios from "axios";
 
 interface VehicleModel {
-  id: string;
+  id: number;
   name: string;
-  brand_id: string;
+  brand_id: number;
   brand_name?: string;
 }
 
 interface Vehicle {
-  id: string;
+  id: string; // UUID
   registration: string;
   brand?: string;
   model?: string;
   vin: string;
-  model_id?: string;
-  brand_id?: string;
-  tenant_id: string | null;
-  device_id: string | null;
+  model_id?: number;
+  brand_id?: number;
+  tenant_id: string | null; // UUID
+  device_id: string | null; // UUID
 }
 
 interface VehicleFormProps {
   vehicle: Vehicle;
-  tenants: { id: string; name: string }[];
-  devices: { id: string; serial_number: string }[];
-  brands: { id: string; name: string }[];
+  tenants: { id: string; name: string }[]; // UUID
+  devices: { id: string; serial_number: string }[]; // UUID
+  brands: { id: number; name: string }[];
   models: VehicleModel[];
   isCreate?: boolean;
   onSuccess?: () => void;
@@ -69,8 +69,8 @@ export default function VehicleForm({
   // Initialisation du formulaire avec les valeurs par défaut
   const { data, setData, submit, processing, errors, recentlySuccessful } = useForm({
     registration: vehicle.registration || '',
-    brand_id: vehicle.brand_id || '',
-    model_id: vehicle.model_id || '',
+    brand_id: vehicle.brand_id ? vehicle.brand_id.toString() : '',
+    model_id: vehicle.model_id ? vehicle.model_id.toString() : '',
     vin: vehicle.vin || '',
     tenant_id: 'none',
     device_id: 'none',
@@ -110,7 +110,7 @@ export default function VehicleForm({
   // Initialisation initiale pour charger les modèles correspondant à la marque déjà sélectionnée
   useEffect(() => {
     if (!initialLoadDone && vehicle.brand_id) {
-      loadModelsByBrand(vehicle.brand_id);
+      loadModelsByBrand(vehicle.brand_id.toString());
     } else if (!initialLoadDone) {
       // Filtrer les modèles correspondant à la marque sélectionnée depuis les données initiales
       const filtered = models.filter(model => 
@@ -141,7 +141,7 @@ export default function VehicleForm({
 
   function handleBrandChange(brandId: string) {
     setData("brand_id", brandId);
-    setData("model_id", ""); // Reset model when brand changes
+    setData("model_id", '');
   }
 
   return (
@@ -160,93 +160,92 @@ export default function VehicleForm({
         
         <CardContent className="space-y-6">
           <div className="grid gap-6 md:grid-cols-2">
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="registration" className="text-sm font-medium">
-                  {__("vehicles.fields.registration")} <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="registration"
-                  type="text"
-                  value={data.registration}
-                  onChange={(e) => setData("registration", e.target.value)}
-                  placeholder={__("vehicles.placeholders.registration")}
-                  className="mt-1"
-                />
-                <FormError message={errors.registration} />
-              </div>
-
-              <div>
-                <Label htmlFor="brand_id" className="text-sm font-medium">
-                  {__("vehicles.fields.brand")} <span className="text-destructive">*</span>
-                </Label>
-                <Select
-                  value={data.brand_id}
-                  onValueChange={handleBrandChange}
-                >
-                  <SelectTrigger id="brand_id" className="mt-1">
-                    <SelectValue placeholder={__("vehicles.placeholders.brand")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.isArray(brands) && brands.map((brand) => (
-                      <SelectItem key={`brand-${brand.id}`} value={brand.id}>
-                        {brand.name || ''}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormError message={errors.brand_id} />
-              </div>
-
-              <div>
-                <Label htmlFor="model_id" className="text-sm font-medium">
-                  {__("vehicles.fields.model")} <span className="text-destructive">*</span>
-                </Label>
-                <Select
-                  value={data.model_id}
-                  onValueChange={(value) => setData("model_id", value)}
-                  disabled={!data.brand_id || isLoadingModels}
-                >
-                  <SelectTrigger id="model_id" className="mt-1">
-                    <SelectValue placeholder={
-                      isLoadingModels 
-                        ? __("vehicles.loading_models") 
-                        : __("vehicles.placeholders.model")
-                    } />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {isLoadingModels ? (
-                      <SelectItem value="loading" disabled>
-                        {__("vehicles.loading_models")}
-                      </SelectItem>
-                    ) : (
-                      Array.isArray(filteredModels) && filteredModels.map((model) => (
-                        <SelectItem key={`model-${model.id}`} value={model.id}>
-                          {model.name || ''}
-                        </SelectItem>
-                      ))
-                    )}
-                  </SelectContent>
-                </Select>
-                <FormError message={errors.model_id} />
-              </div>
+            <div>
+              <Label htmlFor="registration" className="text-sm font-medium">
+                {__("vehicles.fields.registration")} <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="registration"
+                type="text"
+                value={data.registration}
+                onChange={(e) => setData("registration", e.target.value)}
+                placeholder={__("vehicles.placeholders.registration")}
+                className="mt-1"
+              />
+              <FormError message={errors.registration} />
             </div>
 
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="vin" className="text-sm font-medium">
-                  {__("vehicles.fields.vin")} <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="vin"
-                  type="text"
-                  value={data.vin}
-                  onChange={(e) => setData("vin", e.target.value)}
-                  placeholder={__("vehicles.placeholders.vin")}
-                  className="mt-1"
-                />
-                <FormError message={errors.vin} />
-              </div>
+            <div>
+              <Label htmlFor="vin" className="text-sm font-medium">
+                {__("vehicles.fields.vin")} <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="vin"
+                type="text"
+                value={data.vin}
+                onChange={(e) => setData("vin", e.target.value)}
+                placeholder={__("vehicles.placeholders.vin")}
+                className="mt-1"
+              />
+              <FormError message={errors.vin} />
+            </div>
+          </div>
+
+          {/* Brand and Model side by side */}
+          <div className="grid gap-6 md:grid-cols-2">
+            <div>
+              <Label htmlFor="brand_id" className="text-sm font-medium">
+                {__("vehicles.fields.brand")} <span className="text-destructive">*</span>
+              </Label>
+              <Select
+                value={data.brand_id}
+                onValueChange={handleBrandChange}
+              >
+                <SelectTrigger id="brand_id" className="mt-1">
+                  <SelectValue placeholder={__("vehicles.placeholders.brand")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.isArray(brands) && brands.map((brand) => (
+                    <SelectItem key={`brand-${brand.id}`} value={brand.id.toString()}>
+                      {brand.name || ''}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormError message={errors.brand_id} />
+            </div>
+
+            <div>
+              <Label htmlFor="model_id" className="text-sm font-medium">
+                {__("vehicles.fields.model")} <span className="text-destructive">*</span>
+              </Label>
+              <Select
+                value={data.model_id}
+                onValueChange={(value) => setData("model_id", value)}
+                disabled={!data.brand_id || isLoadingModels}
+              >
+                <SelectTrigger id="model_id" className="mt-1">
+                  <SelectValue placeholder={
+                    isLoadingModels 
+                      ? __("vehicles.loading_models") 
+                      : __("vehicles.placeholders.model")
+                  } />
+                </SelectTrigger>
+                <SelectContent>
+                  {isLoadingModels ? (
+                    <SelectItem value="loading" disabled>
+                      {__("vehicles.loading_models")}
+                    </SelectItem>
+                  ) : (
+                    Array.isArray(filteredModels) && filteredModels.map((model) => (
+                      <SelectItem key={`model-${model.id}`} value={model.id.toString()}>
+                        {model.name || ''}
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
+              <FormError message={errors.model_id} />
             </div>
           </div>
 

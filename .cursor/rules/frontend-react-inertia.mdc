@@ -17,9 +17,14 @@ alwaysApply: true
     *   Fichiers de page/composant: `lowercase.tsx` (ex: `profile.tsx`).
     *   Composants Réutilisables: `resources/js/components`.
     *   Composants UI (Shadcn): `resources/js/components/ui`.
-    *   Utilise toujours des DataTable, avec toujours une pagination, le sorting (optionnel) et les filtrage de colonne 
+    *   Utilise toujours des DataTable, avec toujours une pagination, le sorting (optionnel) et les filtrage de colonne, sur les data table il doit toujours être possible de selectionner les colonnes afficher et leur ordre
     *   Utilise les icones venant de `lucide`
 - **Navigation**: 
   - Utiliser `breadcrumbs` pour la navigation contextuelle.
   - Ajouter les entrées de menu dans `app-sidebar.tsx` pour les sections principales / distringuer le menu de l'application centrale et de l'application tenant selon le context des features
 *   **State Management:** Principalement via props Inertia et hooks React (`useState`, `useReducer`, `useContext`, `use()`). Pas de librairie externe.
+*   **Types d'identifiants:**
+    *   Respecter les types d'IDs du backend dans les interfaces TypeScript:
+    *   Utiliser `string` pour les identifiants UUIDs (vehicles, devices, tenants...).
+    *   Utiliser `number` pour les identifiants auto-incrémentés (brands, models...).
+    *   Ne jamais utiliser `toString()` pour les conversions entre ID, maintenir le type approprié.
