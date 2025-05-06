@@ -38,6 +38,16 @@ foreach (config('tenancy.central_domains') as $domain) {
             Route::put('/vehicles/{vehicle}', [App\Http\Controllers\Vehicles\VehicleController::class, 'update'])->name('vehicles.update');
             Route::delete('/vehicles/{vehicle}', [App\Http\Controllers\Vehicles\VehicleController::class, 'destroy'])->name('vehicles.destroy');
             Route::put('/vehicles/{vehicle}/restore', [App\Http\Controllers\Vehicles\VehicleController::class, 'restore'])->name('vehicles.restore');
+
+            // Driver Routes
+            Route::get('/drivers', [App\Http\Controllers\Drivers\DriverController::class, 'index'])->name('drivers.index');
+            Route::get('/drivers/create', [App\Http\Controllers\Drivers\DriverController::class, 'create'])->name('drivers.create');
+            Route::post('/drivers', [App\Http\Controllers\Drivers\DriverController::class, 'store'])->name('drivers.store');
+            Route::get('/drivers/{driver}', [App\Http\Controllers\Drivers\DriverController::class, 'show'])->name('drivers.show');
+            Route::get('/drivers/{driver}/edit', [App\Http\Controllers\Drivers\DriverController::class, 'edit'])->name('drivers.edit');
+            Route::put('/drivers/{driver}', [App\Http\Controllers\Drivers\DriverController::class, 'update'])->name('drivers.update');
+            Route::delete('/drivers/{driver}', [App\Http\Controllers\Drivers\DriverController::class, 'destroy'])->name('drivers.destroy');
+            Route::put('/drivers/{driver}/restore', [App\Http\Controllers\Drivers\DriverController::class, 'restore'])->name('drivers.restore');
         });
         
         require __DIR__.'/settings.php';

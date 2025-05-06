@@ -21,6 +21,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { usePermission } from "@/utils/permissions";
 
 interface BreadcrumbItem {
   title: string;
@@ -71,6 +72,7 @@ export default function Index({ vehicles, filters, brands, tenants }: VehiclesPa
   const { __ } = useTranslation();
   const columns = useColumns();
   const [searchTerm, setSearchTerm] = useState(filters.search || "");
+  const canCreateVehicles = usePermission('create_vehicles');
 
   const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -147,12 +149,14 @@ export default function Index({ vehicles, filters, brands, tenants }: VehiclesPa
             </form>
 
             <div className="flex gap-2 self-end">
-              <Button asChild>
-                <Link href={route("vehicles.create")}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  {__("vehicles.actions.create")}
-                </Link>
-              </Button>
+              {canCreateVehicles && (
+                <Button asChild>
+                  <Link href={route("vehicles.create")}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    {__("vehicles.actions.create")}
+                  </Link>
+                </Button>
+              )}
               
               <Popover>
                 <PopoverTrigger asChild>
@@ -271,11 +275,13 @@ export default function Index({ vehicles, filters, brands, tenants }: VehiclesPa
               <p className="mb-4 mt-2 text-sm text-muted-foreground">
                 {__('vehicles.list.get_started')}
               </p>
-              <Button asChild>
-                <Link href={route('vehicles.create')}>
-                  {__('vehicles.actions.create')}
-                </Link>
-              </Button>
+              {canCreateVehicles && (
+                <Button asChild>
+                  <Link href={route('vehicles.create')}>
+                    {__('vehicles.actions.create')}
+                  </Link>
+                </Button>
+              )}
             </div>
           ) : (
             <DataTable

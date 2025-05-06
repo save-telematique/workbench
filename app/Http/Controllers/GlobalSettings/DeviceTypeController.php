@@ -13,6 +13,11 @@ use Inertia\Response;
 
 class DeviceTypeController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(DeviceType::class, 'device_type');
+    }
+
     /**
      * Display a listing of the device types.
      */

@@ -17,6 +17,11 @@ use Inertia\Response;
 
 class DeviceController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Device::class, 'device');
+    }
+
     /**
      * Display a listing of the devices.
      */

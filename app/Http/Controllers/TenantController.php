@@ -13,6 +13,14 @@ use Inertia\Response;
 class TenantController extends Controller
 {
     /**
+     * Create a new controller instance.
+     */
+    public function __construct()
+    {
+        $this->authorizeResource(Tenant::class, 'tenant');
+    }
+
+    /**
      * Display a listing of tenants.
      */
     public function index(): Response
@@ -39,7 +47,7 @@ class TenantController extends Controller
     {
         $tenant = Tenant::create($request->validated());
 
-        return to_route('tenants.index')->with('message', 'Tenant created successfully.');
+        return to_route('tenants.index')->with('message', __('tenants.messages.created'));
     }
 
     /**
@@ -69,16 +77,16 @@ class TenantController extends Controller
     {
         $tenant->update($request->validated());
 
-        return to_route('tenants.show', $tenant)->with('message', 'Tenant updated successfully.');
+        return to_route('tenants.show', $tenant)->with('message', __('tenants.messages.updated'));
     }
 
     /**
      * Remove the specified tenant from storage.
      */
-    public function destroy(Request $request, Tenant $tenant): RedirectResponse
+    public function destroy(Tenant $tenant): RedirectResponse
     {
         $tenant->delete();
 
-        return to_route('tenants.index')->with('message', 'Tenant deleted successfully.');
+        return to_route('tenants.index')->with('message', __('tenants.messages.deleted'));
     }
 } 

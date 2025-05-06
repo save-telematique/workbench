@@ -12,14 +12,17 @@ export interface NavItem {
   label?: string;
 }
 
-export interface PageProps<T = Record<string, unknown>> {
+export interface PageProps<T extends Record<string, unknown> = Record<string, unknown>> {
   auth: {
     user: {
       id: number;
       name: string;
       email: string;
+      tenant_id: string | null;
+      permissions: string[];
+      roles: string[];
       [key: string]: unknown;
-    };
+    } | null;
   };
   errors: Record<string, string>;
   flash: {

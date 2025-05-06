@@ -21,12 +21,27 @@ class DemoTenantSeeder extends Seeder
             'name' => 'Save Demo',
         ]);
 
-        User::factory()->create([
+        // Create user and assign tenant_admin role
+        $user = User::factory()->create([
             'name' => 'Demo User',
             'email' => 'demo@save.test',
             'tenant_id' => $tenant->id,
             'password' => bcrypt('password'),
         ]);
+        
+        // Assign tenant_admin role to the user
+        $user->assignRole('tenant_admin');
+
+        // Create a second user with tenant_viewer role
+        $viewerUser = User::factory()->create([
+            'name' => 'Demo Viewer',
+            'email' => 'demo-viewer@save.test',
+            'tenant_id' => $tenant->id,
+            'password' => bcrypt('password'),
+        ]);
+        
+        // Assign tenant_viewer role to the viewer user
+        $viewerUser->assignRole('tenant_viewer');
 
         $tenant->domains()->create([
             'domain' => 'demo',

@@ -14,6 +14,11 @@ use Inertia\Response;
 
 class VehicleModelController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(VehicleModel::class, 'vehicle_model');
+    }
+
     /**
      * Display a listing of the vehicle models.
      */

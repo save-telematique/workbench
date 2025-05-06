@@ -1,0 +1,116 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Policy and Permission Guidelines
+
+## Overview
+
+This document outlines the best practices for handling authorization in Save Workbench using Laravel Policies and Spatie Laravel Permission.
+
+## Key Principles
+
+1. **Resource-based Permissions**: All permissions follow the format `action_resource` (e.g., `view_vehicles`, `edit_users`).
+2. **Role Hierarchy**: Roles are clearly separated between central application roles and tenant-specific roles.
+3. **Tenant Data Isolation**: Policies enforce that tenant users can only access data within their tenant.
+4. **Base Policy**: All policies extend the `BasePolicy` which provides standardized permission checks.
+5. **Gate Super Admin Override**: Super admins automatically pass all permission checks via a Gate::before rule.
+
+## Permission Structure
+
+### Actions
+
+Permissions are organized by these standard actions:
+
+- `view_*`: Ability to view/list resources
+- `create_*`: Ability to create new resources
+- `edit_*`: Ability to modify existing resources
+- `delete_*`: Ability to delete resources
+
+### Resources
+
+Each model has a corresponding set of permissions (e.g., vehicles, users, devices, etc.)
+
+## Role Structure
+
+### Central Roles
+
+- **super_admin**: Full system access with no restrictions
+- **central_admin**: Administrative access to most functionality except critical operations
+- **central_user**: Limited view-only access to central application
+
+### Tenant Roles
+
+- **tenant_admin**: Full access to all tenant-specific resources
+- **tenant_manager**: Can manage most tenant resources but with some restrictions
+- **tenant_user**: Standard user with limited editing capabilities
+- **tenant_viewer**: View-only access to tenant resources
+
+## Implementing Policies
+
+1. **Base Policy**:
+   - All policies should extend `App\Policies\BasePolicy`
+   - Override methods only when different behavior is needed
+
+2. **Tenant-Aware Policies**:
+   - Always check `$user->tenant_id` matches the model's tenant_id in tenant-scoped policies
+   - Central users can typically access all resources regardless of tenant
+
+3. **Special Checks**:
+   - Implement special checks like preventing users from deleting themselves
+   - Consider resource relationships when determining access
+
+## Controller Usage
+
+1. **Authorization Checks**:
+   - Use `$this->authorize('action', $model)` in controllers
+   - For resource controllers, implement `authorizeResource` in the constructor
+
+2. **Collection Authorization**:
+   - Use `Gate::allows` or policy classes directly for collection-level checks
+   - Consider implementing custom methods in policies for collection operations
+
+## Testing Policies
+
+1. **Complete Test Coverage**:
+   - Test each policy method for both positive and negative cases
+   - Test with different roles to ensure correct permissions
+
+2. **Tenant Isolation Testing**:
+   - Verify that tenant users cannot access other tenants' data
+   - Test cross-tenant scenarios to ensure proper isolation
+
+3. **Special Conditions**:
+   - Test edge cases and special conditions explicitly
+
+## Blade Templates & Frontend
+
+1. **Authorization Directives**:
+   - Use `@can` and `@cannot` directives in Blade templates
+   - Pass authorization state to Inertia/React via shared data
+
+2. **React/Inertia**:
+   - Check permissions in React components using data from Inertia props
+   - Hide/show UI elements based on user permissions
+
+## Security Considerations
+
+1. **Defense in Depth**:
+   - Always implement authorization at the controller level, even if also checked in the UI
+   - Validate tenant access in policies, even if middleware also enforces tenant scoping
+
+2. **Super Admin Caution**:
+   - Avoid creating too many super admin users
+   - Consider audit logging for sensitive operations by super admins
+
+## Adding New Resources
+
+When adding a new resource:
+
+1. Create permissions in `PermissionSeeder.php` using the standard format
+2. Create a policy extending `BasePolicy` with resource-specific logic
+3. Register the policy in `AuthServiceProvider`
+4. Assign permissions to appropriate roles
+5. Write tests covering all policy methods
+6. Apply authorization checks in controllers and UI components

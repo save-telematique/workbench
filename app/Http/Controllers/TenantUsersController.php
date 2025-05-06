@@ -7,6 +7,7 @@ use App\Http\Requests\TenantUsers\UpdateTenantUserRequest;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
@@ -17,6 +18,8 @@ class TenantUsersController extends Controller
      */
     public function index(Tenant $tenant)
     {
+        $this->authorize('view_tenant_users');
+        
         $users = $tenant->users()->get();
 
         return Inertia::render('tenants/users/index', [
@@ -37,6 +40,8 @@ class TenantUsersController extends Controller
      */
     public function create(Tenant $tenant)
     {
+        $this->authorize('create_tenant_users');
+        
         return Inertia::render('tenants/users/create', [
             'tenant' => $tenant->only('id', 'name'),
         ]);
@@ -47,6 +52,8 @@ class TenantUsersController extends Controller
      */
     public function store(StoreTenantUserRequest $request, Tenant $tenant)
     {
+        $this->authorize('create_tenant_users');
+        
         $tenant->users()->create([
             'name' => $request->name,
             'email' => $request->email,
@@ -63,6 +70,13 @@ class TenantUsersController extends Controller
      */
     public function show(Tenant $tenant, User $user)
     {
+        $this->authorize('view_tenant_users');
+        
+        // Ensure the user belongs to the tenant
+        if ($user->tenant_id !== $tenant->id) {
+            abort(404);
+        }
+        
         return Inertia::render('tenants/users/show', [
             'tenant' => $tenant->only('id', 'name'),
             'user' => [
@@ -82,6 +96,13 @@ class TenantUsersController extends Controller
      */
     public function edit(Tenant $tenant, User $user)
     {
+        $this->authorize('edit_tenant_users');
+        
+        // Ensure the user belongs to the tenant
+        if ($user->tenant_id !== $tenant->id) {
+            abort(404);
+        }
+        
         return Inertia::render('tenants/users/edit', [
             'tenant' => $tenant->only('id', 'name'),
             'user' => [
@@ -98,6 +119,13 @@ class TenantUsersController extends Controller
      */
     public function update(UpdateTenantUserRequest $request, Tenant $tenant, User $user)
     {
+        $this->authorize('edit_tenant_users');
+        
+        // Ensure the user belongs to the tenant
+        if ($user->tenant_id !== $tenant->id) {
+            abort(404);
+        }
+        
         $user->update([
             'name' => $request->name,
             'email' => $request->email,
@@ -119,6 +147,13 @@ class TenantUsersController extends Controller
      */
     public function destroy(Tenant $tenant, User $user)
     {
+        $this->authorize('delete_tenant_users');
+        
+        // Ensure the user belongs to the tenant
+        if ($user->tenant_id !== $tenant->id) {
+            abort(404);
+        }
+        
         $user->delete();
 
         return to_route('tenants.users.index', $tenant->id)

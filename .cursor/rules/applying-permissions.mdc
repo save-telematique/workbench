@@ -1,0 +1,203 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Applying Permissions in Save Workbench
+
+This document outlines how to apply permissions to controllers and frontend components using the existing policy and permission infrastructure.
+
+## Backend Permission Model
+
+Save Workbench uses the following authorization components:
+
+1. **Spatie Laravel Permission**: For managing roles and permissions in the database
+2. **Policies**: Resource-specific classes that implement authorization logic
+3. **BasePolicy**: A common base class that standardizes permission checks
+4. **Tenant isolation**: Logic that ensures tenant users only access their tenant's data
+
+## Adding Permissions to Controllers
+
+### Resource Controllers
+
+For standard resource controllers (CRUD operations on a single model), use the `authorizeResource` method in the constructor:
+
+```php
+public function __construct()
+{
+    $this->authorizeResource(ModelName::class, 'route_parameter_name');
+}
+```
+
+Example for `VehicleController`:
+
+```php
+public function __construct()
+{
+    $this->authorizeResource(Vehicle::class, 'vehicle');
+}
+```
+
+This automatically maps the following methods to policy actions:
+
+| Controller Method | Policy Method |
+|-------------------|---------------|
+| index             | viewAny       |
+| show              | view          |
+| create            | create        |
+| store             | create        |
+| edit              | update        |
+| update            | update        |
+| destroy           | delete        |
+
+### Non-Resource Controllers or Custom Actions
+
+For controllers that don't follow the resource pattern, or for custom actions, use the `authorize` method explicitly:
+
+```php
+public function customAction(ModelName $model)
+{
+    $this->authorize('custom_permission_name', $model);
+    
+    // Controller logic
+}
+```
+
+### Nested Resources or Special Cases
+
+For controllers that manage nested resources (e.g., users within a tenant), use manual authorization:
+
+```php
+public function index(Tenant $tenant)
+{
+    $this->authorize('view_tenant_users');
+    
+    // Additional tenant checks if needed
+    // ...
+    
+    // Controller logic
+}
+```
+
+### Tenant-Specific Checks
+
+When working with tenant-scoped data, always validate that the user has access to the tenant:
+
+```php
+public function show(Tenant $tenant, User $user)
+{
+    $this->authorize('view_tenant_users');
+    
+    // Ensure the user belongs to the tenant
+    if ($user->tenant_id !== $tenant->id) {
+        abort(404);
+    }
+    
+    // Controller logic
+}
+```
+
+## Adding Permissions to Frontend Components
+
+### Checking Permissions in React Components
+
+Use the helper functions from `resources/js/utils/permissions.ts`:
+
+```tsx
+import { usePermission, useRole, useHasAnyPermission } from '@/utils/permissions';
+
+function MyComponent() {
+    // Check a single permission
+    const canViewUsers = usePermission('view_users');
+    
+    // Check for a specific role
+    const isSuperAdmin = useRole('super_admin');
+    
+    // Check for any of multiple permissions
+    const canManageUsers = useHasAnyPermission(['create_users', 'edit_users']);
+    
+    return (
+        <div>
+            {canViewUsers && <UsersList />}
+            
+            {canManageUsers && (
+                <button>Add User</button>
+            )}
+        </div>
+    );
+}
+```
+
+### Conditional UI Elements
+
+Hide elements that the user doesn't have permission to access:
+
+```tsx
+{usePermission('create_users') && (
+    <Link href={route('users.create')} className="btn">
+        Add New User
+    </Link>
+)}
+```
+
+### Tenant-Aware Components
+
+Use the `useTenantUser` helper to check if a user belongs to a tenant:
+
+```tsx
+import { useTenantUser } from '@/utils/permissions';
+
+function SidebarMenu() {
+    const isTenantUser = useTenantUser();
+    
+    return (
+        <div>
+            {!isTenantUser && (
+                // Central app menu items
+                <MenuItem href={route('tenants.index')}>Tenants</MenuItem>
+            )}
+            
+            {isTenantUser && (
+                // Tenant-specific menu items
+                <MenuItem href={route('vehicles.index')}>Vehicles</MenuItem>
+            )}
+        </div>
+    );
+}
+```
+
+## Creating New Permissions
+
+When adding a new resource to the application:
+
+1. Add the resource to the list in `PermissionSeeder.php`
+2. Create a policy extending `BasePolicy` with the correct permission prefix
+3. Register the policy in `AuthServiceProvider`
+4. Assign permissions to appropriate roles in `PermissionSeeder.php` 
+5. Apply the policy to controllers as described above
+
+## Testing Permissions
+
+Always write tests to verify that your permission system works correctly. Test both positive and negative cases:
+
+```php
+public function test_unauthorized_users_cannot_access_resource()
+{
+    $user = User::factory()->create();
+    $user->assignRole('tenant_viewer');
+    
+    $response = $this->actingAs($user)->get(route('tenants.create'));
+    
+    $response->assertStatus(403);
+}
+```
+
+## Troubleshooting Permissions
+
+If permissions aren't working as expected:
+
+1. Check that the user has the correct role assigned
+2. Verify the role has the necessary permissions
+3. Ensure the policy is registered in `AuthServiceProvider`
+4. Confirm the policy permission prefix matches the seeded permissions
+5. Make sure tenant isolation logic is working correctly if applicable

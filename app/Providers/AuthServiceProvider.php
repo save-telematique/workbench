@@ -2,12 +2,24 @@
 
 namespace App\Providers;
 
-use App\Models\VehicleType;
+use App\Models\Device;
+use App\Models\DeviceType;
+use App\Models\Driver;
+use App\Models\Tenant;
+use App\Models\User;
+use App\Models\Vehicle;
 use App\Models\VehicleBrand;
 use App\Models\VehicleModel;
-use App\Policies\VehicleTypePolicy;
+use App\Models\VehicleType;
+use App\Policies\DevicePolicy;
+use App\Policies\DeviceTypePolicy;
+use App\Policies\DriverPolicy;
+use App\Policies\TenantPolicy;
+use App\Policies\UserPolicy;
+use App\Policies\VehiclePolicy;
 use App\Policies\VehicleBrandPolicy;
 use App\Policies\VehicleModelPolicy;
+use App\Policies\VehicleTypePolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 
@@ -19,9 +31,15 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        VehicleType::class => VehicleTypePolicy::class,
+        Device::class => DevicePolicy::class,
+        DeviceType::class => DeviceTypePolicy::class,
+        Driver::class => DriverPolicy::class,
+        Tenant::class => TenantPolicy::class,
+        User::class => UserPolicy::class,
+        Vehicle::class => VehiclePolicy::class,
         VehicleBrand::class => VehicleBrandPolicy::class,
         VehicleModel::class => VehicleModelPolicy::class,
+        VehicleType::class => VehicleTypePolicy::class,
     ];
 
     /**
@@ -39,6 +57,11 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        //
+        // Define a gate for 'super-admin' that allows full access
+        Gate::before(function (User $user, string $ability) {
+            if ($user->hasRole('super_admin')) {
+                return true;
+            }
+        });
     }
 }

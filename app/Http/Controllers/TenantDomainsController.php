@@ -16,6 +16,8 @@ class TenantDomainsController extends Controller
      */
     public function index(Tenant $tenant): Response
     {
+        $this->authorize('view_tenant_domains');
+        
         return Inertia::render('tenants/domains', [
             'tenant' => [
                 'id' => $tenant->id,
@@ -36,16 +38,17 @@ class TenantDomainsController extends Controller
      */
     public function store(Request $request, Tenant $tenant): RedirectResponse
     {
+        $this->authorize('create_tenant_domains');
+        
         $validated = $request->validate([
             'domain' => ['required', 'string', 'max:255', 'unique:domains,domain'],
         ]);
 
-        // Utiliser directement le domaine saisi, sans modifier
         $tenant->domains()->create([
             'domain' => $validated['domain'],
         ]);
 
-        return back()->with('message', 'Domain added successfully.');
+        return back()->with('message', __('tenant_domains.messages.created'));
     }
 
     /**
@@ -53,13 +56,15 @@ class TenantDomainsController extends Controller
      */
     public function destroy(Tenant $tenant, Domain $domain): RedirectResponse
     {
+        $this->authorize('delete_tenant_domains');
+        
         // Check if domain belongs to tenant
         if ($domain->tenant_id !== $tenant->id) {
-            abort(403);
+            abort(404);
         }
 
         $domain->delete();
 
-        return back()->with('message', 'Domain deleted successfully.');
+        return back()->with('message', __('tenant_domains.messages.deleted'));
     }
 } 

@@ -43,7 +43,11 @@ class HandleInertiaRequests extends Middleware
             'name' => tenant() ? tenant()->name : config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
-                'user' => $request->user(),
+                'user' => $request->user() ? [
+                    ...$request->user()->toArray(),
+                    'permissions' => $this->getUserPermissions($request),
+                    'roles' => $request->user()->getRoleNames(),
+                ] : null,
             ],
             'ziggy' => fn (): array => [
                 ...(new Ziggy)->toArray(),
@@ -52,6 +56,18 @@ class HandleInertiaRequests extends Middleware
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'translations' => $this->getTranslations(),
         ]);
+    }
+
+    /**
+     * Get permissions for the authenticated user.
+     */
+    protected function getUserPermissions(Request $request): array
+    {
+        if (!$request->user()) {
+            return [];
+        }
+
+        return $request->user()->getAllPermissions()->pluck('name')->toArray();
     }
 
     /**
