@@ -36,6 +36,10 @@ return new class extends Migration
             $table->index('moving'); // Filter moving vehicles
             $table->index('ignition'); // Filter vehicles with ignition on
         });
+
+        Schema::table('vehicles', function (Blueprint $table) {
+            $table->foreign('current_vehicle_location_id')->references('id')->on('vehicle_locations');
+        });
     }
 
     /**

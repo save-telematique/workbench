@@ -5,17 +5,13 @@ namespace App\Http\Controllers\Devices;
 use App\Http\Controllers\Controller;
 use App\Models\Device;
 use App\Models\DeviceMessage;
-use App\Services\VehicleLocationService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class DeviceMessageController extends Controller
 {
-    protected $vehicleLocationService;
-
-    public function __construct(VehicleLocationService $vehicleLocationService)
+    public function __construct()
     {
-        $this->vehicleLocationService = $vehicleLocationService;
         $this->authorizeResource(DeviceMessage::class, 'device_message');
     }
 
@@ -31,7 +27,7 @@ class DeviceMessageController extends Controller
         $perPage = $request->input('per_page', 15);
         $date = $request->input('date') ? \Carbon\Carbon::parse($request->input('date')) : null;
 
-        $messages = DeviceMessage::with('vehicleLocation')
+        $messages = DeviceMessage::with('location')
             ->where('device_id', $device->id)
             ->when($date, function ($query, $date) {
                 return $query->whereDate('created_at', $date);

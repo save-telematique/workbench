@@ -83,4 +83,14 @@ class Vehicle extends Model
     {
         return $this->belongsTo(Tenant::class);
     }
+
+    public function locations()
+    {
+        return $this->hasMany(VehicleLocation::class, 'vehicle_id');
+    }
+
+    public function currentLocation()
+    {
+        return $this->belongsTo(VehicleLocation::class, 'current_vehicle_location_id');
+    }
 }

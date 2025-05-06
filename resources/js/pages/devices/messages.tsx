@@ -29,7 +29,7 @@ interface DeviceMessage {
   processed_at: string;
   created_at: string;
   updated_at: string;
-  vehicleLocation?: VehicleLocation | null;
+  location?: VehicleLocation | null;
 }
 
 interface VehicleLocation {
@@ -246,10 +246,10 @@ export default function DeviceMessages({ device, messages, filters }: DeviceMess
                       return (
                         <div key={message.id} className="relative">
                           {/* Timeline circle and line */}
-                          <div className="absolute -left-6 top-0 flex h-6 w-6 items-center justify-center">
+                          <div className="absolute -left-3 top-0 flex h-6 w-6 items-center justify-center">
                             <div className={cn(
                               "h-2 w-2 rounded-full",
-                              message.vehicleLocation ? "bg-primary" : "bg-muted"
+                              message.location ? "bg-primary" : "bg-muted"
                             )}></div>
                           </div>
                           
@@ -281,10 +281,10 @@ export default function DeviceMessages({ device, messages, filters }: DeviceMess
                               </div>
                             </div>
                             
-                            <Tabs defaultValue={message.vehicleLocation ? "location" : "message"} className="w-full">
+                            <Tabs defaultValue={message.location ? "location" : "message"} className="w-full">
                               <TabsList className="mb-2">
                                 <TabsTrigger value="message">{__("devices.messages.message_data")}</TabsTrigger>
-                                {message.vehicleLocation && (
+                                {message.location && (
                                   <TabsTrigger value="location">{__("devices.messages.location")}</TabsTrigger>
                                 )}
                                 <TabsTrigger value="processing">{__("devices.messages.processing_info")}</TabsTrigger>
@@ -298,35 +298,35 @@ export default function DeviceMessages({ device, messages, filters }: DeviceMess
                                 </div>
                               </TabsContent>
                               
-                              {message.vehicleLocation && (
+                              {message.location && (
                                 <TabsContent value="location" className="space-y-2">
                                   <Table>
                                     <TableBody>
                                       <TableRow>
                                         <TableCell className="font-medium">{__("devices.messages.coordinates")}</TableCell>
                                         <TableCell>
-                                          {message.vehicleLocation.latitude}, {message.vehicleLocation.longitude}
+                                          {message.location.latitude}, {message.location.longitude}
                                           <div className="mt-1">
-                                            {renderMapLink(message.vehicleLocation.latitude, message.vehicleLocation.longitude)}
+                                            {renderMapLink(message.location.latitude, message.location.longitude)}
                                           </div>
                                         </TableCell>
                                       </TableRow>
                                       
                                       <TableRow>
                                         <TableCell className="font-medium">{__("devices.messages.speed")}</TableCell>
-                                        <TableCell>{message.vehicleLocation.speed} km/h</TableCell>
+                                        <TableCell>{message.location.speed} km/h</TableCell>
                                       </TableRow>
                                       
                                       <TableRow>
                                         <TableCell className="font-medium">{__("devices.messages.heading")}</TableCell>
-                                        <TableCell>{message.vehicleLocation.heading}°</TableCell>
+                                        <TableCell>{message.location.heading}°</TableCell>
                                       </TableRow>
                                       
                                       <TableRow>
                                         <TableCell className="font-medium">{__("devices.messages.ignition")}</TableCell>
                                         <TableCell>
-                                          <Badge variant={message.vehicleLocation.ignition ? "default" : "outline"}>
-                                            {message.vehicleLocation.ignition 
+                                          <Badge variant={message.location.ignition ? "default" : "outline"}>
+                                            {message.location.ignition 
                                               ? __("devices.messages.ignition_on") 
                                               : __("devices.messages.ignition_off")}
                                           </Badge>
@@ -336,25 +336,25 @@ export default function DeviceMessages({ device, messages, filters }: DeviceMess
                                       <TableRow>
                                         <TableCell className="font-medium">{__("devices.messages.moving")}</TableCell>
                                         <TableCell>
-                                          <Badge variant={message.vehicleLocation.moving ? "default" : "outline"}>
-                                            {message.vehicleLocation.moving 
+                                          <Badge variant={message.location.moving ? "default" : "outline"}>
+                                            {message.location.moving 
                                               ? __("devices.messages.moving_state") 
                                               : __("devices.messages.stationary")}
                                           </Badge>
                                         </TableCell>
                                       </TableRow>
                                       
-                                      {message.vehicleLocation.address && (
+                                      {message.location.address && (
                                         <TableRow>
                                           <TableCell className="font-medium">{__("devices.messages.address")}</TableCell>
-                                          <TableCell>{message.vehicleLocation.address}</TableCell>
+                                          <TableCell>{message.location.address}</TableCell>
                                         </TableRow>
                                       )}
                                       
                                       <TableRow>
                                         <TableCell className="font-medium">{__("devices.messages.recorded_at")}</TableCell>
                                         <TableCell>
-                                          {DateTime.fromISO(message.vehicleLocation.recorded_at).toLocaleString(DateTime.DATETIME_MED)}
+                                          {DateTime.fromISO(message.location.recorded_at).toLocaleString(DateTime.DATETIME_MED)}
                                         </TableCell>
                                       </TableRow>
                                     </TableBody>

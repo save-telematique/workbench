@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Jobs\ProcessDeviceMessage;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Stancl\Tenancy\Database\Concerns\BelongsToPrimaryModel;
@@ -42,8 +43,13 @@ class DeviceMessage extends Model
     /**
      * Get the vehicle location generated from this message.
      */
-    public function vehicleLocation()
+    public function location()
     {
         return $this->hasOne(VehicleLocation::class, 'device_message_id');
+    }
+
+    public function process()
+    {
+        dispatch(new ProcessDeviceMessage($this));
     }
 } 

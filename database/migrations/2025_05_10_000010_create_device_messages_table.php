@@ -22,6 +22,10 @@ return new class extends Migration
             // Index for better performance
             $table->index('processed_at');
         });
+
+        Schema::table('vehicle_locations', function (Blueprint $table) {
+            $table->foreign('device_message_id')->references('id')->on('device_messages');
+        });
     }
 
     /**

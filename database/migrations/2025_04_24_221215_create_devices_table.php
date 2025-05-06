@@ -18,8 +18,9 @@ return new class extends Migration
             $table->foreignUuid('vehicle_id')->nullable()->constrained();
             $table->string('firmware_version')->nullable();
             $table->string('serial_number');
-            $table->string('sim_number');
+            $table->string('sim_number')->nullable();
             $table->string('imei')->index()->unique();
+            $table->dateTime('last_contact_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

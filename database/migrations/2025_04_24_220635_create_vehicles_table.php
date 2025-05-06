@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('registration');
             $table->string('vin');
             $table->string('country', 2);
+            $table->decimal('odometer', 10, 2)->nullable();
+            $table->foreignId('current_vehicle_location_id')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
