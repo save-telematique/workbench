@@ -64,7 +64,7 @@ export default function VehicleForm({
   const formMethod = isCreate ? 'post' : 'put';
   const formAction = isCreate 
     ? route("vehicles.store") 
-    : route("vehicles.update", vehicle.id);
+    : (vehicle.id ? route("vehicles.update", vehicle.id) : '');
   
   // Initialisation du formulaire avec les valeurs par défaut
   const { data, setData, submit, processing, errors, recentlySuccessful } = useForm({
