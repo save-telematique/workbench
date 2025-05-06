@@ -183,4 +183,29 @@ return [
         'info_section_title' => 'Informations du boitier',
         'connections_title' => 'Connexions',
     ],
+    
+    'input_methods' => [
+        'manual' => 'Saisie manuelle',
+        'scan' => 'Scanner un code QR',
+    ],
+    
+    'scan' => [
+        'upload_title' => 'Téléverser une photo',
+        'upload_description' => 'Prenez une photo du dispositif montrant les codes QR pour extraire automatiquement le numéro de série et l\'IMEI',
+        'select_image' => 'Sélectionner une image',
+        'change_image' => 'Changer d\'image',
+        'scanning' => 'Analyse en cours...',
+        'scanning_hint' => 'Cela peut prendre quelques instants. Nous analysons les codes QR et autres informations visibles sur le dispositif.',
+        'success' => 'Codes QR détectés avec succès. Les champs IMEI et numéro de série ont été préremplis.',
+        'error' => 'Impossible de détecter les codes QR. Veuillez réessayer ou saisir les informations manuellement.',
+        'error_invalid_format' => 'Format d\'image non valide. Formats acceptés : JPG, PNG et WebP.',
+        'error_file_too_large' => 'Fichier trop volumineux. La taille maximale est de 10 Mo.',
+        'error_reading_file' => 'Erreur lors de la lecture du fichier. Veuillez réessayer avec une autre image.',
+        'error_cancelled' => 'Analyse annulée. Veuillez réessayer.',
+        'error_no_image' => 'Aucune image n\'a été fournie. Veuillez sélectionner une image à analyser.',
+        'error_empty_image' => 'L\'image fournie est vide ou corrompue. Veuillez réessayer avec une autre image.',
+        'error_no_data_extracted' => 'Aucune information n\'a pu être extraite de l\'image. Veuillez vérifier que les codes QR sont bien visibles ou saisir les informations manuellement.',
+        'continue_to_form' => 'Continuer vers le formulaire',
+        'continue_tooltip' => 'Passez au formulaire pour compléter les informations manquantes',
+    ],
 ]; 

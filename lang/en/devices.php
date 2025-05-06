@@ -183,4 +183,29 @@ return [
         'info_section_title' => 'Device Information',
         'connections_title' => 'Connections',
     ],
+    
+    'input_methods' => [
+        'manual' => 'Manual Entry',
+        'scan' => 'Scan QR Code',
+    ],
+    
+    'scan' => [
+        'upload_title' => 'Upload a photo',
+        'upload_description' => 'Take a photo of the device showing the QR codes to automatically extract the serial number and IMEI',
+        'select_image' => 'Select an image',
+        'change_image' => 'Change image',
+        'scanning' => 'Scanning...',
+        'scanning_hint' => 'This may take a moment. We are analyzing QR codes and other visible information on the device.',
+        'success' => 'QR codes successfully detected. IMEI and serial number fields have been pre-filled.',
+        'error' => 'Unable to detect QR codes. Please try again or enter the information manually.',
+        'error_invalid_format' => 'Invalid image format. Accepted formats: JPG, PNG, and WebP.',
+        'error_file_too_large' => 'File too large. Maximum size is 10MB.',
+        'error_reading_file' => 'Error reading file. Please try again with another image.',
+        'error_cancelled' => 'Scanning cancelled. Please try again.',
+        'error_no_image' => 'No image was provided. Please select an image to analyze.',
+        'error_empty_image' => 'The provided image is empty or corrupted. Please try again with another image.',
+        'error_no_data_extracted' => 'No information could be extracted from the image. Please ensure QR codes are clearly visible or enter the information manually.',
+        'continue_to_form' => 'Continue to form',
+        'continue_tooltip' => 'Proceed to the form to complete the missing information',
+    ],
 ]; 

@@ -28,7 +28,7 @@ class StoreDeviceRequest extends FormRequest
             'vehicle_id' => ['nullable', 'exists:vehicles,id'],
             'firmware_version' => ['nullable', 'string', 'max:255'],
             'serial_number' => ['required', 'string', 'max:255'],
-            'sim_number' => ['required', 'string', 'max:255'],
+            'sim_number' => ['nullable', 'string', 'max:255'],
             'imei' => ['required', 'string', 'max:255', Rule::unique('devices', 'imei')],
         ];
     }

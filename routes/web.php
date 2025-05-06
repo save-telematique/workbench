@@ -63,6 +63,9 @@ foreach (config('tenancy.central_domains') as $domain) {
                 Route::put('/{device}', [DeviceController::class, 'update'])->name('update');
                 Route::delete('/{device}', [DeviceController::class, 'destroy'])->name('destroy');
                 
+                // QR code scanning
+                Route::post('/scan-qr-code', [DeviceController::class, 'scanQrCode'])->name('scan-qr-code');
+                
                 // Device messages routes
                 Route::get('/{device}/messages', [DeviceMessageController::class, 'index'])->name('messages.index');
             });

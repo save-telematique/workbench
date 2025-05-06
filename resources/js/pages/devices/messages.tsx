@@ -22,6 +22,11 @@ import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import VehicleLocationMap, { LocationPoint } from "@/components/maps/vehicle-location-map";
 
+interface BreadcrumbItem {
+  title: string;
+  href: string;
+}
+
 interface DeviceMessage {
   id: number;
   device_id: string;
@@ -175,8 +180,24 @@ export default function DeviceMessages({ device, messages, filters, allLocations
     return diff.toFixed(2);
   };
 
+  const breadcrumbs: BreadcrumbItem[] = [
+    {
+      title: __('devices.breadcrumbs.index'),
+      href: route('devices.index'),
+    },
+    {
+      title: __('devices.breadcrumbs.show'),
+      href: route('devices.show', device.id),
+    },
+    {
+      title: __('devices.messages.title'),
+      href: route('devices.messages.index', { device: device.id }),
+    },
+  ];
+
+
   return (
-    <AppLayout>
+    <AppLayout breadcrumbs={breadcrumbs}>
       <Head title={`${__("devices.messages.title")} - ${device.name}`} />
       
       <DevicesLayout showSidebar={true} deviceId={device.id}>
