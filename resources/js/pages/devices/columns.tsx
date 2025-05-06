@@ -6,6 +6,7 @@ import { DataTableRowActions } from "@/components/ui/data-table-row-actions";
 import { useTranslation } from "@/utils/translation";
 import { Link, router } from "@inertiajs/react";
 import { LicensePlate } from "@/components/ui/license-plate";
+import { useStandardActions } from "@/utils/actions";
 
 interface Device {
   id: string;
@@ -31,6 +32,9 @@ interface Device {
 
 export const useColumns = () => {
   const { __ } = useTranslation();
+  const getStandardActions = useStandardActions({
+    resourceName: "devices"
+  });
 
   const columns: ColumnDef<Device>[] = [
     {
@@ -136,45 +140,17 @@ export const useColumns = () => {
     },
     {
       id: "actions",
-      cell: ({ row }) => (
-        <DataTableRowActions
-          row={row}
-          actions={[
-            {
-              label: __("devices.actions.edit"),
-              icon: "PenSquare",
-              href: route("devices.edit", row.original.id),
-            },
-            {
-              label: __("devices.actions.view"),
-              icon: "Eye",
-              href: route("devices.show", row.original.id),
-            },
-            {
-              label: __("devices.actions.delete"),
-              icon: "Trash",
-              onClick: () => {
-                if (confirm(__("devices.confirmations.delete"))) {
-                  router.delete(route("devices.destroy", row.original.id));
-                }
-              },
-              variant: "destructive",
-              hidden: !!row.original.deleted_at,
-            },
-            {
-              label: __("devices.actions.restore"),
-              icon: "Undo",
-              onClick: () => {
-                if (confirm(__("devices.confirmations.restore"))) {
-                  router.put(route("devices.restore", row.original.id));
-                }
-              },
-              variant: "default",
-              hidden: !row.original.deleted_at,
-            },
-          ]}
-        />
-      ),
+      cell: ({ row }) => {
+        const device = { ...row.original, resourceName: "devices" };
+        
+        return (
+          <DataTableRowActions
+            row={row}
+            actions={getStandardActions(device)}
+            menuLabel={__("common.actions_header")}
+          />
+        );
+      },
     },
   ];
 
