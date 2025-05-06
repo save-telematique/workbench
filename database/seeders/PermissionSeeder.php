@@ -28,6 +28,7 @@ class PermissionSeeder extends Seeder
             'vehicle_types',
             'devices',
             'device_types',
+            'device_messages',
             'drivers',
             'global_settings',
         ];

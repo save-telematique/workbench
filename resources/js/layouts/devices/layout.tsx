@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { NavItem } from '@/types';
 import Heading from '@/components/heading';
-import { Info } from 'lucide-react';
+import { Info, MessageSquare } from 'lucide-react';
 
 interface DevicesLayoutProps {
     children: ReactNode;
@@ -33,6 +33,11 @@ export default function DevicesLayout({
             title: __('devices.tabs.information'),
             href: deviceId ? route('devices.show', deviceId) : '',
             icon: Info,
+        },
+        {
+            title: __('devices.messages.title'),
+            href: deviceId ? route('devices.messages.index', deviceId) : '',
+            icon: MessageSquare,
         },
     ];
 

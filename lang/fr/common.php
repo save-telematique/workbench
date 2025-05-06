@@ -130,12 +130,13 @@ return [
     'first' => 'Premier',
     'last' => 'Dernier',
     'page' => 'Page',
-    'of' => 'de',
-    'showing' => 'Affichage',
+    'of' => 'sur',
+    'showing' => 'Affichage de',
     'to' => 'à',
     'total' => 'total',
     'results' => 'résultats',
-    'delete_confirmation' => 'Êtes-vous sûr de vouloir supprimer :item?',
+    'per_page' => 'par page',
+    'delete_confirmation' => 'Êtes-vous sûr de vouloir supprimer :item ?',
     'leave_blank_to_keep_unchanged' => 'Laissez vide pour conserver le mot de passe actuel',
     
     // Table

@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Device;
+use App\Models\DeviceMessage;
 use App\Models\DeviceType;
 use App\Models\Driver;
 use App\Models\Tenant;
@@ -11,6 +12,7 @@ use App\Models\Vehicle;
 use App\Models\VehicleBrand;
 use App\Models\VehicleModel;
 use App\Models\VehicleType;
+use App\Policies\DeviceMessagePolicy;
 use App\Policies\DevicePolicy;
 use App\Policies\DeviceTypePolicy;
 use App\Policies\DriverPolicy;
@@ -32,6 +34,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         Device::class => DevicePolicy::class,
+        DeviceMessage::class => DeviceMessagePolicy::class,
         DeviceType::class => DeviceTypePolicy::class,
         Driver::class => DriverPolicy::class,
         Tenant::class => TenantPolicy::class,

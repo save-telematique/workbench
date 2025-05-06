@@ -121,7 +121,7 @@ export default function Show({ device, deviceTypes }: DeviceShowProps) {
                 </Button>
                 <Button variant="outline" asChild>
                   <Link href={route("devices.index")}>
-                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    <ArrowLeft className="h-4 w-4 mr-2" />
                     {__("devices.actions.back_to_list")}
                   </Link>
                 </Button>

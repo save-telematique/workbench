@@ -134,6 +134,7 @@ return [
     'to' => 'to',
     'total' => 'total',
     'results' => 'results',
+    'per_page' => 'per page',
     'delete_confirmation' => 'Are you sure you want to delete :item?',
     'leave_blank_to_keep_unchanged' => 'Leave blank to keep current password',
     

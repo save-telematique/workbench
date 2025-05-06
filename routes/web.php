@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomainOrSubdomain;
+use App\Http\Controllers\Devices\DeviceController;
+use App\Http\Controllers\Devices\DeviceMessageController;
 
 foreach (config('tenancy.central_domains') as $domain) {
     Route::domain($domain)->group(function () {
@@ -50,6 +52,20 @@ foreach (config('tenancy.central_domains') as $domain) {
             Route::put('/drivers/{driver}', [App\Http\Controllers\Drivers\DriverController::class, 'update'])->name('drivers.update');
             Route::delete('/drivers/{driver}', [App\Http\Controllers\Drivers\DriverController::class, 'destroy'])->name('drivers.destroy');
             Route::put('/drivers/{driver}/restore', [App\Http\Controllers\Drivers\DriverController::class, 'restore'])->name('drivers.restore');
+
+            // Devices routes
+            Route::prefix('devices')->name('devices.')->middleware(['auth', 'verified'])->group(function () {
+                Route::get('/', [DeviceController::class, 'index'])->name('index');
+                Route::get('/create', [DeviceController::class, 'create'])->name('create');
+                Route::post('/', [DeviceController::class, 'store'])->name('store');
+                Route::get('/{device}', [DeviceController::class, 'show'])->name('show');
+                Route::get('/{device}/edit', [DeviceController::class, 'edit'])->name('edit');
+                Route::put('/{device}', [DeviceController::class, 'update'])->name('update');
+                Route::delete('/{device}', [DeviceController::class, 'destroy'])->name('destroy');
+                
+                // Device messages routes
+                Route::get('/{device}/messages', [DeviceMessageController::class, 'index'])->name('messages.index');
+            });
         });
         
         require __DIR__.'/settings.php';
