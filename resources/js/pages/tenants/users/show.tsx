@@ -21,6 +21,7 @@ import AppLayout from '@/layouts/app-layout';
 import TenantsLayout from '@/layouts/tenants/layout';
 import { useTranslation } from '@/utils/translation';
 import { Badge } from '@/components/ui/badge';
+import { usePermission } from '@/utils/permissions';
 
 interface TenantUserShowProps {
     tenant: {
@@ -41,6 +42,8 @@ interface TenantUserShowProps {
 export default function TenantUserShow({ tenant, user }: TenantUserShowProps) {
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const { __ } = useTranslation();
+    const canEditTenantUsers = usePermission('edit_tenant_users');
+    const canDeleteTenantUsers = usePermission('delete_tenant_users');
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
@@ -77,12 +80,14 @@ export default function TenantUserShow({ tenant, user }: TenantUserShowProps) {
                     />
                     
                     <div className="flex justify-end space-x-2">
-                        <Button asChild>
-                            <Link href={route('tenants.users.edit', [tenant.id, user.id])}>
-                                <Pencil className="mr-2 h-4 w-4" />
-                                {__('tenant_users.actions.edit')}
-                            </Link>
-                        </Button>
+                        {canEditTenantUsers && (
+                            <Button asChild>
+                                <Link href={route('tenants.users.edit', [tenant.id, user.id])}>
+                                    <Pencil className="mr-2 h-4 w-4" />
+                                    {__('tenant_users.actions.edit')}
+                                </Link>
+                            </Button>
+                        )}
                         <Button variant="outline" asChild>
                             <Link href={route('tenants.users.index', tenant.id)}>
                                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -148,30 +153,32 @@ export default function TenantUserShow({ tenant, user }: TenantUserShowProps) {
                             </div>
                         </CardContent>
                         <CardFooter className="border-t pt-6">
-                            <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-                                <DialogTrigger asChild>
-                                    <Button variant="destructive">
-                                        <Trash className="mr-2 h-4 w-4" />
-                                        {__('tenant_users.actions.delete')}
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                    <DialogHeader>
-                                        <DialogTitle>{__('common.confirm_delete')}</DialogTitle>
-                                        <DialogDescription>
-                                            {__('common.delete_confirmation', { item: user.name })}
-                                        </DialogDescription>
-                                    </DialogHeader>
-                                    <DialogFooter>
-                                        <DialogClose asChild>
-                                            <Button variant="outline">{__('common.cancel')}</Button>
-                                        </DialogClose>
-                                        <Button variant="destructive" onClick={handleDelete}>
-                                            {__('common.delete')}
+                            {canDeleteTenantUsers && (
+                                <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                                    <DialogTrigger asChild>
+                                        <Button variant="destructive">
+                                            <Trash className="mr-2 h-4 w-4" />
+                                            {__('tenant_users.actions.delete')}
                                         </Button>
-                                    </DialogFooter>
-                                </DialogContent>
-                            </Dialog>
+                                    </DialogTrigger>
+                                    <DialogContent>
+                                        <DialogHeader>
+                                            <DialogTitle>{__('common.confirm_delete')}</DialogTitle>
+                                            <DialogDescription>
+                                                {__('common.delete_confirmation', { item: user.name })}
+                                            </DialogDescription>
+                                        </DialogHeader>
+                                        <DialogFooter>
+                                            <DialogClose asChild>
+                                                <Button variant="outline">{__('common.cancel')}</Button>
+                                            </DialogClose>
+                                            <Button variant="destructive" onClick={handleDelete}>
+                                                {__('common.delete')}
+                                            </Button>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </Dialog>
+                            )}
                         </CardFooter>
                     </Card>
                 </div>

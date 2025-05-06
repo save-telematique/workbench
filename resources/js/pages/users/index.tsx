@@ -8,6 +8,7 @@ import AppLayout from '@/layouts/app-layout';
 import UsersLayout from '@/layouts/users/layout';
 import { useTranslation } from '@/utils/translation';
 import { type User, useUserColumns } from '@/components/users/user-columns';
+import { usePermission } from '@/utils/permissions';
 
 interface UsersIndexProps {
     users: User[];
@@ -19,6 +20,7 @@ export default function UsersIndex({ users }: UsersIndexProps) {
         baseRoute: 'users',
         translationNamespace: 'users',
     });
+    const canCreateUsers = usePermission('create_users');
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
@@ -35,12 +37,14 @@ export default function UsersIndex({ users }: UsersIndexProps) {
                 <div className="space-y-6">
                     
                     <div className="flex justify-end">
-                        <Button asChild>
-                            <Link href={route('users.create')}>
-                                <Plus className="mr-2 h-4 w-4" />
-                                {__('users.list.add_user')}
-                            </Link>
-                        </Button>
+                        {canCreateUsers && (
+                            <Button asChild>
+                                <Link href={route('users.create')}>
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    {__('users.list.add_user')}
+                                </Link>
+                            </Button>
+                        )}
                     </div>
                     
                     {users.length === 0 ? (
@@ -52,11 +56,13 @@ export default function UsersIndex({ users }: UsersIndexProps) {
                             <p className="mb-4 mt-2 text-sm text-muted-foreground">
                                 {__('users.list.get_started')}
                             </p>
-                            <Button asChild>
-                                <Link href={route('users.create')}>
-                                    {__('users.list.create_user')}
-                                </Link>
-                            </Button>
+                            {canCreateUsers && (
+                                <Button asChild>
+                                    <Link href={route('users.create')}>
+                                        {__('users.list.create_user')}
+                                    </Link>
+                                </Button>
+                            )}
                         </div>
                     ) : (
                         <DataTable

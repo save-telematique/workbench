@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/utils/translation';
 import FormattedDate from '@/components/formatted-date';
 import { Badge } from '@/components/ui/badge';
+import { DataTableRowActions } from '../ui/data-table-row-actions';
+import { useStandardActions } from '@/utils/actions';
 
 export interface User {
     id: string;
@@ -23,19 +25,13 @@ export interface UseUserColumnsParams {
 }
 
 export function useUserColumns({
-    baseRoute,
-    tenantId,
     translationNamespace
 }: UseUserColumnsParams): ColumnDef<User>[] {
     const { __ } = useTranslation();
-
-    const getRoute = (action: string, userId: string) => {
-        if (tenantId) {
-            return route(`${baseRoute}.${action}`, [tenantId, userId]);
-        }
-        return route(`${baseRoute}.${action}`, userId);
-    };
-
+    const getStandardActions = useStandardActions({
+        resourceName: "users"
+    });
+    
     return [
         {
             accessorKey: 'name',
@@ -51,7 +47,7 @@ export function useUserColumns({
             cell: ({ row }) => {
                 const user = row.original;
                 return (
-                    <div className="text-center">
+                    <div>
                         {user.email_verified_at ? (
                             <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
                                 <CheckCircle className="h-3 w-3 mr-1" />
@@ -76,27 +72,18 @@ export function useUserColumns({
             },
         },
         {
-            id: 'actions',
+            id: "actions",
             cell: ({ row }) => {
-                const user = row.original;
-                
-                return (
-                    <div className="flex justify-end space-x-2">
-                        <Button variant="ghost" size="icon" asChild>
-                            <Link href={getRoute('show', user.id)}>
-                                <Eye className="h-4 w-4" />
-                                <span className="sr-only">{__('common.view')}</span>
-                            </Link>
-                        </Button>
-                        <Button variant="ghost" size="icon" asChild>
-                            <Link href={getRoute('edit', user.id)}>
-                                <Pencil className="h-4 w-4" />
-                                <span className="sr-only">{__('common.edit')}</span>
-                            </Link>
-                        </Button>
-                    </div>
-                );
+              const user = { ...row.original, resourceName: "users" };
+              
+              return (
+                <DataTableRowActions
+                  row={row}
+                  actions={getStandardActions(user)}
+                  menuLabel={__("common.actions_header")}
+                />
+              );
             },
-        },
+          },
     ];
 } 

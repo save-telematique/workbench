@@ -50,7 +50,7 @@ return [
     'save' => 'Enregistrer',
     'saved' => 'Enregistré',
     'cancel' => 'Annuler',
-    'actions' => 'Actions',
+    'actions_header' => 'Actions',
     'back' => 'Retour',
     'confirm' => 'Confirmer',
     'close' => 'Fermer',
@@ -59,6 +59,20 @@ return [
     'select' => 'Sélectionner',
     'deleted' => 'Supprimé',
     'changes_saved' => 'Modifications enregistrées',
+    
+    // Action translations for data-table-row-actions
+    'actions' => [
+        'view' => 'Voir',
+        'edit' => 'Modifier',
+        'delete' => 'Supprimer',
+        'restore' => 'Restaurer',
+    ],
+    
+    // Confirmation messages
+    'confirmations' => [
+        'delete' => 'Êtes-vous sûr de vouloir supprimer cet élément?',
+        'restore' => 'Êtes-vous sûr de vouloir restaurer cet élément?',
+    ],
     
     // UI elements
     'search' => 'Rechercher',

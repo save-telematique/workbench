@@ -150,7 +150,7 @@ export const useColumns = () => {
           <DataTableRowActions
             row={row}
             actions={getStandardActions(vehicle)}
-            menuLabel={__("common.actions")}
+            menuLabel={__("common.actions_header")}
           />
         );
       },

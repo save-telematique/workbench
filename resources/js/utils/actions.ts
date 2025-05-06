@@ -43,7 +43,7 @@ export function useStandardActions(
     // View action
     if (viewRoute && canView) {
       actions.push({
-        label: __(`${resourceName}.actions.view`),
+        label: __(`common.actions.view`),
         icon: "Eye",
         href: route(`${resourceName}.show`, row.id),
       });
@@ -52,7 +52,7 @@ export function useStandardActions(
     // Edit action
     if (editRoute && canEdit && !isDeleted) {
       actions.push({
-        label: __(`${resourceName}.actions.edit`),
+        label: __(`common.actions.edit`),
         icon: "PenSquare",
         href: route(`${resourceName}.edit`, row.id),
       });
@@ -66,10 +66,10 @@ export function useStandardActions(
     // Delete action (only for non-deleted items)
     if (deleteAction && canDelete && !isDeleted) {
       actions.push({
-        label: __(`${resourceName}.actions.delete`),
+        label: __(`common.actions.delete`),
         icon: "Trash",
         onClick: () => {
-          if (confirm(__(`${resourceName}.confirmations.delete`))) {
+          if (confirm(__(`common.confirmations.delete`))) {
             router.delete(route(`${resourceName}.destroy`, row.id));
           }
         },
@@ -81,10 +81,10 @@ export function useStandardActions(
     // Restore action (only for soft-deleted items)
     if (restoreAction && canEdit && isDeleted) {
       actions.push({
-        label: __(`${resourceName}.actions.restore`),
+        label: __(`common.actions.restore`),
         icon: "Undo",
         onClick: () => {
-          if (confirm(__(`${resourceName}.confirmations.restore`))) {
+          if (confirm(__(`common.confirmations.restore`))) {
             router.put(route(`${resourceName}.restore`, row.id));
           }
         },

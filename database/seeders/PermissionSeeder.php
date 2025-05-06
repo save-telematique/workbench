@@ -81,7 +81,6 @@ class PermissionSeeder extends Seeder
         $centralUser->givePermissionTo([
             'view_tenants', 
             'view_users',
-            'view_global_settings'
         ]);
 
         // Tenant Admin permissions

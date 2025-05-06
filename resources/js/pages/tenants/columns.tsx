@@ -91,7 +91,7 @@ export function useTenantsColumns(): ColumnDef<Tenant>[] {
           <DataTableRowActions
             row={row}
             actions={getStandardActions(tenant)}
-            menuLabel={__("common.actions")}
+            menuLabel={__("common.actions_header")}
           />
         )
       },

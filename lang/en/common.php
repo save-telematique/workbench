@@ -49,7 +49,7 @@ return [
     'save' => 'Save',
     'saved' => 'Saved',
     'cancel' => 'Cancel',
-    'actions' => 'Actions',
+    'actions_header' => 'Actions',
     'back' => 'Back',
     'confirm' => 'Confirm',
     'close' => 'Close',
@@ -58,6 +58,20 @@ return [
     'select' => 'Select',
     'deleted' => 'Deleted',
     'changes_saved' => 'Changes saved successfully',
+    
+    // Action translations for data-table-row-actions
+    'actions' => [
+        'view' => 'View',
+        'edit' => 'Edit',
+        'delete' => 'Delete',
+        'restore' => 'Restore',
+    ],
+    
+    // Confirmation messages
+    'confirmations' => [
+        'delete' => 'Are you sure you want to delete this item?',
+        'restore' => 'Are you sure you want to restore this item?',
+    ],
     
     // UI elements
     'search' => 'Search',

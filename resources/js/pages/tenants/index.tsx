@@ -8,6 +8,7 @@ import AppLayout from '@/layouts/app-layout';
 import TenantsLayout from '@/layouts/tenants/layout';
 import { useTranslation } from '@/utils/translation';
 import { type Tenant, useTenantsColumns } from './columns';
+import { usePermission } from '@/utils/permissions';
 
 interface TenantsIndexProps {
     tenants: Tenant[];
@@ -16,6 +17,7 @@ interface TenantsIndexProps {
 export default function TenantsIndex({ tenants }: TenantsIndexProps) {
     const { __ } = useTranslation();
     const columns = useTenantsColumns();
+    const canCreateTenants = usePermission('create_tenants');
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
@@ -32,12 +34,14 @@ export default function TenantsIndex({ tenants }: TenantsIndexProps) {
                 <div className="space-y-6">
                   
                     <div className="flex justify-end">
-                        <Button asChild >
-                            <Link href={route('tenants.create')}>
-                                <Plus className="mr-2 h-4 w-4" />
-                                {__('tenants.list.add_tenant')}
-                            </Link>
-                        </Button>
+                        {canCreateTenants && (
+                            <Button asChild >
+                                <Link href={route('tenants.create')}>
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    {__('tenants.list.add_tenant')}
+                                </Link>
+                            </Button>
+                        )}
                     </div>
 
                     {tenants.length === 0 ? (
@@ -47,12 +51,14 @@ export default function TenantsIndex({ tenants }: TenantsIndexProps) {
                                 <h3 className="mt-2 text-sm font-semibold text-gray-900 dark:text-gray-100">{__('tenants.list.no_tenants')}</h3>
                                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{__('tenants.list.get_started')}</p>
                                 <div className="mt-6">
-                                    <Button asChild>
-                                        <Link href={route('tenants.create')}>
-                                            <Plus className="mr-2 h-4 w-4" />
-                                            {__('tenants.list.create_tenant')}
-                                        </Link>
-                                    </Button>
+                                    {canCreateTenants && (
+                                        <Button asChild>
+                                            <Link href={route('tenants.create')}>
+                                                <Plus className="mr-2 h-4 w-4" />
+                                                {__('tenants.list.create_tenant')}
+                                            </Link>
+                                        </Button>
+                                    )}
                                 </div>
                             </div>
                         </div>

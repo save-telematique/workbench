@@ -122,7 +122,7 @@ function ActionsCell({ row }: { row: any }) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuLabel>{__("common.actions")}</DropdownMenuLabel>
+        <DropdownMenuLabel>{__("common.actions_header")}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <Link href={route("tenants.show", tenant.id)}>

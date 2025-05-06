@@ -7,6 +7,7 @@ import { router } from "@inertiajs/react"
 import { Button } from "@/components/ui/button"
 import { DataTableColumnHeader } from "@/components/ui/data-table"
 import { useTranslation } from "@/utils/translation"
+import { usePermission } from "@/utils/permissions"
 
 // Type pour définir la structure de nos données
 export interface Domain {
@@ -38,6 +39,7 @@ export function getDomainUrl(domain: string, appHostname: string | null): string
 // Hook pour les colonnes
 export function useDomainsColumns(tenantId: string, appHostname: string | null): ColumnDef<Domain>[] {
   const { __ } = useTranslation()
+  const canDeleteDomains = usePermission('delete_tenant_domains');
 
   // Ouvrir le domaine dans un nouvel onglet
   const openDomainInNewTab = (domain: string) => {
@@ -105,19 +107,21 @@ export function useDomainsColumns(tenantId: string, appHostname: string | null):
               <ExternalLink className="h-4 w-4" />
               <span className="sr-only">{__('tenants.domains.actions.open')}</span>
             </Button>
-            <Button 
-              variant="ghost" 
-              className="text-red-500 hover:text-red-700"
-              onClick={() => {
-                if (confirm(__('tenants.domains.actions.delete_confirm'))) {
-                  router.delete(route('tenants.domains.destroy', [tenantId, domain.id]), { preserveScroll: true });
-                }
-              }}
-              title={__('tenants.domains.actions.delete_tooltip')}
-            >
-              <Trash2 className="h-4 w-4" />
-              <span className="sr-only">{__('common.delete')}</span>
-            </Button>
+            {canDeleteDomains && (
+              <Button 
+                variant="ghost" 
+                className="text-red-500 hover:text-red-700"
+                onClick={() => {
+                  if (confirm(__('tenants.domains.actions.delete_confirm'))) {
+                    router.delete(route('tenants.domains.destroy', [tenantId, domain.id]), { preserveScroll: true });
+                  }
+                }}
+                title={__('tenants.domains.actions.delete_tooltip')}
+              >
+                <Trash2 className="h-4 w-4" />
+                <span className="sr-only">{__('common.delete')}</span>
+              </Button>
+            )}
           </div>
         )
       },

@@ -65,7 +65,7 @@ export function useVehicleModelColumns(): ColumnDef<VehicleModel>[] {
         },
         {
             id: "actions",
-            header: () => <div className="text-right">{__('common.actions')}</div>,
+            header: () => <div className="text-right">{__('common.actions_header')}</div>,
             cell: ({ row }) => {
                 const vehicleModel = row.original
                 

@@ -135,7 +135,7 @@ export function useColumns() {
           <DataTableRowActions
             row={row}
             actions={getStandardActions(driver)}
-            menuLabel={__("common.actions")}
+            menuLabel={__("common.actions_header")}
           />
         );
       },

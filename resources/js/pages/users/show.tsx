@@ -11,6 +11,7 @@ import UsersLayout from '@/layouts/users/layout';
 import { useTranslation } from '@/utils/translation';
 import FormattedDate from '@/components/formatted-date';
 import { Badge } from '@/components/ui/badge';
+import { usePermission } from '@/utils/permissions';
 
 interface UserShowProps {
     user: {
@@ -27,6 +28,8 @@ interface UserShowProps {
 export default function UserShow({ user }: UserShowProps) {
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const { __ } = useTranslation();
+    const canEditUsers = usePermission('edit_users');
+    const canDeleteUsers = usePermission('delete_users');
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
@@ -50,12 +53,14 @@ export default function UserShow({ user }: UserShowProps) {
             <UsersLayout>
                 <div className="space-y-6">
                     <div className="flex justify-end space-x-2">
-                        <Button asChild>
-                            <Link href={route('users.edit', user.id)}>
-                                <Pencil className="mr-2 h-4 w-4" />
-                                {__('users.actions.edit')}
-                            </Link>
-                        </Button>
+                        {canEditUsers && (
+                            <Button asChild>
+                                <Link href={route('users.edit', user.id)}>
+                                    <Pencil className="mr-2 h-4 w-4" />
+                                    {__('users.actions.edit')}
+                                </Link>
+                            </Button>
+                        )}
                         <Button variant="outline" asChild>
                             <Link href={route('users.index')}>
                                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -122,29 +127,31 @@ export default function UserShow({ user }: UserShowProps) {
                             </div>
                         </CardContent>
                         <CardFooter className="flex justify-between border-t p-4">
-                            <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-                                <DialogTrigger asChild>
-                                    <Button variant="destructive" size="sm">
-                                        {__('users.actions.delete')}
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                    <DialogHeader>
-                                        <DialogTitle>{__('common.confirm_delete')}</DialogTitle>
-                                        <DialogDescription>
-                                            {__('common.confirm_delete_description')}
-                                        </DialogDescription>
-                                    </DialogHeader>
-                                    <DialogFooter>
-                                        <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
-                                            {__('common.cancel')}
+                            {canDeleteUsers && (
+                                <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                                    <DialogTrigger asChild>
+                                        <Button variant="destructive" size="sm">
+                                            {__('users.actions.delete')}
                                         </Button>
-                                        <Button variant="destructive" onClick={handleDelete}>
-                                            {__('common.delete')}
-                                        </Button>
-                                    </DialogFooter>
-                                </DialogContent>
-                            </Dialog>
+                                    </DialogTrigger>
+                                    <DialogContent>
+                                        <DialogHeader>
+                                            <DialogTitle>{__('common.confirm_delete')}</DialogTitle>
+                                            <DialogDescription>
+                                                {__('common.confirm_delete_description')}
+                                            </DialogDescription>
+                                        </DialogHeader>
+                                        <DialogFooter>
+                                            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+                                                {__('common.cancel')}
+                                            </Button>
+                                            <Button variant="destructive" onClick={handleDelete}>
+                                                {__('common.delete')}
+                                            </Button>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </Dialog>
+                            )}
                         </CardFooter>
                     </Card>
                 </div>

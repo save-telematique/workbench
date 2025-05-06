@@ -44,7 +44,7 @@ export function useVehicleBrandColumns(): ColumnDef<VehicleBrand>[] {
         },
         {
             id: "actions",
-            header: () => <div className="text-right">{__('common.actions')}</div>,
+            header: () => <div className="text-right">{__('common.actions_header')}</div>,
             cell: ({ row }) => {
                 const vehicleBrand = row.original
                 

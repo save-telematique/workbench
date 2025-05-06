@@ -21,6 +21,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { usePermission } from "@/utils/permissions";
 
 interface BreadcrumbItem {
   title: string;
@@ -75,6 +76,7 @@ export default function Index({ devices, filters, deviceTypes, tenants, vehicles
   const { __ } = useTranslation();
   const columns = useColumns();
   const [searchTerm, setSearchTerm] = useState(filters.search || "");
+  const canCreateDevices = usePermission('create_devices');
 
   const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -149,12 +151,14 @@ export default function Index({ devices, filters, deviceTypes, tenants, vehicles
             </form>
 
             <div className="flex gap-2 self-end">
-              <Button asChild>
-                <Link href={route("devices.create")}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  {__("devices.actions.create")}
-                </Link>
-              </Button>
+              {canCreateDevices && (
+                <Button asChild>
+                  <Link href={route("devices.create")}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    {__("devices.actions.create")}
+                  </Link>
+                </Button>
+              )}
               
               <Popover>
                 <PopoverTrigger asChild>

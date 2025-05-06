@@ -17,6 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { usePermission } from "@/utils/permissions";
 
 interface BreadcrumbItem {
   title: string;
@@ -62,6 +63,8 @@ interface VehicleShowProps {
 export default function Show({ vehicle }: VehicleShowProps) {
   const { __ } = useTranslation();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const canEditVehicles = usePermission('edit_vehicles');
+  const canDeleteVehicles = usePermission('delete_vehicles');
 
   const { patch } = useForm();
 
@@ -106,7 +109,7 @@ export default function Show({ vehicle }: VehicleShowProps) {
           </div>
 
           <div className="flex gap-2">
-            {!vehicle.deleted_at && (
+            {!vehicle.deleted_at && canEditVehicles && (
               <Button asChild variant="outline">
                 <Link href={route("vehicles.edit", vehicle.id)}>
                   <Pencil className="mr-2 h-4 w-4" />
@@ -114,7 +117,7 @@ export default function Show({ vehicle }: VehicleShowProps) {
                 </Link>
               </Button>
             )}
-            {!vehicle.deleted_at && (
+            {!vehicle.deleted_at && canDeleteVehicles && (
               <Button 
                 variant="destructive" 
                 onClick={() => setDeleteDialogOpen(true)}
@@ -123,7 +126,7 @@ export default function Show({ vehicle }: VehicleShowProps) {
                 {__("common.delete")}
               </Button>
             )}
-            {vehicle.deleted_at && (
+            {vehicle.deleted_at && canDeleteVehicles && (
               <Button variant="outline" onClick={handleRestore}>
                 <RotateCcw className="mr-2 h-4 w-4" />
                 {__("common.restore")}
