@@ -1,23 +1,18 @@
-import { Head, router } from "@inertiajs/react";
+import { Head } from "@inertiajs/react";
 import { useTranslation } from "@/utils/translation";
 import DriversLayout from "@/layouts/drivers/layout";
 import AppLayout from "@/layouts/app-layout";
 import { Button } from "@/components/ui/button";
-import { PenBox, Trash, RotateCcw } from "lucide-react";
+import { PenBox, Trash, RotateCcw, Building, User } from "lucide-react";
 import { Link } from "@inertiajs/react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { usePermission } from "@/utils/permissions";
 import { DeleteDriverDialog } from "./dialogs/delete-dialog";
 import { RestoreDriverDialog } from "./dialogs/restore-dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+import FormattedDate from "@/components/formatted-date";
 
 interface BreadcrumbItem {
   title: string;
@@ -53,11 +48,9 @@ interface Driver {
 
 interface ShowDriverProps {
   driver: Driver;
-  tenants: { id: string; name: string }[];
-  users: { id: string; name: string; email: string }[];
 }
 
-export default function Show({ driver, tenants, users }: ShowDriverProps) {
+export default function Show({ driver }: ShowDriverProps) {
   const { __ } = useTranslation();
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openRestoreDialog, setOpenRestoreDialog] = useState(false);
@@ -74,22 +67,6 @@ export default function Show({ driver, tenants, users }: ShowDriverProps) {
       href: route('drivers.show', driver.id),
     },
   ];
-
-  function handleTenantChange(tenantId: string) {
-    router.put(
-      route('drivers.update', driver.id),
-      { tenant_id: tenantId },
-      { preserveState: true }
-    );
-  }
-
-  function handleUserChange(userId: string) {
-    router.put(
-      route('drivers.update', driver.id),
-      { user_id: userId },
-      { preserveState: true }
-    );
-  }
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
@@ -130,128 +107,101 @@ export default function Show({ driver, tenants, users }: ShowDriverProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>{__("drivers.sections.driver_info")}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{__("drivers.fields.surname")}</p>
-                  <p>{driver.surname}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{__("drivers.fields.firstname")}</p>
-                  <p>{driver.firstname}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{__("drivers.fields.phone")}</p>
-                  <p>{driver.phone || "-"}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{__("drivers.fields.birthdate")}</p>
-                  <p>{driver.birthdate || "-"}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>{__("drivers.sections.license_info")}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{__("drivers.fields.license_number")}</p>
-                  <p>{driver.license_number || "-"}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{__("drivers.fields.card_issuing_country")}</p>
-                  <p>{driver.card_issuing_country || "-"}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{__("drivers.fields.card_number")}</p>
-                  <p>{driver.card_number || "-"}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{__("drivers.fields.card_issuing_date")}</p>
-                  <p>{driver.card_issuing_date || "-"}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{__("drivers.fields.card_expiration_date")}</p>
-                  <p>{driver.card_expiration_date || "-"}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>{__("drivers.sections.tenant_info")}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-2">{__("drivers.fields.tenant")}</p>
-                  {canEditDrivers ? (
-                    <Select
-                      value={driver.tenant_id}
-                      onValueChange={handleTenantChange}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder={__("drivers.placeholders.tenant")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {tenants.map((tenant) => (
-                          <SelectItem key={tenant.id} value={tenant.id}>
-                            {tenant.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <p>{driver.tenant?.name || "-"}</p>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>{__("drivers.sections.user_info")}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-2">{__("drivers.fields.user")}</p>
-                  {canEditDrivers ? (
-                    <Select
-                      value={driver.user_id || "none"}
-                      onValueChange={handleUserChange}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder={__("drivers.placeholders.user")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">{__("common.none")}</SelectItem>
-                        {users.map((user) => (
-                          <SelectItem key={user.id} value={user.id}>
-                            {user.name} ({user.email})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <p>{driver.user ? `${driver.user.name} (${driver.user.email})` : "-"}</p>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>{__("drivers.show.sections.details.title")}</CardTitle>
+            <CardDescription>{__("drivers.show.sections.details.description")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableBody>
+                <TableRow>
+                  <TableCell className="font-medium">{__("drivers.fields.surname")}</TableCell>
+                  <TableCell>{driver.surname}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="font-medium">{__("drivers.fields.firstname")}</TableCell>
+                  <TableCell>{driver.firstname}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="font-medium">{__("drivers.fields.phone")}</TableCell>
+                  <TableCell>{driver.phone || "-"}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="font-medium">{__("drivers.fields.birthdate")}</TableCell>
+                  <TableCell>
+                    {driver.birthdate ? 
+                      <FormattedDate date={driver.birthdate} format="DATE_MED" /> : 
+                      "-"
+                    }
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="font-medium">{__("drivers.fields.license_number")}</TableCell>
+                  <TableCell>{driver.license_number || "-"}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="font-medium">{__("drivers.fields.card_issuing_country")}</TableCell>
+                  <TableCell>{driver.card_issuing_country || "-"}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="font-medium">{__("drivers.fields.card_number")}</TableCell>
+                  <TableCell>{driver.card_number || "-"}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="font-medium">{__("drivers.fields.card_issuing_date")}</TableCell>
+                  <TableCell>
+                    {driver.card_issuing_date ? 
+                      <FormattedDate date={driver.card_issuing_date} format="DATE_MED" /> : 
+                      "-"
+                    }
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="font-medium">{__("drivers.fields.card_expiration_date")}</TableCell>
+                  <TableCell>
+                    {driver.card_expiration_date ? 
+                      <FormattedDate date={driver.card_expiration_date} format="DATE_MED" /> : 
+                      "-"
+                    }
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="font-medium">{__("drivers.fields.tenant")}</TableCell>
+                  <TableCell>
+                    {driver.tenant ? (
+                      <Link 
+                        href={route("tenants.show", driver.tenant.id)}
+                        className="flex items-center hover:underline text-primary"
+                      >
+                        <Building className="mr-2 h-4 w-4" />
+                        {driver.tenant.name}
+                      </Link>
+                    ) : (
+                      <span className="text-gray-400">{__("common.none")}</span>
+                    )}
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="font-medium">{__("drivers.fields.user")}</TableCell>
+                  <TableCell>
+                    {driver.user ? (
+                      <Link 
+                        href={route("users.show", driver.user.id)}
+                        className="flex items-center hover:underline text-primary"
+                      >
+                        <User className="mr-2 h-4 w-4" />
+                        {driver.user.name} ({driver.user.email})
+                      </Link>
+                    ) : (
+                      <span className="text-gray-400">{__("common.none")}</span>
+                    )}
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
 
         <DeleteDriverDialog
           open={openDeleteDialog}

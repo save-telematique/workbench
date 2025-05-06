@@ -26,12 +26,6 @@ export default function DriversLayout({ children, showSidebar = false, driverId 
     // Only include the driver-specific sidebar items if we have a driverId
     const sidebarNavItems = [];
     
-    // Always include the drivers list item
-    sidebarNavItems.push({
-        title: __('drivers.sidebar.list'),
-        href: route('drivers.index'),
-        icon: Users,
-    });
     
     // Only add these items if we have a driverId
     if (driverId) {
@@ -41,18 +35,6 @@ export default function DriversLayout({ children, showSidebar = false, driverId 
                 href: route('drivers.show', driverId),
                 icon: UserCog,
             },
-            {
-                title: __('drivers.sidebar.license'),
-                href: '#',
-                icon: FileText,
-                disabled: true,
-            },
-            {
-                title: __('drivers.sidebar.settings'),
-                href: '#',
-                icon: Settings,
-                disabled: true,
-            }
         );
     }
 

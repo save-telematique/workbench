@@ -15,10 +15,7 @@ return [
     ],
     
     'sidebar' => [
-        'list' => 'Tous les conducteurs',
-        'information' => 'Informations du conducteur',
-        'license' => 'Détails du permis',
-        'settings' => 'Paramètres',
+        'information' => 'Informations',
     ],
     
     'list' => [
@@ -52,7 +49,7 @@ return [
     ],
     
     'sections' => [
-        'driver_info' => 'Informations du conducteur',
+        'driver_info' => 'Informations',
         'license_info' => 'Informations du permis',
         'tenant_info' => 'Informations du tenant',
         'user_info' => 'Informations du compte utilisateur',

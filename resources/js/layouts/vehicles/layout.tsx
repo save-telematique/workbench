@@ -28,12 +28,6 @@ export default function VehiclesLayout({ children, showSidebar = false, vehicleI
             href: route('vehicles.index'),
             icon: Car,
         },
-        {
-            title: __('vehicles.sidebar.settings'),
-            href: '#',
-            icon: Settings,
-            disabled: true,
-        },
     ];
 
     return (

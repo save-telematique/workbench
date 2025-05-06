@@ -1,13 +1,12 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { Eye, Pencil, CheckCircle, XCircle } from "lucide-react"
-import { Link } from "@inertiajs/react"
-
-import { Button } from "@/components/ui/button"
+import { CheckCircle, XCircle } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { DataTableColumnHeader } from "@/components/ui/data-table"
 import { useTranslation } from "@/utils/translation"
+import { DataTableRowActions } from "@/components/ui/data-table-row-actions"
+import { useStandardActions } from "@/utils/actions"
 
 // Type pour définir la structure de nos données
 export interface Tenant {
@@ -17,11 +16,15 @@ export interface Tenant {
   phone: string | null
   address: string | null
   is_active: boolean
+  deleted_at: string | null
 }
 
 // Composant React pour les colonnes
 export function useTenantsColumns(): ColumnDef<Tenant>[] {
   const { __ } = useTranslation()
+  const getStandardActions = useStandardActions({
+    resourceName: "tenants"
+  })
 
   return [
     {
@@ -82,23 +85,14 @@ export function useTenantsColumns(): ColumnDef<Tenant>[] {
     {
       id: "actions",
       cell: ({ row }) => {
-        const tenant = row.original
+        const tenant = { ...row.original, resourceName: "tenants" }
         
         return (
-          <div className="flex justify-end space-x-2">
-            <Button variant="ghost" size="icon" asChild>
-              <Link href={route('tenants.show', tenant.id)}>
-                <Eye className="h-4 w-4" />
-                <span className="sr-only">{__('common.view')}</span>
-              </Link>
-            </Button>
-            <Button variant="ghost" size="icon" asChild>
-              <Link href={route('tenants.edit', tenant.id)}>
-                <Pencil className="h-4 w-4" />
-                <span className="sr-only">{__('common.edit')}</span>
-              </Link>
-            </Button>
-          </div>
+          <DataTableRowActions
+            row={row}
+            actions={getStandardActions(tenant)}
+            menuLabel={__("common.actions")}
+          />
         )
       },
     },

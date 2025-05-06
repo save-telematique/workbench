@@ -3,8 +3,9 @@ import { Badge } from "@/components/ui/badge";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import { DataTableRowActions } from "@/components/ui/data-table-row-actions";
 import { useTranslation } from "@/utils/translation";
-import { Link, router } from "@inertiajs/react";
+import { Link } from "@inertiajs/react";
 import { LicensePlate } from "@/components/ui/license-plate";
+import { useStandardActions } from "@/utils/actions";
 
 interface Vehicle {
   id: string;
@@ -27,6 +28,9 @@ interface Vehicle {
 
 export const useColumns = () => {
   const { __ } = useTranslation();
+  const getStandardActions = useStandardActions({
+    resourceName: "vehicles"
+  });
 
   const columns: ColumnDef<Vehicle>[] = [
     {
@@ -139,45 +143,17 @@ export const useColumns = () => {
     },
     {
       id: "actions",
-      cell: ({ row }) => (
-        <DataTableRowActions
-          row={row}
-          actions={[
-            {
-              label: __("vehicles.actions.edit"),
-              icon: "PenSquare",
-              href: route("vehicles.edit", row.original.id),
-            },
-            {
-              label: __("vehicles.actions.view"),
-              icon: "Eye",
-              href: route("vehicles.show", row.original.id),
-            },
-            {
-              label: __("vehicles.actions.delete"),
-              icon: "Trash",
-              onClick: () => {
-                if (confirm(__("vehicles.confirmations.delete"))) {
-                  router.delete(route("vehicles.destroy", row.original.id));
-                }
-              },
-              variant: "destructive",
-              hidden: !!row.original.deleted_at,
-            },
-            {
-              label: __("vehicles.actions.restore"),
-              icon: "Undo",
-              onClick: () => {
-                if (confirm(__("vehicles.confirmations.restore"))) {
-                  router.put(route("vehicles.restore", row.original.id));
-                }
-              },
-              variant: "default",
-              hidden: !row.original.deleted_at,
-            },
-          ]}
-        />
-      ),
+      cell: ({ row }) => {
+        const vehicle = { ...row.original, resourceName: "vehicles" };
+        
+        return (
+          <DataTableRowActions
+            row={row}
+            actions={getStandardActions(vehicle)}
+            menuLabel={__("common.actions")}
+          />
+        );
+      },
     },
   ];
 

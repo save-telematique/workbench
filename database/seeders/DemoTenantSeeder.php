@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Box;
 use App\Models\Device;
+use App\Models\Driver;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Models\Vehicle;
@@ -63,5 +64,16 @@ class DemoTenantSeeder extends Seeder
             'serial_number' => 'XX',
         ]);
 
+        Driver::create([
+            'tenant_id' => $tenant->id,
+            'surname' => 'Nom',
+            'firstname' => 'Prénom',
+            'card_issuing_country' => 'FR',
+            'card_number' => '7000000120049447',
+            'license_number' => '1234567890',
+            'birthdate' => '1990-01-01',
+            'card_issuing_date' => '2020-01-01',
+            'card_expiration_date' => '2025-01-01',
+        ]);
     }
 }
