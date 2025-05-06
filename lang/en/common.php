@@ -48,6 +48,7 @@ return [
     'delete' => 'Delete',
     'save' => 'Save',
     'saved' => 'Saved',
+    'saving' => 'Saving...',
     'cancel' => 'Cancel',
     'actions_header' => 'Actions',
     'back' => 'Back',

@@ -17,6 +17,8 @@ foreach (config('tenancy.central_domains') as $domain) {
             
             // Global users routes
             Route::resource('users', \App\Http\Controllers\UsersController::class);
+            Route::get('users/{user}/roles', [\App\Http\Controllers\UsersController::class, 'editRoles'])->name('users.roles.edit');
+            Route::put('users/{user}/roles', [\App\Http\Controllers\UsersController::class, 'updateRoles'])->name('users.roles.update');
             
             /*
             |--------------------------------------------------------------------------

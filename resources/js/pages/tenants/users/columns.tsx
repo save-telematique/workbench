@@ -15,7 +15,6 @@ export interface TenantUser {
 // Hook pour les colonnes
 export function useTenantUsersColumns(tenantId: string) {
   return useUserColumns({
-    baseRoute: 'tenants.users',
     tenantId,
     translationNamespace: 'tenant_users',
   });

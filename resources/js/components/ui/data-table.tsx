@@ -35,16 +35,12 @@ interface DataTableProps<TData, TValue> {
     canPreviousPage: boolean;
     canNextPage: boolean;
   };
-  baseRoute?: string;
   filters?: Record<string, string>;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  pagination,
-  baseRoute,
-  filters,
 }: DataTableProps<TData, TValue>) {
   const { __ } = useTranslation();
   const [sorting, setSorting] = useState<SortingState>([]);

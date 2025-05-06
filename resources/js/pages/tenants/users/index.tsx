@@ -41,7 +41,7 @@ export default function TenantUsersIndex({ tenant, users }: TenantUsersIndexProp
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={__('tenant_users.list.title', { tenant: tenant.name })} />
 
-            <TenantsLayout showSidebar={true} tenantId={tenant.id} activeTab="users">
+            <TenantsLayout showSidebar={true} tenantId={tenant.id}>
                 <div className="space-y-6">
                     <HeadingSmall 
                         title={__('tenant_users.list.heading')} 

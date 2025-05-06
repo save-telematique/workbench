@@ -297,7 +297,6 @@ export default function Index({ devices, filters, deviceTypes, tenants, vehicles
                 canPreviousPage: devices.meta.current_page > 1,
                 canNextPage: devices.meta.current_page < devices.meta.last_page,
               } : undefined}
-              baseRoute="devices.index"
               filters={{ ...filterValues, search: searchTerm }}
             />
           )}

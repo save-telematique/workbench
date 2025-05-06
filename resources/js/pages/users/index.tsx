@@ -17,7 +17,6 @@ interface UsersIndexProps {
 export default function UsersIndex({ users }: UsersIndexProps) {
     const { __ } = useTranslation();
     const columns = useUserColumns({
-        baseRoute: 'users',
         translationNamespace: 'users',
     });
     const canCreateUsers = usePermission('create_users');

@@ -227,7 +227,6 @@ export default function Index({ drivers, filters, tenants }: DriversPageProps) {
                 canPreviousPage: drivers.meta.current_page > 1,
                 canNextPage: drivers.meta.current_page < drivers.meta.last_page,
               } : undefined}
-              baseRoute="drivers.index"
               filters={{ ...filterValues, search: searchTerm }}
             />
           )}

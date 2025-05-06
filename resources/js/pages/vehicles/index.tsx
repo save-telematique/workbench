@@ -294,7 +294,6 @@ export default function Index({ vehicles, filters, brands, tenants }: VehiclesPa
                 canPreviousPage: vehicles.meta.current_page > 1,
                 canNextPage: vehicles.meta.current_page < vehicles.meta.last_page,
               } : undefined}
-              baseRoute="vehicles.index"
               filters={{ ...filterValues, search: searchTerm }}
             />
           )}

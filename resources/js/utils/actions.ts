@@ -16,6 +16,8 @@ interface UseStandardActionsOptions {
   restoreAction?: boolean;
   customActions?: Action[];
   resourceName: string;
+  routePrefix?: string | null;
+  additionalParams?: Record<string, string | number>;
 }
 
 export function useStandardActions(
@@ -29,6 +31,8 @@ export function useStandardActions(
     restoreAction = true,
     customActions = [],
     resourceName,
+    routePrefix = null,
+    additionalParams = {},
   } = options;
 
   // Get permissions at the hook level
@@ -39,13 +43,19 @@ export function useStandardActions(
   return <T extends ResourceInfo>(row: T): Action[] => {
     const isDeleted = !!row.deleted_at;
     const actions: Action[] = [];
+    const singularResourceName = resourceName.slice(0, -1);
 
+    const params = {
+      ...additionalParams,
+    };
+
+    params[singularResourceName] = row.id;
     // View action
     if (viewRoute && canView) {
       actions.push({
         label: __(`common.actions.view`),
         icon: "Eye",
-        href: route(`${resourceName}.show`, row.id),
+        href: route(`${routePrefix ?? resourceName}.show`, params),
       });
     }
 
@@ -54,7 +64,7 @@ export function useStandardActions(
       actions.push({
         label: __(`common.actions.edit`),
         icon: "PenSquare",
-        href: route(`${resourceName}.edit`, row.id),
+        href: route(`${routePrefix ?? resourceName}.edit`, params),
       });
     }
 
@@ -70,7 +80,7 @@ export function useStandardActions(
         icon: "Trash",
         onClick: () => {
           if (confirm(__(`common.confirmations.delete`))) {
-            router.delete(route(`${resourceName}.destroy`, row.id));
+            router.delete(route(`${routePrefix ?? resourceName}.destroy`, params));
           }
         },
         variant: "destructive",
@@ -85,7 +95,7 @@ export function useStandardActions(
         icon: "Undo",
         onClick: () => {
           if (confirm(__(`common.confirmations.restore`))) {
-            router.put(route(`${resourceName}.restore`, row.id));
+            router.put(route(`${routePrefix ?? resourceName}.restore`, params));
           }
         },
         separator: true,

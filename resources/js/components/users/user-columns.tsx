@@ -19,17 +19,21 @@ export interface User {
 }
 
 export interface UseUserColumnsParams {
-    baseRoute: string;
     tenantId?: string;
     translationNamespace: 'users' | 'tenant_users';
 }
 
 export function useUserColumns({
-    translationNamespace
+    translationNamespace,
+    tenantId,
 }: UseUserColumnsParams): ColumnDef<User>[] {
     const { __ } = useTranslation();
     const getStandardActions = useStandardActions({
-        resourceName: "users"
+        resourceName: "users",
+        routePrefix: translationNamespace === "tenant_users" ? "tenants.users" : null,
+        additionalParams: tenantId ? {
+            tenant: tenantId,
+        } : {},
     });
     
     return [

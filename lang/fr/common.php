@@ -49,6 +49,7 @@ return [
     'delete' => 'Supprimer',
     'save' => 'Enregistrer',
     'saved' => 'Enregistré',
+    'saving' => 'Enregistrement...',
     'cancel' => 'Annuler',
     'actions_header' => 'Actions',
     'back' => 'Retour',
