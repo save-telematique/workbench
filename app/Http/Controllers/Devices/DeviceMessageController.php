@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Devices;
 use App\Http\Controllers\Controller;
 use App\Models\Device;
 use App\Models\DeviceMessage;
+use App\Models\VehicleLocation;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -25,7 +26,7 @@ class DeviceMessageController extends Controller
     public function index(Request $request, Device $device)
     {
         $perPage = $request->input('per_page', 15);
-        $date = $request->input('date') ? \Carbon\Carbon::parse($request->input('date')) : null;
+        $date = $request->input('date') ? \Carbon\Carbon::parse($request->input('date')) : today();
 
         $messages = DeviceMessage::with('location')
             ->where('device_id', $device->id)
@@ -39,12 +40,23 @@ class DeviceMessageController extends Controller
         $groupedMessages = $messages->groupBy(function ($message) {
             return $message->created_at->format('Y-m-d');
         });
+        
+        // Get all locations for the day, regardless of pagination
+        $allLocations = VehicleLocation::whereIn('device_message_id', function ($query) use ($device, $date) {
+            $query->select('id')
+                ->from('device_messages')
+                ->where('device_id', $device->id)
+                ->whereDate('created_at', $date);
+        })
+        ->orderBy('recorded_at', 'asc')
+        ->get(['id', 'latitude', 'longitude', 'speed', 'heading', 'ignition', 'moving', 'recorded_at', 'address']);
 
         return Inertia::render('devices/messages', [
             'device' => $device,
             'messages' => $messages,
             'groupedDates' => $groupedMessages->keys(),
             'filters' => $request->only(['date', 'per_page']),
+            'allLocations' => $allLocations,
         ]);
     }
 } 

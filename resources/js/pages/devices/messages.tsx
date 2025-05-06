@@ -20,6 +20,7 @@ import {
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import VehicleLocationMap, { LocationPoint } from "@/components/maps/vehicle-location-map";
 
 interface DeviceMessage {
   id: number;
@@ -72,9 +73,10 @@ interface DeviceMessagesPageProps extends PageProps {
     date: string | null;
     per_page: number;
   };
+  allLocations: LocationPoint[];
 }
 
-export default function DeviceMessages({ device, messages, filters }: DeviceMessagesPageProps) {
+export default function DeviceMessages({ device, messages, filters, allLocations }: DeviceMessagesPageProps) {
   const { __ } = useTranslation();
   // Default to today if no date is provided
   const [date, setDate] = useState<string>(
@@ -182,6 +184,13 @@ export default function DeviceMessages({ device, messages, filters }: DeviceMess
           <HeadingSmall
             title={__("devices.messages.title")}
             description={__("devices.messages.description")}
+          />
+
+          {/* Location Map */}
+          <VehicleLocationMap 
+            initialShowAllPoints={false}
+            locations={allLocations} 
+            title={__("devices.messages.vehicle_location_map")}
           />
 
           <Card>
