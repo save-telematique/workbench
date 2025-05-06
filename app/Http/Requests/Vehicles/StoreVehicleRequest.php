@@ -30,7 +30,6 @@ class StoreVehicleRequest extends FormRequest
             'year' => ['required', 'integer', 'min:1900', 'max:' . (date('Y') + 1)],
             'tenant_id' => ['nullable', 'string'],
             'device_id' => ['nullable', 'string'],
-            'imei' => ['nullable', 'string', 'regex:/^[0-9]{15}$/', 'unique:vehicles,imei'],
         ];
     }
 } 

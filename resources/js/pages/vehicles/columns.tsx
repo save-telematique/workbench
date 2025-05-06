@@ -13,7 +13,6 @@ interface Vehicle {
   model: string;
   color: string;
   vin: string;
-  imei?: string;
   year: number;
   tenant?: {
     id: string;
@@ -114,18 +113,6 @@ export const useColumns = () => {
       ),
       cell: ({ row }) => (
         <div className="w-[130px]">{row.getValue("vin")}</div>
-      ),
-    },
-    {
-      accessorKey: "imei",
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title={__("vehicles.fields.imei")}
-        />
-      ),
-      cell: ({ row }) => (
-        <div className="w-[130px]">{row.getValue("imei") || __("common.none")}</div>
       ),
     },
     {

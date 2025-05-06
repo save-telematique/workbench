@@ -37,12 +37,6 @@ class UpdateVehicleRequest extends FormRequest
                 'max:50',
                 Rule::unique('vehicles', 'vin')->ignore($this->route('vehicle')),
             ],
-            'imei' => [
-                'nullable', 
-                'string', 
-                'regex:/^[0-9]{15}$/',
-                Rule::unique('vehicles', 'imei')->ignore($this->route('vehicle')),
-            ],
             'tenant_id' => ['nullable', 'string'],
             'device_id' => ['nullable', 'string'],
         ];

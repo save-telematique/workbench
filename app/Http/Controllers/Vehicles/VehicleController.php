@@ -175,7 +175,6 @@ class VehicleController extends Controller
             'brand' => $vehicle->model->vehicleBrand->name ?? '',
             'model' => $vehicle->model->name ?? '',
             'vin' => $vehicle->vin,
-            'imei' => $vehicle->imei,
             'tenant_id' => $vehicle->tenant_id,
             'device_id' => $vehicle->device_id,
             'tenant' => $vehicle->tenant ? [
@@ -239,7 +238,6 @@ class VehicleController extends Controller
             'brand_id' => $vehicle->model->vehicle_brand_id ?? null,
             'color' => $vehicle->color,
             'vin' => $vehicle->vin,
-            'imei' => $vehicle->imei,
             'year' => $vehicle->year,
             'tenant_id' => $vehicle->tenant_id,
             'device_id' => $vehicle->device_id,

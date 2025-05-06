@@ -31,7 +31,6 @@ interface Vehicle {
   brand?: string;
   model?: string;
   vin: string;
-  imei?: string;
   model_id?: string;
   brand_id?: string;
   tenant_id: string | null;
@@ -73,7 +72,6 @@ export default function VehicleForm({
     brand_id: vehicle.brand_id || '',
     model_id: vehicle.model_id || '',
     vin: vehicle.vin || '',
-    imei: vehicle.imei || '',
     tenant_id: 'none',
     device_id: 'none',
   });
@@ -248,30 +246,6 @@ export default function VehicleForm({
                   className="mt-1"
                 />
                 <FormError message={errors.vin} />
-              </div>
-
-              <div>
-                <Label htmlFor="imei" className="text-sm font-medium">
-                  {__("vehicles.fields.imei")}
-                </Label>
-                <Input
-                  id="imei"
-                  type="text"
-                  value={data.imei}
-                  onChange={(e) => {
-                    // N'autoriser que les chiffres
-                    const value = e.target.value.replace(/\D/g, '');
-                    setData("imei", value);
-                  }}
-                  placeholder={__("vehicles.placeholders.imei")}
-                  className="mt-1"
-                  maxLength={15}
-                  pattern="[0-9]{15}"
-                />
-                <FormError message={errors.imei} />
-                <p className="text-xs text-muted-foreground mt-1">
-                  {__("vehicles.fields.imei")} - {data.imei?.length || 0}/15
-                </p>
               </div>
             </div>
           </div>

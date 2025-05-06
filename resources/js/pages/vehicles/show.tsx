@@ -48,7 +48,6 @@ interface Vehicle {
   brand: string;
   model: string;
   vin: string;
-  imei?: string;
   created_at: string;
   updated_at: string;
   tenant_id?: string | null;
@@ -231,10 +230,6 @@ export default function Show({ vehicle, tenants, devices }: VehicleShowProps) {
                     <TableRow>
                       <TableCell className="font-medium">{__("vehicles.fields.vin")}</TableCell>
                       <TableCell>{vehicle.vin || ''}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell className="font-medium">{__("vehicles.fields.imei")}</TableCell>
-                      <TableCell>{vehicle.imei || __("common.none")}</TableCell>
                     </TableRow>
                     {vehicle.deleted_at && (
                       <TableRow>
