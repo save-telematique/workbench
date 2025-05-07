@@ -26,6 +26,7 @@ return [
         'tenant_name' => 'Tenant Name',
         'device_serial' => 'Serial Number',
         'device_type' => 'Device Type',
+        'vehicle_type' => 'Vehicle Type',
     ],
     'actions' => [
         'create' => 'Add Vehicle',
@@ -50,6 +51,7 @@ return [
         'tenant' => 'Select tenant',
         'device' => 'Select device',
         'has_device' => 'Filter by device status',
+        'vehicle_type' => 'Select vehicle type',
     ],
     'loading_models' => 'Loading models...',
     'create' => [

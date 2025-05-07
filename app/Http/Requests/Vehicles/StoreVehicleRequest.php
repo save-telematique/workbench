@@ -22,7 +22,7 @@ class StoreVehicleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'registration' => ['required', 'string', 'max:20', 'unique:vehicles,registration'],
+            'registration' => ['nullable', 'string', 'max:20', 'unique:vehicles,registration'],
             'model_id' => ['required', 'exists:vehicle_models,id'],
             'vehicle_type_id' => ['required', 'exists:vehicle_types,id'],
             'color' => ['required', 'string', 'max:30'],

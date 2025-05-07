@@ -52,6 +52,7 @@ interface Vehicle {
   vin: string;
   model_id?: number;
   brand_id?: number;
+  vehicle_type_id?: number;
   tenant_id: string | null; // UUID
   device_id: string | null; // UUID
 }
@@ -62,6 +63,7 @@ interface VehicleFormProps {
   devices: { id: string; serial_number: string }[]; // UUID
   brands: { id: number; name: string }[];
   models: VehicleModel[];
+  vehicleTypes: { id: number; name: string }[];
   isCreate?: boolean;
   onSuccess?: () => void;
 }
@@ -71,6 +73,7 @@ interface VehicleFormData {
   registration: string;
   brand_id: number | null;
   model_id: number | null;
+  vehicle_type_id: number | null;
   vin: string;
   tenant_id: string;
   device_id: string;
@@ -83,6 +86,7 @@ export default function VehicleForm({
   devices, 
   brands, 
   models,
+  vehicleTypes,
   isCreate = false,
   onSuccess 
 }: VehicleFormProps) {
@@ -94,16 +98,12 @@ export default function VehicleForm({
   // State for tab navigation
   const [activeTab, setActiveTab] = useState("manual");
   
-  const formMethod = isCreate ? 'post' : 'put';
-  const formUrl = isCreate 
-    ? route("vehicles.store") 
-    : (vehicle.id ? route("vehicles.update", vehicle.id) : '');
-  
   // Initialize form with default values - use null for empty numeric values
   const { data, setData, submit, processing, errors, recentlySuccessful } = useForm<VehicleFormData>({
     registration: vehicle.registration || '',
     brand_id: vehicle.brand_id || null,
     model_id: vehicle.model_id || null,
+    vehicle_type_id: vehicle.vehicle_type_id || null,
     vin: vehicle.vin || '',
     tenant_id: 'none',
     device_id: 'none',
@@ -186,24 +186,12 @@ export default function VehicleForm({
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     
-    // Convert the form data for submission
-    const processedData = new FormData();
-    
-    // Add all form fields
-    processedData.append('registration', data.registration || '');
-    processedData.append('vin', data.vin || '');
-    processedData.append('tenant_id', data.tenant_id || 'none');
-    processedData.append('device_id', data.device_id || 'none');
-    
-    // Convert numeric IDs to strings for submission
-    processedData.append('brand_id', data.brand_id?.toString() || '');
-    processedData.append('model_id', data.model_id?.toString() || '');
-    
-    // Submit using the native form submission
-    const form = e.target as HTMLFormElement;
-    form.method = formMethod;
-    form.action = formUrl;
-    form.submit();
+    // Use Inertia's form submission which automatically handles CSRF tokens
+    if (isCreate) {
+      submit('post', route("vehicles.store"));
+    } else if (vehicle.id) {
+      submit('put', route("vehicles.update", vehicle.id));
+    }
     
     // Handle success callback if needed
     if (onSuccess) {
@@ -229,6 +217,16 @@ export default function VehicleForm({
     setData(prev => ({
       ...prev,
       model_id: modelId,
+    }));
+  }
+
+  function handleVehicleTypeChange(value: string) {
+    // Parse string to number or null
+    const typeId = value ? parseInt(value, 10) : null;
+    
+    setData(prev => ({
+      ...prev,
+      vehicle_type_id: typeId,
     }));
   }
 
@@ -269,7 +267,7 @@ export default function VehicleForm({
                 <div className="grid gap-6 md:grid-cols-2">
                   <div>
                     <Label htmlFor="registration" className="text-sm font-medium">
-                      {__("vehicles.fields.registration")} <span className="text-destructive">*</span>
+                      {__("vehicles.fields.registration")}
                     </Label>
                     <Input
                       id="registration"
@@ -298,7 +296,6 @@ export default function VehicleForm({
                   </div>
                 </div>
 
-                {/* Brand and Model side by side */}
                 <div className="grid gap-6 md:grid-cols-2">
                   <div>
                     <Label htmlFor="brand_id" className="text-sm font-medium">
@@ -322,6 +319,31 @@ export default function VehicleForm({
                     <FormError message={errors.brand_id} />
                   </div>
 
+                  <div>
+                    <Label htmlFor="vehicle_type_id" className="text-sm font-medium">
+                      {__("vehicles.fields.vehicle_type")} <span className="text-destructive">*</span>
+                    </Label>
+                    <Select
+                      value={data.vehicle_type_id?.toString() || ''}
+                      onValueChange={handleVehicleTypeChange}
+                    >
+                      <SelectTrigger id="vehicle_type_id" className="mt-1">
+                        <SelectValue placeholder={__("vehicles.placeholders.vehicle_type")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.isArray(vehicleTypes) && vehicleTypes.map((type) => (
+                          <SelectItem key={`vehicle_type-${type.id}`} value={type.id.toString()}>
+                            {type.name || ''}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormError message={errors.vehicle_type_id} />
+                  </div>
+                </div>
+
+                {/* Model section */}
+                <div className="grid gap-6 md:grid-cols-2">
                   <div>
                     <Label htmlFor="model_id" className="text-sm font-medium">
                       {__("vehicles.fields.model")} <span className="text-destructive">*</span>
@@ -471,7 +493,6 @@ export default function VehicleForm({
                 </div>
               </div>
 
-              {/* Brand and Model side by side */}
               <div className="grid gap-6 md:grid-cols-2">
                 <div>
                   <Label htmlFor="brand_id" className="text-sm font-medium">
@@ -495,6 +516,31 @@ export default function VehicleForm({
                   <FormError message={errors.brand_id} />
                 </div>
 
+                <div>
+                  <Label htmlFor="vehicle_type_id" className="text-sm font-medium">
+                    {__("vehicles.fields.vehicle_type")} <span className="text-destructive">*</span>
+                  </Label>
+                  <Select
+                    value={data.vehicle_type_id?.toString() || ''}
+                    onValueChange={handleVehicleTypeChange}
+                  >
+                    <SelectTrigger id="vehicle_type_id" className="mt-1">
+                      <SelectValue placeholder={__("vehicles.placeholders.vehicle_type")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.isArray(vehicleTypes) && vehicleTypes.map((type) => (
+                        <SelectItem key={`vehicle_type-${type.id}`} value={type.id.toString()}>
+                          {type.name || ''}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormError message={errors.vehicle_type_id} />
+                </div>
+              </div>
+
+              {/* Model section */}
+              <div className="grid gap-6 md:grid-cols-2">
                 <div>
                   <Label htmlFor="model_id" className="text-sm font-medium">
                     {__("vehicles.fields.model")} <span className="text-destructive">*</span>

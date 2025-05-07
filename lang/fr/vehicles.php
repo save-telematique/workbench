@@ -26,6 +26,7 @@ return [
         'tenant_name' => 'Nom du client',
         'device_serial' => 'Numéro de série',
         'device_type' => 'Type d\'appareil',
+        'vehicle_type' => 'Type de véhicule',
     ],
     'actions' => [
         'create' => 'Ajouter un véhicule',
@@ -50,6 +51,7 @@ return [
         'tenant' => 'Sélectionner le client',
         'device' => 'Sélectionner le dispositif',
         'has_device' => 'Filtrer par statut de dispositif',
+        'vehicle_type' => 'Sélectionner le type de véhicule',
     ],
     'loading_models' => 'Chargement des modèles...',
     'create' => [

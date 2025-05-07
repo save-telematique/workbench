@@ -25,6 +25,7 @@ interface Vehicle {
   vin: string;
   model_id?: string;
   brand_id?: string;
+  vehicle_type_id?: string;
   tenant_id: string | null;
   device_id: string | null;
 }
@@ -34,9 +35,10 @@ interface VehicleCreateProps {
   devices: { id: string; serial_number: string }[];
   brands: { id: string; name: string }[];
   models: VehicleModel[];
+  vehicleTypes: { id: string; name: string }[];
 }
 
-export default function Create({ tenants, devices, brands, models }: VehicleCreateProps) {
+export default function Create({ tenants, devices, brands, models, vehicleTypes }: VehicleCreateProps) {
   const { __ } = useTranslation();
 
   const breadcrumbs: BreadcrumbItem[] = [
@@ -85,6 +87,7 @@ export default function Create({ tenants, devices, brands, models }: VehicleCrea
             isCreate={true}
             brands={brands}
             models={models}
+            vehicleTypes={vehicleTypes}
             onSuccess={(id) => {
               window.location.href = route('vehicles.show', id);
             }}

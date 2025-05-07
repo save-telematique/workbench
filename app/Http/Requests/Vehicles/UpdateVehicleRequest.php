@@ -24,7 +24,7 @@ class UpdateVehicleRequest extends FormRequest
     {
         return [
             'registration' => [
-                'required', 
+                'nullable', 
                 'string', 
                 'max:20',
                 Rule::unique('vehicles', 'registration')->ignore($this->route('vehicle')),

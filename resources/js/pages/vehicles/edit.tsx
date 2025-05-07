@@ -23,6 +23,7 @@ interface Vehicle {
   vin: string;
   model_id?: string;
   brand_id?: string;
+  vehicle_type_id?: string;
   tenant_id: string | null;
   device_id: string | null;
 }
@@ -33,9 +34,10 @@ interface VehicleEditProps {
   devices: { id: string; serial_number: string }[];
   brands: { id: string; name: string }[];
   models: VehicleModel[];
+  vehicleTypes: { id: string; name: string }[];
 }
 
-export default function Edit({ vehicle, tenants, devices, brands, models }: VehicleEditProps) {
+export default function Edit({ vehicle, tenants, devices, brands, models, vehicleTypes }: VehicleEditProps) {
   const { __ } = useTranslation();
 
   const breadcrumbs: BreadcrumbItem[] = [
@@ -66,6 +68,7 @@ export default function Edit({ vehicle, tenants, devices, brands, models }: Vehi
             devices={devices}
             brands={brands}
             models={models}
+            vehicleTypes={vehicleTypes}
             onSuccess={() => {
               window.location.href = route('vehicles.show', vehicle.id);
             }}
