@@ -123,7 +123,7 @@ export default function DriverForm({
       firstname: analysisData.first_name || data.firstname,
       surname: analysisData.last_name || data.surname,
       license_number: analysisData.license_number || data.license_number,
-      card_number: analysisData.license_number || data.card_number, // Often the same as license number
+      card_number: analysisData.card_number || data.card_number, // Utiliser directement card_number
       card_issuing_country: analysisData.country_code || data.card_issuing_country, // Use the country code
     };
 

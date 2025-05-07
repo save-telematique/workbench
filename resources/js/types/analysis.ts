@@ -32,6 +32,7 @@ export interface DriverAnalysisData {
   last_name?: string;
   date_of_birth?: string;
   license_number?: string;
+  card_number?: string;
   license_class?: string;
   issue_date?: string;
   expiry_date?: string;

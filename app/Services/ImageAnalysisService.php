@@ -340,15 +340,17 @@ class ImageAnalysisService
                 [
                     'role' => 'system',
                     'content' => 'You are an assistant that extracts information from driver license documents. 
-                    Focus on extracting exactly these fields if visible:
+                    Focus on extracting exactly these fields if visible and distinguish between the license number and card number:
+                    
                     1. First name of the driver
                     2. Last name of the driver
                     3. Date of birth (in ISO format YYYY-MM-DD if possible)
-                    4. License number/identifier
-                    5. License class/category
-                    6. Issue date (in ISO format YYYY-MM-DD if possible)
-                    7. Expiry date (in ISO format YYYY-MM-DD if possible)
-                    8. Country code (in ISO 3166-1 alpha-2 format, e.g. "FR" for France, "BE" for Belgium)
+                    4. License number/identifier (the main identifying number of the driver)
+                    5. Card number (document number that changes with each renewal - often on the back)
+                    6. License class/category
+                    7. Issue date (in ISO format YYYY-MM-DD if possible)
+                    8. Expiry date (in ISO format YYYY-MM-DD if possible)
+                    9. Country code (in ISO 3166-1 alpha-2 format, e.g. "FR" for France, "BE" for Belgium)
                     
                     Return ONLY a JSON object with these fields: 
                     {
@@ -356,6 +358,7 @@ class ImageAnalysisService
                         "last_name": string,
                         "date_of_birth": string,
                         "license_number": string,
+                        "card_number": string,
                         "license_class": string,
                         "issue_date": string,
                         "expiry_date": string,
@@ -363,6 +366,11 @@ class ImageAnalysisService
                     }
                     
                     If you cannot read or find a particular field, use null for that field.
+                    
+                    IMPORTANT DISTINCTION:
+                    - The license number identifies the PERSON and usually stays the same when renewed
+                    - The card number identifies the PHYSICAL DOCUMENT and changes with each renewal
+                    
                     For the country code, try to identify the issuing country from any visual clues, country names, flags, or EU symbols on the document.
                     Be especially attentive to the format of the document - it may be a European driver license card,
                     an international driving permit, or other official driver documentation.'
@@ -373,7 +381,8 @@ class ImageAnalysisService
                         [
                             'type' => 'text',
                             'text' => 'Analyze this image of a driver license document and extract all relevant information. 
-                            Focus on the name, date of birth, license number, class/category, issue date, expiry date, and country code.
+                            Make sure to distinguish between the license number (identifies the person) and the card number (identifies the physical document).
+                            Focus on the name, date of birth, both numbers, class/category, issue date, expiry date, and country code.
                             Return the data in JSON format.'
                         ],
                         [
