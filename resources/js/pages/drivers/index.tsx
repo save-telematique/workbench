@@ -1,6 +1,6 @@
 import { Head, router } from "@inertiajs/react";
 import { useTranslation } from "@/utils/translation";
-import { DataTable } from "@/components/ui/data-table";
+import { DataTable } from "@/components/ui/data-table/index";
 import { useColumns } from "./columns";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -219,15 +219,15 @@ export default function Index({ drivers, filters, tenants }: DriversPageProps) {
           ) : (
             <DataTable
               columns={columns}
-              data={drivers.data}
-              pagination={drivers?.meta ? {
-                pageCount: drivers.meta.last_page,
-                pageIndex: drivers.meta.current_page - 1,
-                pageSize: drivers.meta.per_page,
-                canPreviousPage: drivers.meta.current_page > 1,
-                canNextPage: drivers.meta.current_page < drivers.meta.last_page,
-              } : undefined}
-              filters={{ ...filterValues, search: searchTerm }}
+              data={drivers?.data || []}
+              tableId="drivers-table"
+              config={{
+                pagination: true,
+                sorting: true,
+                filtering: true,
+                pageSize: drivers?.meta?.per_page || 10
+              }}
+              noResultsMessage={__('drivers.list.no_drivers')}
             />
           )}
         </div>

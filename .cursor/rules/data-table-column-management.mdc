@@ -1,0 +1,148 @@
+---
+description: 
+globs: *.tsx
+alwaysApply: false
+---
+# DataTable Column Management
+
+This document outlines the implementation and usage of the enhanced DataTable component, which provides a simplified yet flexible API for:
+
+1. Showing/hiding columns
+2. Sorting columns (ascending/descending)
+3. Reordering columns via drag and drop
+4. Pinning columns to the left or right
+5. Saving user preferences in localStorage
+
+## Usage
+
+### Basic Setup
+
+```tsx
+import { DataTable } from "@/components/ui/data-table";
+
+export default function MyTable() {
+  const columns = [
+    // Define your columns...
+  ];
+  
+  return (
+    <DataTable
+      columns={columns}
+      data={data}
+      tableId="my-unique-table-id" // Required for persistence
+    />
+  );
+}
+```
+
+### Configuration Options
+
+The DataTable now accepts a `config` object with the following options:
+
+```tsx
+<DataTable
+  columns={columns}
+  data={data}
+  tableId="my-table"
+  config={{
+    pagination: true,        // Enable/disable pagination
+    sorting: true,           // Enable/disable sorting
+    filtering: false,        // Enable/disable filtering
+    columnManagement: true,  // Show/hide column management dropdown
+    pageSize: 10,            // Default page size
+    saveToPersistence: true, // Save user preferences to localStorage
+  }}
+  noResultsMessage="No data found" // Custom message for empty tables
+/>
+```
+
+### Column Definition
+
+To make columns manageable (sortable/hideable/reorderable/pinnable), use these properties in your column definitions:
+
+```tsx
+const columns = [
+  {
+    accessorKey: "name",
+    header: __("devices.fields.tenant"),
+    cell: ({ row }) => <div>{row.getValue("name")}</div>,
+    enableSorting: true,    // Enable sorting for this column
+    enableHiding: true,     // Allow this column to be hidden
+  },
+  // More columns...
+];
+```
+
+## Features
+
+### Column Visibility
+
+Users can:
+- Show/hide specific columns via the column management dropdown
+- Use the "Show All" / "Hide All" buttons to bulk toggle visibility
+- Right-click a column header and choose "Hide Column" for quick hiding
+
+### Column Sorting
+
+The DataTable supports sorting columns in:
+- Ascending order
+- Descending order
+
+Users can:
+- Click on column headers to cycle through sorting states
+- Right-click a column header and select sort direction
+- Sort by multiple columns by holding Shift while clicking
+
+### Column Reordering
+
+The column management dropdown includes drag-and-drop reordering:
+- Drag handles appear next to each column
+- Drag up/down to change the order
+- New order is automatically saved to localStorage
+
+### Column Pinning (New Feature)
+
+Users can pin columns to the left or right edge of the table:
+- Via the column management dropdown (pin icon)
+- Via right-click context menu on column headers
+- Pinned columns remain visible when horizontally scrolling
+
+### Persistence
+
+All user preferences are saved to localStorage using the provided `tableId`:
+- Column visibility state
+- Column order
+- Column pinning state
+
+This allows users to maintain their custom view across sessions.
+
+## Implementation Details
+
+### Component Structure
+
+The DataTable system consists of several components:
+
+1. **DataTable**: The main component that integrates all features
+2. **DataTableColumnHeader**: Header component for sorting columns
+3. **DataTableColumnVisibility**: Dropdown for managing column visibility and order
+4. **DataTablePagination**: Pagination controls
+
+### CSS & Styling
+
+The table uses the following CSS features:
+- `sticky` positioning for pinned columns
+- `overflow-x-auto` for horizontal scrolling
+- Appropriate z-index values to ensure pinned columns appear above others
+
+### Performance Considerations
+
+- The refactored DataTable avoids unnecessary re-renders
+- State is managed efficiently using React hooks
+- Large datasets are handled properly through pagination
+
+## Best Practices
+
+1. Always provide a unique `tableId` for each DataTable to avoid localStorage conflicts
+2. Make columns hideable (`enableHiding: true`) unless they are essential for understanding the data
+3. Use appropriate column widths to ensure a good layout with pinned columns
+4. Consider disabling certain features for mobile views

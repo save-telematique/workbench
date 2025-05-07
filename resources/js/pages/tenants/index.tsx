@@ -3,7 +3,7 @@ import { Head, Link } from '@inertiajs/react';
 import { Building2, Plus } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { DataTable } from '@/components/ui/data-table';
+import { DataTable } from '@/components/ui/data-table/index';
 import AppLayout from '@/layouts/app-layout';
 import TenantsLayout from '@/layouts/tenants/layout';
 import { useTranslation } from '@/utils/translation';
@@ -66,8 +66,11 @@ export default function TenantsIndex({ tenants }: TenantsIndexProps) {
                         <DataTable 
                             columns={columns} 
                             data={tenants} 
-                            pagination={true}
-                            sorting={true}
+                            tableId="tenants-table"
+                            config={{
+                                pagination: true,
+                                sorting: true
+                            }}
                             noResultsMessage={__('tenants.list.no_tenants')}
                         />
                     )}

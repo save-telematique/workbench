@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/tooltip';
 import AppLayout from '@/layouts/app-layout';
 import TenantsLayout from '@/layouts/tenants/layout';
-import { DataTable } from '@/components/ui/data-table';
+import { DataTable } from '@/components/ui/data-table/index';
 import { Domain, useDomainsColumns } from './domains/columns';
 
 interface TenantsDomainsProps {
@@ -168,12 +168,15 @@ export default function TenantsDomains({ tenant, domains = [], app_url }: Tenant
                                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{__('tenants.domains.get_started')}</p>
                             </div>
                         ) : (
-                            <DataTable
-                                columns={columns}
-                                data={domains}
-                                pagination={false}
-                                sorting={true}
-                                noResultsMessage={__('tenants.domains.no_domains')}
+                            <DataTable 
+                                columns={columns} 
+                                data={domains} 
+                                tableId="tenant-domains-table"
+                                config={{
+                                    pagination: true,
+                                    sorting: true
+                                }}
+                                noResultsMessage={__('tenant.domains.no_domains')}
                             />
                         )}
                     </div>

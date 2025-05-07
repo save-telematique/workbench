@@ -1,7 +1,7 @@
 ---
 description: 
-globs: 
-alwaysApply: true
+globs: *.tsx
+alwaysApply: false
 ---
 **6. Code Style & Formatting (Frontend):**
 

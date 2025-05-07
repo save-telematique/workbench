@@ -1,6 +1,6 @@
 import { Head, router } from "@inertiajs/react";
 import { useTranslation } from "@/utils/translation";
-import { DataTable } from "@/components/ui/data-table";
+import { DataTable } from "@/components/ui/data-table/index";
 import { useColumns } from "./columns";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -290,14 +290,14 @@ export default function Index({ devices, filters, deviceTypes, tenants, vehicles
             <DataTable
               columns={columns}
               data={devices?.data || []}
-              pagination={devices?.meta ? {
-                pageIndex: devices.meta.current_page - 1,
-                pageSize: devices.meta.per_page,
-                pageCount: devices.meta.last_page,
-                canPreviousPage: devices.meta.current_page > 1,
-                canNextPage: devices.meta.current_page < devices.meta.last_page,
-              } : undefined}
-              filters={{ ...filterValues, search: searchTerm }}
+              tableId="devices-table"
+              config={{
+                pagination: true,
+                sorting: true,
+                filtering: true,
+                pageSize: devices?.meta?.per_page || 10
+              }}
+              noResultsMessage={__('devices.list.no_devices')}
             />
           )}
         </div>

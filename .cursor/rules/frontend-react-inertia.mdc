@@ -1,7 +1,7 @@
 ---
 description: 
-globs: 
-alwaysApply: true
+globs: *.tsx
+alwaysApply: false
 ---
 *   **Core:** Utiliser React 19 avec TypeScript (`.tsx`). Composants fonctionnels + Hooks.
 *   **React 19 Features:** Exploiter `ref` prop, `use()` (Suspense, Context), Actions, `useActionState`, `useFormStatus`, `useOptimistic`. Rendre les métadonnées (`<title>`) directement ou via `<Head>` d'Inertia.

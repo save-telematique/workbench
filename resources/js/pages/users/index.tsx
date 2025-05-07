@@ -3,7 +3,7 @@ import { Head, Link } from '@inertiajs/react';
 import { Users, Plus } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { DataTable } from '@/components/ui/data-table';
+import { DataTable } from '@/components/ui/data-table/index';
 import AppLayout from '@/layouts/app-layout';
 import UsersLayout from '@/layouts/users/layout';
 import { useTranslation } from '@/utils/translation';
@@ -67,6 +67,12 @@ export default function UsersIndex({ users }: UsersIndexProps) {
                         <DataTable
                             columns={columns}
                             data={users}
+                            tableId="users-table"
+                            config={{
+                                pagination: true,
+                                sorting: true
+                            }}
+                            noResultsMessage={__('users.list.no_users')}
                         />
                     )}
                 </div>

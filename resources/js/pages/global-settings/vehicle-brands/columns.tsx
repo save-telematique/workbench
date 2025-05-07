@@ -5,8 +5,9 @@ import { Pencil, Trash2 } from "lucide-react"
 import { Link } from "@inertiajs/react"
 
 import { Button } from "@/components/ui/button"
-import { DataTableColumnHeader } from "@/components/ui/data-table"
+import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header"
 import { useTranslation } from "@/utils/translation"
+import { getStandardActions } from "@/utils/actions"
 import { 
     AlertDialog,
     AlertDialogAction,

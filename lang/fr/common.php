@@ -141,6 +141,7 @@ return [
     
     // Table
     'no_results' => 'Aucun résultat trouvé.',
+    'row_selected' => 'ligne sélectionnée',
     'table' => [
         'selected_rows' => ':selected sur :total ligne(s) sélectionnée(s).',
         'total_rows' => ':total ligne(s) au total.',
@@ -155,6 +156,11 @@ return [
             'desc' => 'Décroissant',
         ],
         'hide_column' => 'Masquer la colonne',
+        'columns' => 'Colonnes',
+        'column_management' => 'Gestion des colonnes',
+        'show_all' => 'Afficher tout',
+        'hide_all' => 'Masquer tout',
+        'reset_default' => 'Réinitialiser',
     ],
     
     // Navigation actions

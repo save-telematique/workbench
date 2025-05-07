@@ -5,9 +5,10 @@ import { ExternalLink, Trash2 } from "lucide-react"
 import { router } from "@inertiajs/react"
 
 import { Button } from "@/components/ui/button"
-import { DataTableColumnHeader } from "@/components/ui/data-table"
+import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header"
 import { useTranslation } from "@/utils/translation"
 import { usePermission } from "@/utils/permissions"
+import { Badge } from "@/components/ui/badge"
 
 // Type pour définir la structure de nos données
 export interface Domain {

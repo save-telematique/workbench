@@ -140,6 +140,7 @@ return [
     
     // Table
     'no_results' => 'No results found.',
+    'row_selected' => 'row selected',
     'table' => [
         'selected_rows' => ':selected of :total row(s) selected.',
         'total_rows' => ':total row(s) total.',
@@ -154,6 +155,11 @@ return [
             'desc' => 'Descending',
         ],
         'hide_column' => 'Hide column',
+        'columns' => 'Columns',
+        'column_management' => 'Column Management',
+        'show_all' => 'Show all',
+        'hide_all' => 'Hide all',
+        'reset_default' => 'Reset to default',
     ],
     
     // Navigation actions

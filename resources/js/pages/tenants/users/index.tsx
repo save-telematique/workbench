@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import TenantsLayout from '@/layouts/tenants/layout';
 import { useTranslation } from '@/utils/translation';
-import { DataTable } from '@/components/ui/data-table';
+import { DataTable } from '@/components/ui/data-table/index';
 import { type TenantUser, useTenantUsersColumns } from './columns';
 
 interface TenantUsersIndexProps {
@@ -77,9 +77,12 @@ export default function TenantUsersIndex({ tenant, users }: TenantUsersIndexProp
                         <DataTable 
                             columns={columns} 
                             data={users} 
-                            pagination={true}
-                            sorting={true}
-                            noResultsMessage={__('tenant_users.list.no_users')}
+                            tableId="tenant-users-table"
+                            config={{
+                                pagination: true,
+                                sorting: true
+                            }}
+                            noResultsMessage={__('users.list.no_users')}
                         />
                     )}
                 </div>

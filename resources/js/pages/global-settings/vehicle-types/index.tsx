@@ -5,7 +5,7 @@ import HeadingSmall from '@/components/heading-small';
 import { type BreadcrumbItem } from '@/types';
 import { useTranslation } from '@/utils/translation';
 import { Button } from '@/components/ui/button';
-import { DataTable } from '@/components/ui/data-table';
+import { DataTable } from '@/components/ui/data-table/index';
 
 import AppLayout from '@/layouts/app-layout';
 import GlobalSettingsLayout from '@/layouts/global-settings/layout';
@@ -48,9 +48,12 @@ export default function VehicleTypes({ vehicleTypes }: Props) {
                     <DataTable 
                         columns={columns}
                         data={vehicleTypes}
-                        pagination={true}
-                        sorting={true}
-                        pageSize={10}
+                        tableId="vehicle-types-table"
+                        config={{
+                            pagination: true,
+                            sorting: true,
+                            pageSize: 10
+                        }}
                     />
                 </div>
             </GlobalSettingsLayout>

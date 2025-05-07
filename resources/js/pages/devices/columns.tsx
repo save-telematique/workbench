@@ -1,7 +1,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
+import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { DataTableRowActions } from "@/components/ui/data-table-row-actions";
 import { useTranslation } from "@/utils/translation";
 import { Link, router } from "@inertiajs/react";
@@ -108,7 +108,7 @@ export const useColumns = () => {
             <LicensePlate 
               registration={row.original.vehicle.registration}
               size="md"
-              //href={route("vehicles.show", row.original.vehicle.id)}
+              href={route("vehicles.show", row.original.vehicle.id)}
             />
           ) : (
             <span className="text-gray-400">{__("common.none")}</span>
@@ -118,12 +118,9 @@ export const useColumns = () => {
     },
     {
       accessorKey: "tenant",
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title={__("devices.fields.tenant")}
-        />
-      ),
+      enableHiding: true,
+      enableSorting: true,
+      header: __("devices.fields.tenant"),
       cell: ({ row }) => (
         <div className="w-[180px]">
           {row.original.tenant ? (

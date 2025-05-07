@@ -1,7 +1,7 @@
 ---
 description: 
-globs: 
-alwaysApply: true
+globs: *.php
+alwaysApply: false
 ---
 **3. Backend (Laravel):**
 
@@ -15,6 +15,10 @@ alwaysApply: true
     *   Utiliser les commandes `artisan make:` pour générer ces classes.
     *   Utiliser `to_route()` pour les redirections après action.
 *   **Migrations:** Créer des migrations atomiques et réversibles. Définir les champs et index avec précision. Gérer les relations via clés étrangères.
+    *   **Types d'identifiants:**
+        *   Utiliser `$table->uuid('id')->primary()` pour les entités liées à un tenant (vehicles, devices, etc.)
+        *   Utiliser `$table->id()` (auto-incrémenté) pour les entités de référentiel global (brands, models, etc.)
+        *   Rester cohérent: foreign keys doivent utiliser `foreignUuid()` ou `foreignId()` selon le type de la clé primaire référencée
 *   **Base de Données:** PostgreSQL. Utiliser les fonctionnalités spécifiques (JSONB, etc.) si pertinent.
 *   **Multi-Tenancy (`stancl/tenancy`):**
     *   Distinguer clairement les routes **`central`** (admin globale, domaines centraux) et **`tenant`** (spécifiques client/agence, domaines locataires).
