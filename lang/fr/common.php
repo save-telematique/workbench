@@ -161,6 +161,16 @@ return [
         'show_all' => 'Afficher tout',
         'hide_all' => 'Masquer tout',
         'reset_default' => 'Réinitialiser',
+        'pinned_left' => 'Gauche',
+        'pinned_right' => 'Droite',
+        'pin_left' => 'Épingler à gauche',
+        'pin_right' => 'Épingler à droite',
+        'toggle_column_visibility' => 'Basculer la visibilité de la colonne :column',
+        'left' => 'Gauche',
+        'right' => 'Droite',
+        'unpin' => 'Détacher',
+        'pin_column' => 'Épingler la colonne',
+        'unpin_column' => 'Détacher la colonne',
     ],
     
     // Navigation actions

@@ -160,6 +160,16 @@ return [
         'show_all' => 'Show all',
         'hide_all' => 'Hide all',
         'reset_default' => 'Reset to default',
+        'pinned_left' => 'Left',
+        'pinned_right' => 'Right',
+        'pin_left' => 'Pin to left',
+        'pin_right' => 'Pin to right',
+        'toggle_column_visibility' => 'Toggle visibility for :column column',
+        'left' => 'Left',
+        'right' => 'Right',
+        'unpin' => 'Unpin',
+        'pin_column' => 'Pin column',
+        'unpin_column' => 'Unpin column',
     ],
     
     // Navigation actions
