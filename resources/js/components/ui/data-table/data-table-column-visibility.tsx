@@ -1,7 +1,7 @@
 "use client"
 
 import { Column, Table } from "@tanstack/react-table"
-import { Settings2, EyeOff, Eye, GripVertical, PinIcon } from "lucide-react"
+import { Settings2, EyeOff, Eye, GripVertical, PinIcon, PinOffIcon } from "lucide-react"
 import { useTranslation } from "@/utils/translation"
 import { Button } from "@/components/ui/button"
 import {
@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Checkbox } from "@/components/ui/checkbox"
 import { DragDropContext, Draggable, Droppable, DropResult, DroppableProvided, DraggableProvided } from "@hello-pangea/dnd"
-import { Badge } from "@/components/ui/badge"
 
 interface DataTableColumnVisibilityProps<TData> {
   table: Table<TData>
@@ -193,10 +192,37 @@ export function DataTableColumnVisibility<TData>({
     }
   }
 
-  // Get columns that can be managed (have headers and can be hidden)
+  // First get the column order from the table state
+  const columnOrder = table.getState().columnOrder;
+  // Get all columns and sort them based on pinning status and columnOrder
   const managableColumns = table.getAllColumns()
     .filter(column => column.getCanHide())
-    .filter(column => getColumnDisplayName(column) !== null);
+    .filter(column => getColumnDisplayName(column) !== null)
+    .sort((a, b) => {
+      // First, prioritize by pinning status
+      const aPinned = a.getIsPinned();
+      const bPinned = b.getIsPinned();
+      
+      // Put left-pinned columns first
+      if (aPinned === 'left' && bPinned !== 'left') return -1;
+      if (bPinned === 'left' && aPinned !== 'left') return 1;
+      
+      // Put right-pinned columns last
+      if (aPinned === 'right' && bPinned !== 'right') return 1;
+      if (bPinned === 'right' && aPinned !== 'right') return -1;
+      
+      // If both have the same pinning status, sort by column order
+      if (columnOrder.includes(a.id) && columnOrder.includes(b.id)) {
+        return columnOrder.indexOf(a.id) - columnOrder.indexOf(b.id);
+      }
+      
+      // If only one column is in the order array, prioritize it
+      if (columnOrder.includes(a.id)) return -1;
+      if (columnOrder.includes(b.id)) return 1;
+      
+      // If neither column is in the order array, maintain original order
+      return 0;
+    });
 
   return (
     <DropdownMenu>
@@ -245,15 +271,28 @@ export function DataTableColumnVisibility<TData>({
                       if (!displayTitle) return null;
                       
                       return (
-                        <Draggable key={column.id} draggableId={column.id} index={index}>
+                        <Draggable 
+                          key={column.id} 
+                          draggableId={column.id} 
+                          index={index} 
+                          isDragDisabled={!!column.getIsPinned()}
+                        >
                           {(provided: DraggableProvided) => (
                             <div
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               className="flex items-center py-1 px-2 rounded-md hover:bg-muted/50"
                             >
-                              <div {...provided.dragHandleProps} className="mr-2">
-                                <GripVertical className="h-4 w-4 text-muted-foreground" />
+                              <div 
+                                {...(column.getIsPinned() ? {} : provided.dragHandleProps)} 
+                                className="mr-2"
+                              >
+                                {!column.getIsPinned() && (
+                                  <GripVertical className="h-4 w-4 text-muted-foreground" />
+                                )}
+                                {column.getIsPinned() && (
+                                  <div className="h-4 w-4" />
+                                )}
                               </div>
                               <Checkbox
                                 checked={column.getIsVisible()}
@@ -285,16 +324,14 @@ export function DataTableColumnVisibility<TData>({
                               </label>
                               
                               <div className="flex space-x-1">
-                                {column.getIsPinned() && (
-                                  <Badge variant="outline" className="h-5 px-1.5">
-                                    {column.getIsPinned() === 'left' ? __('common.table.left') : __('common.table.right')}
-                                  </Badge>
-                                )}
-                                
                                 <DropdownMenu>
                                   <DropdownMenuTrigger asChild>
                                     <Button variant="ghost" size="icon" className="h-5 w-5">
-                                      <PinIcon className="h-3 w-3" />
+                                      { column.getIsPinned() ? (
+                                        <PinOffIcon className="h-3 w-3" />
+                                      ) : (
+                                        <PinIcon className="h-3 w-3" />
+                                      )}
                                     </Button>
                                   </DropdownMenuTrigger>
                                   <DropdownMenuContent align="end" className="w-[120px]">

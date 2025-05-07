@@ -53,11 +53,7 @@ export function DataTableColumnHeader<TData, TValue>({
   
   return (
     <div className={cn("flex items-center space-x-2", className)}>
-      {isPinned && (
-        <Badge variant="outline" className="h-5 px-1.5 mr-2">
-          {isPinned === 'left' ? __('common.table.left') : __('common.table.right')}
-        </Badge>
-      )}
+
       
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -68,6 +64,11 @@ export function DataTableColumnHeader<TData, TValue>({
               !canSort && "pointer-events-none"
             )}
           >
+            {isPinned && (
+              <Badge className="h-5 w-5 p-0 flex items-center justify-center mr-2">
+                <PinIcon className="h-3 w-3" />
+              </Badge>
+            )}
             <span>{translatedTitle}</span>
             {canSort && (
               column.getIsSorted() === "desc" ? (
