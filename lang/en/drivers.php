@@ -125,4 +125,15 @@ return [
     
     'user_central' => 'Central User',
     'no_users_for_tenant' => 'No users are available for this tenant',
+    
+    'card' => [
+        'title' => 'DRIVER CARD',
+        'surname' => '1. Surname',
+        'firstname' => '2. First name',
+        'birthdate' => '3. Date of birth',
+        'issuing_date' => '4a. Issue date',
+        'expiration_date' => '4b. Expiry date',
+        'license_number' => '5a. License number',
+        'card_number' => '5b. Card number',
+    ],
 ]; 

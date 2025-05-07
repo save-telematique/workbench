@@ -125,4 +125,15 @@ return [
     
     'user_central' => 'Utilisateur central',
     'no_users_for_tenant' => 'Aucun utilisateur n\'est disponible pour ce tenant',
+    
+    'card' => [
+        'title' => 'CARTE DE CONDUCTEUR',
+        'surname' => '1. Nom',
+        'firstname' => '2. Prénom',
+        'birthdate' => '3. Date de naissance',
+        'issuing_date' => '4a. Date d\'émission',
+        'expiration_date' => '4b. Date d\'expiration',
+        'license_number' => '5a. N° de permis',
+        'card_number' => '5b. N° de carte',
+    ],
 ]; 

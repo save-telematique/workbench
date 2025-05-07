@@ -14,6 +14,7 @@ import { DeleteDriverDialog } from "./dialogs/delete-dialog";
 import { RestoreDriverDialog } from "./dialogs/restore-dialog";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import FormattedDate from "@/components/formatted-date";
+import { DriverCard } from "@/components/driver-card";
 
 
 
@@ -105,6 +106,19 @@ export default function Show({ driver }: ShowDriverProps) {
           </div>
         </div>
 
+        <div className="mb-6 max-w-lg ml-0">
+          <DriverCard
+            firstname={driver.firstname}
+            surname={driver.surname}
+            birthdate={driver.birthdate}
+            license_number={driver.license_number}
+            card_issuing_country={driver.card_issuing_country}
+            card_number={driver.card_number}
+            card_issuing_date={driver.card_issuing_date}
+            card_expiration_date={driver.card_expiration_date}
+          />
+        </div>
+
         <Card>
           <CardHeader>
             <CardTitle>{__("drivers.show.sections.details.title")}</CardTitle>
@@ -123,35 +137,35 @@ export default function Show({ driver }: ShowDriverProps) {
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">{__("drivers.fields.phone")}</TableCell>
-                  <TableCell>{driver.phone || "-"}</TableCell>
+                  <TableCell>{driver.phone || __("common.none")}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">{__("drivers.fields.birthdate")}</TableCell>
                   <TableCell>
                     {driver.birthdate ? 
                       <FormattedDate date={driver.birthdate} format="DATE_MED" /> : 
-                      "-"
+                      __("common.none")
                     }
                   </TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">{__("drivers.fields.license_number")}</TableCell>
-                  <TableCell>{driver.license_number || "-"}</TableCell>
+                  <TableCell>{driver.license_number || __("common.none")}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">{__("drivers.fields.card_issuing_country")}</TableCell>
-                  <TableCell>{driver.card_issuing_country || "-"}</TableCell>
+                  <TableCell>{driver.card_issuing_country || __("common.none")}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">{__("drivers.fields.card_number")}</TableCell>
-                  <TableCell>{driver.card_number || "-"}</TableCell>
+                  <TableCell>{driver.card_number || __("common.none")}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">{__("drivers.fields.card_issuing_date")}</TableCell>
                   <TableCell>
                     {driver.card_issuing_date ? 
                       <FormattedDate date={driver.card_issuing_date} format="DATE_MED" /> : 
-                      "-"
+                      __("common.none")
                     }
                   </TableCell>
                 </TableRow>
@@ -160,7 +174,7 @@ export default function Show({ driver }: ShowDriverProps) {
                   <TableCell>
                     {driver.card_expiration_date ? 
                       <FormattedDate date={driver.card_expiration_date} format="DATE_MED" /> : 
-                      "-"
+                      __("common.none")
                     }
                   </TableCell>
                 </TableRow>
