@@ -23,7 +23,7 @@ class VehicleStaticDataSeeder extends Seeder
         ]);
 
         VehicleType::updateOrCreate(['id' => 3], [
-            'name' => 'Car',
+            'name' => 'Véhicule léger',
         ]);
 
         $volvo = VehicleBrand::updateOrCreate(['id' => 1], [
@@ -34,12 +34,20 @@ class VehicleStaticDataSeeder extends Seeder
             'name' => 'Renault',
         ]);
 
+        $daf = VehicleBrand::updateOrCreate(['id' => 3], [
+            'name' => 'DAF',
+        ]);
+
         $volvo->models()->create([
             'name' => 'FE',
         ]);
 
         $renault->models()->create([
             'name' => 'T',
+        ]);
+
+        $daf->models()->create([
+            'name' => 'XF',
         ]);
     }
 }
