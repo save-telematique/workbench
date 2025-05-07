@@ -6,7 +6,7 @@ import { useColumns } from "./columns";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, X, Filter, Plus, Cpu } from "lucide-react";
+import { Search, X, Filter, Plus, Cpu, Upload } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -183,6 +183,15 @@ export default function Index({ devices, filters, deviceTypes, tenants, vehicles
                       <Link href={route("devices.create")}>
                         <Plus className="mr-2 h-4 w-4" />
                         {__("devices.actions.create")}
+                      </Link>
+                    </Button>
+                  )}
+                  
+                  {canCreateDevices && (
+                    <Button asChild variant="outline" size="default" className="h-9">
+                      <Link href={route("devices.import")}>
+                        <Upload className="mr-2 h-4 w-4" />
+                        {__("devices.actions.import")}
                       </Link>
                     </Button>
                   )}

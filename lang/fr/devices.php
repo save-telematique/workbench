@@ -259,4 +259,27 @@ return [
         'title' => 'Aucun boitier trouvé',
         'description' => 'Commencez par ajouter votre premier boitier',
     ],
+    
+    // Import
+    'import' => [
+        'title' => 'Importer des boitiers',
+        'description' => 'Importez des boitiers à partir d\'un fichier CSV ou Excel.',
+        'upload_tab' => 'Télécharger',
+        'review_tab' => 'Vérifier et importer',
+        'upload_title' => 'Télécharger un fichier',
+        'upload_description' => 'Sélectionnez un fichier CSV ou Excel contenant les données des boitiers à importer.',
+        'file_type_description' => 'Formats acceptés: CSV, Excel (.xlsx, .xls)',
+        'select_file' => 'Sélectionner un fichier',
+        'analyzing' => 'Analyse du fichier...',
+        'analyzing_hint' => 'Nous utilisons l\'IA pour détecter automatiquement les colonnes de votre fichier.',
+        'analysis_success' => '{count} boitiers ont été détectés dans votre fichier.',
+        'tenant_hint' => 'Si aucun client n\'est sélectionné, les boitiers seront importés sans client assigné.',
+        'success_message' => '{count} boitiers ont été importés avec succès.',
+        'error' => 'Une erreur est survenue lors de l\'importation.',
+        'tenant_required' => 'Vous devez sélectionner un client pour importer des boitiers.',
+        'select_tenant_title' => 'Sélectionner un client',
+        'select_tenant_desc' => 'Sélectionnez le client pour lequel vous souhaitez importer des boitiers.',
+        'confirm_title' => 'Confirmer l\'importation des boitiers',
+        'confirm_description' => 'Vous êtes sur le point d\'importer :count boitiers. Cette action ne peut pas être annulée. Voulez-vous continuer ?',
+    ],
 ]; 

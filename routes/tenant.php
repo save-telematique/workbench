@@ -24,14 +24,18 @@ Route::middleware([
     InitializeTenancyByDomainOrSubdomain::class,
     PreventAccessFromCentralDomains::class,
 ])->group(function () {
-    Route::get('/', function () {
-        return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
-    });
+    // Public tenant routes
+    require __DIR__ . '/tenant/home.php';
+    require __DIR__ . '/auth.php';
+    
+    // Authenticated tenant routes
     Route::middleware(['auth', 'verified'])->group(function () {
-        Route::get('dashboard', function () {
-            return Inertia::render('dashboard');
-        })->name('dashboard');
+        require __DIR__ . '/tenant/dashboard.php';
+        
+        // Add more tenant-specific route files here as needed
+        // Example: require __DIR__ . '/tenant/vehicles.php';
     });
-    require __DIR__.'/settings.php';
-    require __DIR__.'/auth.php';
+    
+    // Other tenant routes
+    require __DIR__ . '/settings.php';
 });

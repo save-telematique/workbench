@@ -138,6 +138,11 @@ return [
     'delete_confirmation' => 'Are you sure you want to delete :item?',
     'leave_blank_to_keep_unchanged' => 'Leave blank to keep current password',
     
+    // Fields
+    'fields' => [
+        'mandatory' => 'Required fields',
+    ],
+    
     // Table
     'no_results' => 'No results found.',
     'row_selected' => 'row selected',
@@ -232,4 +237,61 @@ return [
     // PDF handling
     'pdf_document' => 'PDF Document',
     'pdf_being_processed' => 'Your PDF is being processed for QR code detection',
+    
+    // CSV Import
+    'csv_import' => [
+        'error_reading_file' => 'Error reading the file.',
+        'error_empty_file' => 'The file does not contain valid data.',
+        'invalid_type' => 'Invalid import type.',
+        'error_processing_file' => 'Error processing the file.',
+        'validation_failed' => 'Row :row contains validation errors.',
+        'duplicate_in_import' => 'Row :row contains a duplicate :field with another row.',
+        'duplicate_in_database' => 'This :field already exists in the database.',
+        'invalid_file_format' => 'Unsupported file format.',
+        'file_too_large' => 'The file is too large.',
+        'column_mapping' => 'Column Mapping',
+        'not_mapped' => 'Not found',
+        'data_preview_title' => 'Data Preview',
+        'warnings_found' => 'issues detected',
+        'unknown_device_type' => 'Unknown device type: :value',
+        'unknown_vehicle_type' => 'Unknown vehicle type: :value',
+        'unknown_vehicle_model' => 'Unknown vehicle model: :value (Brand: :brand)',
+        'unknown_vehicle_model_brand' => 'Unknown vehicle model and brand: :value',
+        'unknown_country_code' => 'Unknown country code: :value',
+        'invalid_date_format' => 'Invalid date format for :field: :value',
+        'data_summary' => 'Data Summary',
+        'ready_to_import' => 'records ready to import',
+        'no_valid_data_summary' => 'No valid data to import',
+        'all_rows_invalid' => 'All rows have validation errors - see details below',
+        'warnings_details' => 'Warning Details',
+        'row' => 'Row',
+        'row_with_number' => 'Row :row',
+        'no_file_processed' => 'No file has been processed yet. Please upload a file in the previous step.',
+        'mapping' => 'Mapping',
+        'mapped' => 'mapped',
+        'unmapped' => 'unmapped',
+        'issues' => 'Issues',
+        'rows_with_issues' => 'rows with issues',
+        'data' => 'Data',
+        'valid_rows' => 'valid rows',
+        'fields' => 'Fields',
+        'warnings' => 'Warnings',
+        'row_ignored' => 'Ignored',
+        'rows_ignored' => 'ignored',
+        'ignored' => 'Ignored',
+    ],
+    
+    'expand_all' => 'Expand All',
+    'collapse_all' => 'Collapse All',
+    'toggle_warning_details' => 'Toggle details',
+    
+    'select_placeholder' => 'Select...',
+    'none_option' => 'None',
+    'select_tenant' => 'Select Tenant',
+    'step' => 'Step',
+    'next' => 'Next',
+    'previous' => 'Previous',
+    'fields' => [
+        'mandatory' => 'Required fields',
+    ],
 ]; 

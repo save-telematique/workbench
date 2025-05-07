@@ -69,6 +69,7 @@ return [
     
     'actions' => [
         'create' => 'Nouveau conducteur',
+        'import' => 'Importer des conducteurs',
     ],
     
     'create' => [
@@ -135,5 +136,19 @@ return [
         'expiration_date' => '4b. Date d\'expiration',
         'license_number' => '5a. N° de permis',
         'card_number' => '5b. N° de carte',
+    ],
+    
+    // Import
+    'import' => [
+        'title' => 'Importer des conducteurs',
+        'description' => 'Importer des données de conducteurs depuis un fichier CSV',
+        'upload_tab' => 'Télécharger le fichier',
+        'review_tab' => 'Vérifier les données',
+        'select_tenant_title' => 'Sélectionner un client',
+        'select_tenant_desc' => 'Choisissez le client auquel ces conducteurs seront importés',
+        'tenant_required' => 'Un client doit être sélectionné avant de procéder à l\'importation',
+        'success_message' => ':count conducteurs importés avec succès',
+        'confirm_title' => 'Confirmer l\'importation des conducteurs',
+        'confirm_description' => 'Vous êtes sur le point d\'importer :count conducteurs. Cette action ne peut pas être annulée. Voulez-vous continuer ?',
     ],
 ]; 

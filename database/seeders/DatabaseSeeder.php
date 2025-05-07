@@ -58,6 +58,6 @@ class DatabaseSeeder extends Seeder
 
         $this->call(LeffTenantSeeder::class);
         $this->call(DemoTenantSeeder::class);
-        $this->call(MauffreyTenantSeeder::class);
+        //$this->call(MauffreyTenantSeeder::class);
     }
 }

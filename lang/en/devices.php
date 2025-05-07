@@ -257,4 +257,27 @@ return [
         'title' => 'No devices found',
         'description' => 'Start by adding your first device',
     ],
+    
+    // Import
+    'import' => [
+        'title' => 'Import Devices',
+        'description' => 'Import devices from a CSV or Excel file.',
+        'upload_tab' => 'Upload',
+        'review_tab' => 'Review & Import',
+        'upload_title' => 'Upload a file',
+        'upload_description' => 'Select a CSV or Excel file containing the device data to import.',
+        'file_type_description' => 'Accepted formats: CSV, Excel (.xlsx, .xls)',
+        'select_file' => 'Select file',
+        'analyzing' => 'Analyzing file...',
+        'analyzing_hint' => 'We\'re using AI to automatically detect columns in your file.',
+        'analysis_success' => '{count} devices have been detected in your file.',
+        'tenant_hint' => 'If no tenant is selected, devices will be imported without an assigned tenant.',
+        'success_message' => '{count} devices have been successfully imported.',
+        'error' => 'An error occurred during import.',
+        'tenant_required' => 'You must select a tenant to import devices.',
+        'select_tenant_title' => 'Select a Tenant',
+        'select_tenant_desc' => 'Select the tenant for which you want to import devices.',
+        'confirm_title' => 'Confirm Device Import',
+        'confirm_description' => 'You are about to import :count devices. This action cannot be undone. Do you want to continue?',
+    ],
 ]; 

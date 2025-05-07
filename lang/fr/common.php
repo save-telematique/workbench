@@ -139,6 +139,11 @@ return [
     'delete_confirmation' => 'Êtes-vous sûr de vouloir supprimer :item ?',
     'leave_blank_to_keep_unchanged' => 'Laissez vide pour conserver le mot de passe actuel',
     
+    // Fields
+    'fields' => [
+        'mandatory' => 'Champs obligatoires',
+    ],
+    
     // Table
     'no_results' => 'Aucun résultat trouvé.',
     'row_selected' => 'ligne sélectionnée',
@@ -233,5 +238,62 @@ return [
     // PDF handling
     'pdf_document' => 'Document PDF',
     'pdf_being_processed' => 'Votre PDF est en cours de traitement pour la détection de codes QR',
+
+    // CSV Import
+    'csv_import' => [
+        'error_reading_file' => 'Erreur de lecture du fichier.',
+        'error_empty_file' => 'Le fichier ne contient pas de données valides.',
+        'invalid_type' => 'Type d\'importation non valide.',
+        'error_processing_file' => 'Erreur lors du traitement du fichier.',
+        'validation_failed' => 'La ligne :row contient des erreurs de validation.',
+        'duplicate_in_import' => 'La ligne :row contient un :field en doublon avec une autre ligne.',
+        'duplicate_in_database' => 'Ce :field existe déjà dans la base de données.',
+        'invalid_file_format' => 'Format de fichier non pris en charge.',
+        'file_too_large' => 'Le fichier est trop volumineux.',
+        'column_mapping' => 'Correspondance des colonnes',
+        'not_mapped' => 'Non trouvé',
+        'data_preview_title' => 'Aperçu des données',
+        'warnings_found' => 'problèmes détectés',
+        'unknown_device_type' => 'Type de boitier inconnu : :value',
+        'unknown_vehicle_type' => 'Type de véhicule inconnu : :value',
+        'unknown_vehicle_model' => 'Modèle de véhicule inconnu : :value (Marque : :brand)',
+        'unknown_vehicle_model_brand' => 'Modèle et marque de véhicule inconnus : :value',
+        'unknown_country_code' => 'Code pays inconnu : :value',
+        'invalid_date_format' => 'Format de date invalide pour :field : :value',
+        'no_valid_data' => 'Aucune donnée valide trouvée',
+        'rows_count' => 'lignes au total',
+        'importing' => 'Importation en cours...',
+        'import_button' => 'Importer les données',
+        'data_summary' => 'Résumé des données',
+        'ready_to_import' => 'enregistrements prêts à être importés',
+        'no_valid_data_summary' => 'Aucune donnée valide à importer',
+        'all_rows_invalid' => 'Toutes les lignes présentent des erreurs de validation - voir les détails ci-dessous',
+        'warnings_details' => 'Détails des avertissements',
+        'row' => 'Ligne',
+        'row_with_number' => 'Ligne :row',
+        'no_file_processed' => 'Aucun fichier n\'a encore été traité. Veuillez télécharger un fichier à l\'étape précédente.',
+        'mapping' => 'Correspondance',
+        'mapped' => 'mappé(s)',
+        'unmapped' => 'non mappé(s)',
+        'issues' => 'Problèmes',
+        'rows_with_issues' => 'lignes avec des problèmes',
+        'data' => 'Données',
+        'valid_rows' => 'lignes valides',
+        'warnings' => 'Avertissements',
+        'row_ignored' => 'Ignorée',
+        'rows_ignored' => 'ignorées',
+        'ignored' => 'Ignorée',
+    ],
+    
+    'expand_all' => 'Tout développer',
+    'collapse_all' => 'Tout réduire',
+    'toggle_warning_details' => 'Afficher/masquer les détails',
+
+    'select_placeholder' => 'Sélectionner...',
+    'none_option' => 'Aucun',
+    'select_tenant' => 'Sélection du client',
+    'step' => 'Étape',
+    'next' => 'Suivant',
+    'previous' => 'Précédent',
 ];
  

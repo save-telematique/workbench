@@ -69,6 +69,7 @@ return [
     
     'actions' => [
         'create' => 'New Driver',
+        'import' => 'Import Drivers',
     ],
     
     'create' => [
@@ -135,5 +136,28 @@ return [
         'expiration_date' => '4b. Expiry date',
         'license_number' => '5a. License number',
         'card_number' => '5b. Card number',
+    ],
+    
+    // Import
+    'import' => [
+        'title' => 'Import Drivers',
+        'description' => 'Import drivers from a CSV or Excel file.',
+        'upload_tab' => 'Upload',
+        'review_tab' => 'Review & Import',
+        'upload_title' => 'Upload a file',
+        'upload_description' => 'Select a CSV or Excel file containing the driver data to import.',
+        'file_type_description' => 'Accepted formats: CSV, Excel (.xlsx, .xls)',
+        'select_file' => 'Select file',
+        'analyzing' => 'Analyzing file...',
+        'analyzing_hint' => 'We\'re using AI to automatically detect columns in your file.',
+        'analysis_success' => '{count} drivers have been detected in your file.',
+        'tenant_hint' => 'If no tenant is selected, drivers will be imported without an assigned tenant.',
+        'success_message' => '{count} drivers have been successfully imported.',
+        'error' => 'An error occurred during import.',
+        'tenant_required' => 'You must select a tenant to import drivers.',
+        'select_tenant_title' => 'Select a Tenant',
+        'select_tenant_desc' => 'Select the tenant for which you want to import drivers.',
+        'confirm_title' => 'Confirm Driver Import',
+        'confirm_description' => 'You are about to import :count drivers. This action cannot be undone. Do you want to continue?',
     ],
 ]; 

@@ -5,7 +5,7 @@ import { useColumns } from "./columns";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, X, Filter, Plus, UserCog } from "lucide-react";
+import { Search, X, Filter, Plus, UserCog, Upload } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -168,6 +168,15 @@ export default function Index({ drivers, filters, tenants }: DriversPageProps) {
                       <Link href={route("drivers.create")}>
                         <Plus className="mr-2 h-4 w-4" />
                         {__("drivers.actions.create")}
+                      </Link>
+                    </Button>
+                  )}
+                  
+                  {canCreateDrivers && (
+                    <Button asChild variant="outline" size="default" className="h-9">
+                      <Link href={route("drivers.import")}>
+                        <Upload className="mr-2 h-4 w-4" />
+                        {__("drivers.actions.import")}
                       </Link>
                     </Button>
                   )}

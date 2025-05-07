@@ -20,9 +20,6 @@ class Vehicle extends Model
         'vehicle_type_id',
         'registration',
         'vin',
-        'year',
-        'color',
-        'notes',
         'imei',
     ];
 

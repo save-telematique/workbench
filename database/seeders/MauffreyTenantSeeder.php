@@ -71,7 +71,7 @@ class MauffreyTenantSeeder extends Seeder
         $vehicle1 = Vehicle::create([
             'id' => "6ba4031b-f65d-4989-91ec-af8bb8f9f43f",
             'tenant_id' => $tenant->id,
-            'vehicle_type_id' => 3,
+            'vehicle_type_id' => 1,
             'vehicle_model_id' => 3,
             'registration' => 'GZ-605-XM',
             'vin' => 'VIN',
@@ -81,7 +81,7 @@ class MauffreyTenantSeeder extends Seeder
         $vehicle2 = Vehicle::create([
             'id' => "1fe4eb9d-08d6-4942-9fcf-3c39012fbcd7",
             'tenant_id' => $tenant->id,
-            'vehicle_type_id' => 3,
+            'vehicle_type_id' => 1,
             'vehicle_model_id' => 3,
             'registration' => 'GZ-696-TM',
             'vin' => 'VIN',
