@@ -12,11 +12,14 @@ alwaysApply: true
 *   **UI Components:** Shadcn UI (`npx shadcn-ui@latest add ...`)
 *   **Database:** PostgreSQL
 *   **Multi-Tenancy:** `stancl/tenancy` (mode **single database**)
+*   **Types d'Identifiants:**
+    *   **UUIDs:** Pour toutes les entités liées aux tenants (vehicles, devices, etc.)
+    *   **Auto-incrémentés (bigint):** Pour les tables de référentiels globaux (brands, models, types, etc.)
 *   **Internationalization (i18n):**
     *   Backend: Laravel Localization (`lang/`, `__()`)
     *   Frontend Access: Translations shared via Inertia (e.g., Middleware/Shared Props, potentially using `protonemedia/inertia-translation`)
 *   **Development Environment:** Laravel Sail (Docker) (run command using `sail artisan ...`)
 *   **Testing:** Pest PHP (Backend/Inertia), Laravel Dusk (Browser)
 *   **Linting/Formatting FE:** ESLint & Prettier
-
+*   **Duplocation de code** EVITE AU MAXIMUM LA DUPLICATION DE CODE, ET APPLIQUE LES PRINCIPES SOLID
 Se référer aux règles spécifiques pour plus de détails sur chaque partie.
