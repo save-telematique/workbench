@@ -29,6 +29,7 @@ alwaysApply: true
     *   **Groupes Communs:** `auth`, `common`, `errors`, `validation`, `settings`, `tenants`
     *   **Nommage Explicite:** Préférer des clés descriptives (`auth.password` plutôt que `auth.pwd`)
     *   **Traduction** Assure toi que les clé aient bien leurs valeurs en français et en anglais dans les bons fichiers
+    *   **Consistance** QUAND DES CLÉS DE TRADUCTIONS ONT ÉTÉ CHOISIS EVITE DE LES MODIFIER SAUF SI ÇA A VRAIMENT UN INTÉRET
 
 *   **Tests & Maintenance:**
     *   **Recherche de Textes en Dur:** Vérifier régulièrement l'absence de textes non traduits

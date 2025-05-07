@@ -22,6 +22,10 @@ interface Vehicle {
     id: string;
     serial_number: string;
   };
+  type?: {
+    id: number;
+    name: string;
+  };
   deleted_at: string | null;
 }
 
@@ -93,6 +97,19 @@ export const useColumns = () => {
       enableHiding: true,
       cell: ({ row }) => (
         <div className="w-[120px]">{row.getValue("model")}</div>
+      ),
+    },
+    {
+      accessorFn: (row) => row.type?.name ?? "",
+      id: "type",
+      header: "vehicles.fields.type",
+      enableSorting: true,
+      enableHiding: true,
+      cell: ({ row }) => (
+        <div className="w-[100px]">
+          {row.original.type ? row.original.type.name : 
+          <span className="text-gray-400">{__("common.none")}</span>}
+        </div>
       ),
     },
     {

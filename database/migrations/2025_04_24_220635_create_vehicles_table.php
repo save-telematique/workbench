@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignUuid('tenant_id')->constrained();
             $table->foreignId('vehicle_type_id')->constrained();
             $table->foreignId('vehicle_model_id')->constrained();
-            $table->string('registration');
+            $table->string('registration')->nullable();
             $table->string('vin');
             $table->string('country', 2);
             $table->decimal('odometer', 10, 2)->nullable();

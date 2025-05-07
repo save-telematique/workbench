@@ -10,6 +10,7 @@ use App\Models\Tenant;
 use App\Models\Vehicle;
 use App\Models\VehicleBrand;
 use App\Models\VehicleModel;
+use App\Models\VehicleType;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Services\ImageAnalysisService;
@@ -72,6 +73,10 @@ class VehicleController extends Controller
                 'brand' => $vehicle->model->vehicleBrand->name ?? null,
                 'model' => $vehicle->model->name ?? null,
                 'vin' => $vehicle->vin,
+                'type' => $vehicle->type ? [
+                    'id' => $vehicle->type->id,
+                    'name' => $vehicle->type->name,
+                ] : null,
                 'tenant' => $vehicle->tenant ? [
                     'id' => $vehicle->tenant->id,
                     'name' => $vehicle->tenant->name,
@@ -113,12 +118,14 @@ class VehicleController extends Controller
                 'serial_number' => $device->serial_number,
             ];
         });
+        $vehicleTypes = VehicleType::select('id', 'name')->get();
 
         return Inertia::render('vehicles/create', [
             'brands' => $brands,
             'models' => $models,
             'tenants' => $tenants,
             'devices' => $devices,
+            'vehicleTypes' => $vehicleTypes,
         ]);
     }
 
@@ -186,6 +193,10 @@ class VehicleController extends Controller
             'vin' => $vehicle->vin,
             'tenant_id' => $vehicle->tenant_id,
             'device_id' => $vehicle->device_id,
+            'type' => $vehicle->type ? [
+                'id' => $vehicle->type->id,
+                'name' => $vehicle->type->name,
+            ] : null,
             'tenant' => $vehicle->tenant ? [
                 'id' => $vehicle->tenant->id,
                 'name' => $vehicle->tenant->name,
@@ -213,7 +224,7 @@ class VehicleController extends Controller
      */
     public function edit(Vehicle $vehicle)
     {
-        $vehicle->load(['model', 'model.vehicleBrand']);
+        $vehicle->load(['model', 'model.vehicleBrand', 'type']);
 
         $brands = VehicleBrand::select('id', 'name')->get();
         $models = VehicleModel::with('vehicleBrand')->get()->map(function ($model) {
@@ -225,6 +236,7 @@ class VehicleController extends Controller
             ];
         });
         $tenants = Tenant::select('id', 'name')->get();
+        $vehicleTypes = VehicleType::select('id', 'name')->get();
 
         // Get available devices (not assigned to any vehicle or assigned to this vehicle)
         $devices = Device::where(function ($query) use ($vehicle) {
@@ -245,6 +257,7 @@ class VehicleController extends Controller
             'registration' => $vehicle->registration,
             'model_id' => $vehicle->vehicle_model_id,
             'brand_id' => $vehicle->model->vehicle_brand_id ?? null,
+            'vehicle_type_id' => $vehicle->vehicle_type_id,
             'color' => $vehicle->color,
             'vin' => $vehicle->vin,
             'year' => $vehicle->year,
@@ -258,6 +271,7 @@ class VehicleController extends Controller
             'models' => $models,
             'tenants' => $tenants,
             'devices' => $devices,
+            'vehicleTypes' => $vehicleTypes,
         ]);
     }
 
