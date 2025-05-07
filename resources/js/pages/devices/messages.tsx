@@ -198,7 +198,7 @@ export default function DeviceMessages({ device, messages, filters, allLocations
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title={`${__("devices.messages.title")} - ${device.name}`} />
       
-      <DevicesLayout showSidebar={true} deviceId={device.id}>
+      <DevicesLayout showSidebar={true} device={device}>
         <div className="space-y-6">
           <HeadingSmall
             title={__("devices.messages.title")}

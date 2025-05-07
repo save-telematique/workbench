@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Drivers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\BaseCsvImportTrait;
 use App\Models\Driver;
 use App\Models\Tenant;
 use App\Services\CsvImportService;
@@ -13,6 +14,8 @@ use Inertia\Inertia;
 
 class DriverCsvImportController extends Controller
 {
+    use BaseCsvImportTrait;
+
     protected $csvImportService;
 
     public function __construct(CsvImportService $csvImportService)
@@ -110,5 +113,35 @@ class DriverCsvImportController extends Controller
             'imported_count' => $importedCount,
             'errors' => $errors,
         ]);
+    }
+
+    /**
+     * Return import configuration specific to drivers
+     */
+    protected function getImportConfig(): array
+    {
+        return [
+            'type' => 'driver',
+            'permission' => 'create_drivers',
+            'request_array_name' => 'drivers',
+            'inertia_page' => 'drivers/import',
+        ];
+    }
+
+    /**
+     * Return additional data for the driver import form
+     */
+    protected function getImportFormData(): array
+    {
+        // No additional data needed for drivers
+        return [];
+    }
+
+    /**
+     * Create a driver from import data
+     */
+    protected function createEntityFromImportData(array $entityData): object
+    {
+        return new Driver($entityData);
     }
 } 

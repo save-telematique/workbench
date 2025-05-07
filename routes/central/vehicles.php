@@ -18,6 +18,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/vehicles/import', [VehicleCsvImportController::class, 'create'])->name('vehicles.import');
     Route::post('/vehicles/import/upload', [VehicleCsvImportController::class, 'upload'])->name('vehicles.import.upload');
     Route::post('/vehicles/import/store', [VehicleCsvImportController::class, 'store'])->name('vehicles.import.store');
+    Route::post('/vehicles/import/validate-row', [VehicleCsvImportController::class, 'validateRow'])->name('vehicles.import.validate-row');
 
     // Vehicle CRUD Routes
     Route::get('/vehicles', [VehicleController::class, 'index'])->name('vehicles.index');

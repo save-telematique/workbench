@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Devices;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\BaseCsvImportTrait;
 use App\Models\Device;
 use App\Models\DeviceType;
 use App\Models\Tenant;
@@ -14,6 +15,8 @@ use Inertia\Inertia;
 
 class DeviceCsvImportController extends Controller
 {
+    use BaseCsvImportTrait;
+
     protected $csvImportService;
 
     public function __construct(CsvImportService $csvImportService)
@@ -115,5 +118,39 @@ class DeviceCsvImportController extends Controller
             'imported_count' => $importedCount,
             'errors' => $errors,
         ]);
+    }
+
+    /**
+     * Return import configuration specific to devices
+     */
+    protected function getImportConfig(): array
+    {
+        return [
+            'type' => 'device',
+            'permission' => 'create_devices',
+            'request_array_name' => 'devices',
+            'inertia_page' => 'devices/import',
+        ];
+    }
+
+    /**
+     * Return additional data for the device import form
+     */
+    protected function getImportFormData(): array
+    {
+        // Get available device types for the form
+        $deviceTypes = DeviceType::orderBy('name')->get();
+        
+        return [
+            'deviceTypes' => $deviceTypes,
+        ];
+    }
+
+    /**
+     * Create a device from import data
+     */
+    protected function createEntityFromImportData(array $entityData): object
+    {
+        return new Device($entityData);
     }
 } 

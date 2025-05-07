@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/table";
 import { type BreadcrumbItem } from "@/types";
 
-interface Device {
+export interface Device {
   id: string;
   imei: string;
   serial_number: string;
@@ -101,7 +101,7 @@ export default function Show({ device, deviceTypes }: DeviceShowProps) {
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title={__("devices.single") + ": " + device.serial_number} />
 
-      <DevicesLayout showSidebar={true} deviceId={device.id}>
+      <DevicesLayout showSidebar={true} device={device}>
         <div className="space-y-6">
           <HeadingSmall
             title={__("devices.show.heading")}

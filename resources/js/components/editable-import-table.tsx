@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useTranslation } from "@/utils/translation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,8 +10,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Check, AlertTriangle, Trash, FileCheck, AlertCircle, ChevronDown, ChevronRight, ArrowRight, X } from "lucide-react";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { CsvImportWarning } from "@/types/csv-import";
+import debounce from 'lodash.debounce';
+import axios from 'axios';
 
-interface EditableImportTableProps<T extends Record<string, string | number | null>> {
+export interface EditableImportTableProps<T extends Record<string, string | number | null>> {
   /**
    * Data rows to display
    */
@@ -61,6 +63,28 @@ interface EditableImportTableProps<T extends Record<string, string | number | nu
    * Optional success message
    */
   successMessage?: string | null;
+
+  /**
+   * Type of entity being imported ('device', 'vehicle', 'driver')
+   */
+  entityType?: 'device' | 'vehicle' | 'driver';
+
+  /**
+   * API endpoint for row validation
+   */
+  validateRowEndpoint?: string;
+
+  /**
+   * Selected tenant ID for validation context
+   */
+  tenantId?: string | null;
+}
+
+interface RowValidation {
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
+  field_errors: Record<string, string[]>;
 }
 
 export default function EditableImportTable<T extends Record<string, string | number | null>>({
@@ -73,12 +97,17 @@ export default function EditableImportTable<T extends Record<string, string | nu
   onDataChange,
   onSubmit,
   isSubmitting = false,
-  successMessage = null
+  successMessage = null,
+  entityType = 'device',
+  validateRowEndpoint = '',
+  tenantId = null
 }: EditableImportTableProps<T>) {
   const { __ } = useTranslation();
   const [expandedWarnings, setExpandedWarnings] = useState<number[]>([]);
   const [mappingOpen, setMappingOpen] = useState<boolean>(false);
   const [warningsOpen, setWarningsOpen] = useState<boolean>(true);
+  const [rowValidations, setRowValidations] = useState<Record<number, RowValidation>>({});
+  const [validationInProgress, setValidationInProgress] = useState<Record<number, boolean>>({});
   
   // Get field names from the mapping (these are the target fields)
   const fields = Object.keys(mapping);
@@ -102,6 +131,50 @@ export default function EditableImportTable<T extends Record<string, string | nu
       setExpandedWarnings([]);
     }
   };
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debouncedValidateRow = useCallback(
+    debounce(
+      async (rowIndex: number, rowData: Record<string, string | number | null>) => {
+        if (!validateRowEndpoint || !entityType) {
+          return;
+        }
+
+        try {
+          setValidationInProgress(prev => ({ ...prev, [rowIndex]: true }));
+          
+          const response = await axios.post(validateRowEndpoint, {
+            row_data: rowData,
+            tenant_id: tenantId
+          });
+          
+          const validationResult = response.data as RowValidation;
+          
+          setRowValidations(prev => ({
+            ...prev,
+            [rowIndex]: validationResult
+          }));
+        } catch (error) {
+          console.error('Row validation failed:', error);
+          
+          // Set validation failed state
+          setRowValidations(prev => ({
+            ...prev,
+            [rowIndex]: {
+              valid: false,
+              errors: ['Validation request failed'],
+              warnings: [],
+              field_errors: {}
+            }
+          }));
+        } finally {
+          setValidationInProgress(prev => ({ ...prev, [rowIndex]: false }));
+        }
+      },
+      500 // Debounce delay in ms
+    ),
+    [validateRowEndpoint, entityType, tenantId]
+  );
   
   // Handle cell value change
   const handleCellChange = (rowIndex: number, field: string, value: string | number) => {
@@ -111,11 +184,22 @@ export default function EditableImportTable<T extends Record<string, string | nu
       [field]: value
     };
     onDataChange(newData);
+    
+    // Trigger validation if validation endpoint is available
+    if (validateRowEndpoint && entityType) {
+      debouncedValidateRow(rowIndex, newData[rowIndex]);
+    }
   };
   
   // Handle row deletion
   const handleDeleteRow = (rowIndex: number) => {
     const newData = data.filter((_, index) => index !== rowIndex);
+    
+    // Also remove validation for this row
+    const newRowValidations = { ...rowValidations };
+    delete newRowValidations[rowIndex];
+    setRowValidations(newRowValidations);
+    
     onDataChange(newData);
   };
   
@@ -129,19 +213,75 @@ export default function EditableImportTable<T extends Record<string, string | nu
     return acc;
   }, {});
   
-  // Find warning for a specific row
-  const getWarningsForRow = (rowIndex: number): CsvImportWarning[] => {
-    return warningsByRow[rowIndex] || [];
-  };
-  
   // Determine if a row is ignored
   const isRowIgnored = (rowIndex: number): boolean => {
-    const rowWarnings = getWarningsForRow(rowIndex);
+    const rowWarnings = warningsByRow[rowIndex] || [];
     return rowWarnings.some(warning => warning.ignored === true);
+  };
+  
+  // Combine original warnings with live validation issues
+  const allWarningsByRow = {...warningsByRow};
+  
+  // Add live validation issues to the warnings display
+  Object.entries(rowValidations).forEach(([rowIndexStr, validation]) => {
+    if (!validation.valid) {
+      const rowIndex = parseInt(rowIndexStr);
+      
+      // Skip if this is an ignored row
+      if (isRowIgnored(rowIndex)) return;
+      
+      // Only add live validation issues if they're not already represented
+      if (!allWarningsByRow[rowIndex] || !allWarningsByRow[rowIndex].some(w => w.errors && w.errors.length > 0)) {
+        if (!allWarningsByRow[rowIndex]) {
+          allWarningsByRow[rowIndex] = [];
+        }
+        
+        // Create a warning object from the validation result
+        const validationWarning: CsvImportWarning = {
+          row: rowIndex + 2, // Convert back to 1-indexed for display
+          message: __('common.csv_import.validation_issues'),
+          errors: validation.errors,
+          ignored: false
+        };
+        
+        allWarningsByRow[rowIndex].push(validationWarning);
+      }
+    } else {
+      // If validation is now valid but we had previous errors, we might need to clean up
+      const rowIndex = parseInt(rowIndexStr);
+      
+      // Remove validation errors if the row is now valid
+      if (allWarningsByRow[rowIndex]) {
+        // Filter out validation-specific warnings while keeping original import warnings
+        allWarningsByRow[rowIndex] = allWarningsByRow[rowIndex].filter(warning => 
+          warning.message !== __('common.csv_import.validation_issues') &&
+          warning.message !== __('common.csv_import.validation_failed', { row: rowIndex + 2 })
+        );
+        
+        // If no warnings left, remove the row entry
+        if (allWarningsByRow[rowIndex].length === 0) {
+          delete allWarningsByRow[rowIndex];
+        }
+      }
+    }
+  });
+  
+  // Count of all rows with warnings (original + live validation)
+  const totalWarningRowsCount = Object.keys(allWarningsByRow).length;
+  
+  // Find warning for a specific row
+  const getWarningsForRow = (rowIndex: number): CsvImportWarning[] => {
+    return allWarningsByRow[rowIndex] || [];
   };
   
   // Check if a specific field in a specific row has an error
   const hasFieldError = (rowIndex: number, field: string): boolean => {
+    // Check first in live validation results
+    if (rowValidations[rowIndex] && rowValidations[rowIndex].field_errors) {
+      return !!rowValidations[rowIndex].field_errors[field];
+    }
+    
+    // Fall back to original warnings
     const rowWarnings = getWarningsForRow(rowIndex);
     if (!rowWarnings.length) return false;
     
@@ -160,19 +300,53 @@ export default function EditableImportTable<T extends Record<string, string | nu
     
     return false;
   };
+
+  // Get field error messages if any
+  const getFieldErrorMessages = (rowIndex: number, field: string): string[] => {
+    if (rowValidations[rowIndex] && rowValidations[rowIndex].field_errors && rowValidations[rowIndex].field_errors[field]) {
+      return rowValidations[rowIndex].field_errors[field];
+    }
+    return [];
+  };
+
+  // Check if a row has any validation errors
+  const hasRowError = (rowIndex: number): boolean => {
+    // Check live validation first
+    if (rowValidations[rowIndex]) {
+      return !rowValidations[rowIndex].valid;
+    }
+    
+    // Otherwise check if the row has any warnings marked as errors
+    const rowWarnings = getWarningsForRow(rowIndex);
+    return rowWarnings.some(warning => warning.errors && warning.errors.length > 0);
+  };
   
   // Render a cell with appropriate editor based on field type and options
   const renderCell = (row: T, rowIndex: number, field: string) => {
     const hasError = hasFieldError(rowIndex, field);
     const errorClass = hasError ? "border-destructive" : "";
     const isDisabled = isSubmitting || isRowIgnored(rowIndex);
+    const isValidating = validationInProgress[rowIndex];
+    const errorMessages = getFieldErrorMessages(rowIndex, field);
     
     // Check if this field has dropdown options
     if (field in fieldOptions) {
       return (
         <div className="relative">
           {hasError && (
-            <AlertCircle className="h-4 w-4 text-destructive absolute right-8 top-1/2 transform -translate-y-1/2" />
+            <div className="absolute right-8 top-1/2 transform -translate-y-1/2 z-10 group">
+              <AlertCircle className="h-4 w-4 text-destructive cursor-pointer" />
+              {errorMessages.length > 0 && (
+                <div className="absolute hidden group-hover:block right-0 w-64 p-2 mt-1 bg-destructive/10 border border-destructive/20 rounded text-xs text-destructive">
+                  {errorMessages.map((msg, i) => (
+                    <div key={i} className="mb-1 last:mb-0">{msg}</div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+          {isValidating && (
+            <div className="absolute right-8 top-1/2 transform -translate-y-1/2 animate-spin rounded-full h-4 w-4 border-2 border-solid border-primary border-r-transparent"></div>
           )}
           <Select
             value={String(row[field] || '')}
@@ -198,7 +372,19 @@ export default function EditableImportTable<T extends Record<string, string | nu
     return (
       <div className="relative">
         {hasError && (
-          <AlertCircle className="h-4 w-4 text-destructive absolute right-2 top-1/2 transform -translate-y-1/2 z-10" />
+          <div className="absolute right-2 top-1/2 transform -translate-y-1/2 z-10 group">
+            <AlertCircle className="h-4 w-4 text-destructive cursor-pointer" />
+            {errorMessages.length > 0 && (
+              <div className="absolute hidden group-hover:block right-0 w-64 p-2 mt-1 bg-destructive/10 border border-destructive/20 rounded text-xs text-destructive">
+                {errorMessages.map((msg, i) => (
+                  <div key={i} className="mb-1 last:mb-0">{msg}</div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+        {isValidating && (
+          <div className="absolute right-2 top-1/2 transform -translate-y-1/2 animate-spin rounded-full h-4 w-4 border-2 border-solid border-primary border-r-transparent"></div>
         )}
         <Input
           type="text"
@@ -213,8 +399,12 @@ export default function EditableImportTable<T extends Record<string, string | nu
   
   // Handle form submission for import, filtering out ignored rows
   const handleSubmit = () => {
-    // Filter out ignored rows before submitting
-    const validData = data.filter((_, rowIndex) => !isRowIgnored(rowIndex));
+    // Filter out ignored rows and rows with validation errors
+    const validData = data.filter((_, rowIndex) => 
+      !isRowIgnored(rowIndex) && 
+      (!rowValidations[rowIndex] || rowValidations[rowIndex].valid)
+    );
+    
     onSubmit(validData);
   };
   
@@ -223,8 +413,15 @@ export default function EditableImportTable<T extends Record<string, string | nu
   const unmappedFieldsCount = Object.values(mapping).filter(v => v === null).length;
   const warningRowsCount = Object.keys(warningsByRow).length;
   const ignoredRowsCount = warnings.filter(w => w.ignored).length;
-  // Count valid rows by filtering out ignored rows
-  const validRowsCount = data.filter((_, rowIndex) => !isRowIgnored(rowIndex)).length;
+  
+  // Count valid rows by filtering out ignored rows and rows with validation errors
+  const validRowsCount = data.filter((_, rowIndex) => 
+    !isRowIgnored(rowIndex) && 
+    (!rowValidations[rowIndex] || rowValidations[rowIndex].valid)
+  ).length;
+  
+  // Count rows with live validation errors
+  const liveValidationErrorsCount = Object.values(rowValidations).filter(v => !v.valid).length;
   
   return (
     <div className="space-y-4">
@@ -310,7 +507,10 @@ export default function EditableImportTable<T extends Record<string, string | nu
                 </span>
                 <div className="flex items-center gap-2">
                   <span className="text-2xl font-semibold">{data.length}</span>
-                  <span className="text-sm text-muted-foreground">{__('common.csv_import.valid_rows')}</span>
+                  <span className="text-sm text-muted-foreground">{__('common.csv_import.rows')}</span>
+                  <Badge variant="outline" className="ml-2">
+                    {validRowsCount} {__('common.csv_import.valid')}
+                  </Badge>
                 </div>
               </div>
               
@@ -329,25 +529,34 @@ export default function EditableImportTable<T extends Record<string, string | nu
                 </div>
               </div>
               
-              {warnings.length > 0 && (
-                <div className="flex flex-col">
-                  <span className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-                    {__('common.csv_import.warnings')}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <AlertTriangle className="h-4 w-4 text-amber-500" />
-                    <span className="text-2xl font-semibold text-amber-500">{warningRowsCount}</span>
-                    <span className="text-sm text-muted-foreground">
-                      {__('common.csv_import.rows_with_issues')}
+              <div className="flex flex-col">
+                <span className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
+                  {__('common.csv_import.issues')}
+                </span>
+                <div className="flex items-center gap-2">
+                  {warnings.length > 0 || liveValidationErrorsCount > 0 ? (
+                    <>
+                      <AlertTriangle className="h-4 w-4 text-amber-500" />
+                      <span className="text-2xl font-semibold text-amber-500">
+                        {warningRowsCount + liveValidationErrorsCount}
+                      </span>
+                      <span className="text-sm text-muted-foreground">
+                        {__('common.csv_import.rows_with_issues')}
+                      </span>
+                      {ignoredRowsCount > 0 && (
+                        <Badge variant="outline" className="text-destructive border-destructive/30">
+                          {ignoredRowsCount} {__('common.csv_import.rows_ignored')}
+                        </Badge>
+                      )}
+                    </>
+                  ) : (
+                    <span className="text-sm text-muted-foreground flex items-center">
+                      <Check className="h-4 w-4 text-green-500 mr-2" />
+                      {__('common.csv_import.no_issues')}
                     </span>
-                    {ignoredRowsCount > 0 && (
-                      <Badge variant="outline" className="text-destructive border-destructive/30">
-                        {ignoredRowsCount} {__('common.csv_import.rows_ignored')}
-                      </Badge>
-                    )}
-                  </div>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
           </div>
           
@@ -363,7 +572,7 @@ export default function EditableImportTable<T extends Record<string, string | nu
       </Card>
       
       {/* ===== WARNINGS SECTION ===== */}
-      {warnings.length > 0 && (
+      {(warnings.length > 0 || totalWarningRowsCount > 0) && (
         <Card className="border-amber-200 mb-4">
           <CardHeader className="pb-3">
             <div 
@@ -372,7 +581,7 @@ export default function EditableImportTable<T extends Record<string, string | nu
             >
               <CardTitle className="flex items-center gap-2 text-amber-700">
                 <AlertTriangle className="h-4 w-4" />
-                {__('common.csv_import.warnings_details')} ({warnings.length})
+                {__('common.csv_import.warnings_details')} ({totalWarningRowsCount})
               </CardTitle>
               <div className="space-x-2">
                 <Button
@@ -407,13 +616,14 @@ export default function EditableImportTable<T extends Record<string, string | nu
             <CollapsibleContent>
               <CardContent className="pt-0">
                 <div className="space-y-4 max-h-[400px] overflow-y-auto">
-                  {Object.entries(warningsByRow).map(([rowIndexStr, rowWarnings]) => {
+                  {/* Original warnings and live validation issues */}
+                  {Object.entries(allWarningsByRow).map(([rowIndexStr, rowWarnings]) => {
                     const rowIndex = parseInt(rowIndexStr);
                     const isIgnored = rowWarnings.some(w => w.ignored);
                     const isExpanded = expandedWarnings.includes(rowIndex);
                     
                     return (
-                      <div key={rowIndex} className={`p-3 rounded-md border ${isIgnored ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200'}`}>
+                      <div key={`warnings-${rowIndex}`} className={`p-3 rounded-md border ${isIgnored ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200'}`}>
                         <div 
                           className="flex items-center justify-between cursor-pointer" 
                           onClick={() => toggleWarningExpand(rowIndex)}
@@ -456,6 +666,28 @@ export default function EditableImportTable<T extends Record<string, string | nu
                                     ))}
                                   </ul>
                                 )}
+                                
+                                {/* Add field-specific errors if available from live validation */}
+                                {rowValidations[rowIndex] && rowValidations[rowIndex].field_errors && 
+                                 Object.keys(rowValidations[rowIndex].field_errors).length > 0 && (
+                                  <div className="mt-2">
+                                    <p className="text-sm font-medium mb-1 text-amber-800">
+                                      {__('common.csv_import.field_specific_errors')}
+                                    </p>
+                                    <div className="mt-1 space-y-1 text-sm text-amber-700 pl-2">
+                                      {Object.entries(rowValidations[rowIndex].field_errors).map(([field, errors]) => (
+                                        <div key={field} className="mb-1">
+                                          <strong>{fieldDescriptions[field]}:</strong>
+                                          <ul className="list-disc list-inside ml-2">
+                                            {errors.map((error, i) => (
+                                              <li key={i}>{error}</li>
+                                            ))}
+                                          </ul>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             ))}
                           </div>
@@ -483,6 +715,7 @@ export default function EditableImportTable<T extends Record<string, string | nu
                   )}
                 </TableHead>
               ))}
+              <TableHead className="w-10"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -496,14 +729,14 @@ export default function EditableImportTable<T extends Record<string, string | nu
               </TableRow>
             ) : (
               data.map((row, rowIndex) => {
-                const rowWarnings = getWarningsForRow(rowIndex);
                 const isIgnored = isRowIgnored(rowIndex);
+                const hasError = hasRowError(rowIndex);
                 
                 // Style based on warning severity
                 let rowClassName = "hover:bg-muted/50";
                 if (isIgnored) {
                   rowClassName = "bg-red-50/50 hover:bg-red-50 opacity-70";
-                } else if (rowWarnings.length > 0) {
+                } else if (hasError) {
                   rowClassName = "bg-amber-50/50 hover:bg-amber-50";
                 }
                 
@@ -516,7 +749,7 @@ export default function EditableImportTable<T extends Record<string, string | nu
                     ))}
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end space-x-1">
-                        {!isIgnored && rowWarnings.length > 0 && (
+                        {hasError && (
                           <Button
                             variant="ghost"
                             size="icon"

@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Vehicles;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\BaseCsvImportTrait;
 use App\Models\Vehicle;
 use App\Models\VehicleType;
 use App\Models\VehicleBrand;
-use App\Models\VehicleModel;
 use App\Models\Tenant;
 use App\Services\CsvImportService;
 use Illuminate\Http\Request;
@@ -16,6 +16,8 @@ use Inertia\Inertia;
 
 class VehicleCsvImportController extends Controller
 {
+    use BaseCsvImportTrait;
+
     protected $csvImportService;
 
     public function __construct(CsvImportService $csvImportService)
@@ -122,5 +124,43 @@ class VehicleCsvImportController extends Controller
             'imported_count' => $importedCount,
             'errors' => $errors,
         ]);
+    }
+
+    /**
+     * Return import configuration specific to vehicles
+     */
+    protected function getImportConfig(): array
+    {
+        return [
+            'type' => 'vehicle',
+            'permission' => 'create_vehicles',
+            'request_array_name' => 'vehicles',
+            'inertia_page' => 'vehicles/import',
+        ];
+    }
+
+    /**
+     * Return additional data for the vehicle import form
+     */
+    protected function getImportFormData(): array
+    {
+        // Get available vehicle types for the form
+        $vehicleTypes = VehicleType::orderBy('name')->get();
+        
+        // Get available vehicle brands with their models
+        $vehicleBrands = VehicleBrand::with('models')->orderBy('name')->get();
+        
+        return [
+            'vehicleTypes' => $vehicleTypes,
+            'vehicleBrands' => $vehicleBrands,
+        ];
+    }
+
+    /**
+     * Create a vehicle from import data
+     */
+    protected function createEntityFromImportData(array $entityData): object
+    {
+        return new Vehicle($entityData);
     }
 } 

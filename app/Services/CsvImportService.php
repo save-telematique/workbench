@@ -30,6 +30,9 @@ class CsvImportService
         ];
 
         try {
+            // Get configuration for this import type
+            $config = ImportTypeConfig::getConfig($type);
+            
             // Store the uploaded file temporarily
             $filePath = $file->store('temp/csv-imports', 'public');
             $fullFilePath = Storage::disk('public')->path($filePath);
@@ -45,20 +48,8 @@ class CsvImportService
                 throw new \Exception(__("common.csv_import.error_empty_file"));
             }
 
-            // Call the appropriate mapping method based on the type
-            switch ($type) {
-                case 'device':
-                    $mapping = $this->mapDeviceColumns($fileData);
-                    break;
-                case 'vehicle':
-                    $mapping = $this->mapVehicleColumns($fileData);
-                    break;
-                case 'driver':
-                    $mapping = $this->mapDriverColumns($fileData);
-                    break;
-                default:
-                    throw new \Exception(__("common.csv_import.invalid_type"));
-            }
+            // Map columns using AI and the configuration
+            $mapping = $this->mapColumns($fileData, $type, $config);
 
             // Process all rows using the determined mapping
             $parsedData = $this->processFileWithMapping($fullFilePath, $mapping, $type);
@@ -127,6 +118,23 @@ class CsvImportService
     }
 
     /**
+     * Map columns using the configuration for the import type.
+     *
+     * @param array $fileData File data including headers and sample rows
+     * @param string $type Import type
+     * @param array $config Import type configuration
+     * @return array Mapping from target fields to source columns
+     */
+    private function mapColumns(array $fileData, string $type, array $config): array
+    {
+        return $this->useAIToMapColumns(
+            $fileData, 
+            $config['target_fields'], 
+            ['context' => is_callable($config['context']) ? $config['context']() : $config['context']]
+        );
+    }
+
+    /**
      * Process the file using the determined mapping.
      *
      * @param string $filePath Path to the file
@@ -139,6 +147,7 @@ class CsvImportService
         $processedRows = [];
         $warnings = [];
         $uniqueValues = [];
+        $config = ImportTypeConfig::getConfig($type);
         
         try {
             $rows = Excel::toArray([], $filePath)[0] ?? [];
@@ -192,7 +201,7 @@ class CsvImportService
                 }
                 
                 // Check for duplicates within the import file
-                $uniqueField = $this->getUniqueField($type);
+                $uniqueField = $config['unique_field'];
                 if (!empty($processedRow[$uniqueField])) {
                     if (isset($uniqueValues[$uniqueField][$processedRow[$uniqueField]])) {
                         $warnings[] = [
@@ -268,93 +277,6 @@ class CsvImportService
         
         // If we got here, all cells were empty/null/whitespace
         return true;
-    }
-
-    /**
-     * Map the columns of a device import file using OpenAI.
-     *
-     * @param array $fileData File data including headers and sample rows
-     * @return array Mapping from target fields to source columns
-     */
-    private function mapDeviceColumns(array $fileData): array
-    {
-        $targetFields = [
-            'device_type_id' => 'Device Type (required)',
-            'serial_number' => 'Serial Number (required)',
-            'imei' => 'IMEI Number (required)',
-            'sim_number' => 'SIM Number (optional)',
-            'firmware_version' => 'Firmware Version (optional)',
-        ];
-        
-        // Get device types from the database for context
-        $deviceTypes = \App\Models\DeviceType::all()->pluck('name')->implode(', ');
-        
-        return $this->useAIToMapColumns($fileData, $targetFields, [
-            'context' => "These are device records for telematics devices. The IMEI is a unique 15-digit identifier. " .
-                        "Serial Number is another identifier often printed on the device. " . 
-                        "Available device types are: $deviceTypes"
-        ]);
-    }
-
-    /**
-     * Map the columns of a vehicle import file using OpenAI.
-     *
-     * @param array $fileData File data including headers and sample rows
-     * @return array Mapping from target fields to source columns
-     */
-    private function mapVehicleColumns(array $fileData): array
-    {
-        $targetFields = [
-            'registration' => 'Registration Number/License Plate (required)',
-            'vin' => 'VIN - Vehicle Identification Number (required)',
-            'vehicle_model_id' => 'Vehicle Model (required)',
-            'vehicle_type_id' => 'Vehicle Type (required)',
-        ];
-        
-        // Get vehicle types and models for context
-        $vehicleTypes = \App\Models\VehicleType::all()->pluck('name')->implode(', ');
-        $vehicleBrands = \App\Models\VehicleBrand::with('models')->get();
-        
-        $modelsContext = '';
-        foreach ($vehicleBrands as $brand) {
-            $models = $brand->models->pluck('name')->implode(', ');
-            $modelsContext .= "Brand: {$brand->name}, Models: $models; ";
-        }
-        
-        return $this->useAIToMapColumns($fileData, $targetFields, [
-            'context' => "These are vehicle records. The registration is the license plate. " .
-                        "VIN is a 17-character vehicle identification number. " . 
-                        "Available vehicle types are: $vehicleTypes. " .
-                        "Available vehicle brands and models are: $modelsContext"
-        ]);
-    }
-
-    /**
-     * Map the columns of a driver import file using OpenAI.
-     *
-     * @param array $fileData File data including headers and sample rows
-     * @return array Mapping from target fields to source columns
-     */
-    private function mapDriverColumns(array $fileData): array
-    {
-        $targetFields = [
-            'firstname' => 'First Name (required)',
-            'surname' => 'Last Name/Surname (required)',
-            'license_number' => 'Driver License Number (required)',
-            'card_number' => 'Driver Card Number (optional)',
-            'birthdate' => 'Date of Birth (optional)',
-            'phone' => 'Phone Number (optional)',
-            'card_issuing_country' => 'Country Code (optional)',
-            'card_issuing_date' => 'License Issue Date (optional)',
-            'card_expiration_date' => 'License Expiry Date (optional)',
-        ];
-        
-        return $this->useAIToMapColumns($fileData, $targetFields, [
-            'context' => "These are driver records for commercial vehicle drivers. " .
-                        "License number identifies the person and usually stays the same when renewed. " .
-                        "Card number identifies the physical document and changes with renewal. " .
-                        "Country code should be in ISO 3166-1 alpha-2 format (e.g., 'FR' for France)."
-        ]);
     }
 
     /**
@@ -520,42 +442,8 @@ class CsvImportService
      */
     private function validateRow(array $row, string $type): array
     {
-        $rules = [];
-
-        switch ($type) {
-            case 'device':
-                $rules = [
-                    'device_type_id' => 'required',
-                    'serial_number' => 'required|string|max:255',
-                    'imei' => 'required|string|max:255|unique:devices,imei',
-                    'sim_number' => 'nullable|string|max:255',
-                    'firmware_version' => 'nullable|string|max:255',
-                ];
-                break;
-                
-            case 'vehicle':
-                $rules = [
-                    'registration' => 'nullable|string|max:255|unique:vehicles,registration',
-                    'vin' => 'required|string|max:255',
-                    'vehicle_model_id' => 'required',
-                    'vehicle_type_id' => 'required',
-                ];
-                break;
-                
-            case 'driver':
-                $rules = [
-                    'firstname' => 'required|string|max:255',
-                    'surname' => 'required|string|max:255',
-                    'license_number' => 'required|string|max:255|unique:drivers,license_number',
-                    'card_number' => 'nullable|string|max:255',
-                    'birthdate' => 'nullable|date',
-                    'phone' => 'nullable|string|max:255',
-                    'card_issuing_country' => 'nullable|string|max:2',
-                    'card_issuing_date' => 'nullable|date',
-                    'card_expiration_date' => 'nullable|date',
-                ];
-                break;
-        }
+        $config = ImportTypeConfig::getConfig($type);
+        $rules = $config['validation_rules'] ?? [];
         
         $validator = Validator::make($row, $rules);
         
@@ -566,6 +454,66 @@ class CsvImportService
     }
 
     /**
+     * Validate a single row for frontend live validation
+     *
+     * @param array $rowData Row data to validate
+     * @param string $type Import type
+     * @return array Validation result with valid flag, errors and warnings
+     */
+    public function validateSingleRow(array $rowData, string $type): array
+    {
+        $result = [
+            'valid' => true,
+            'errors' => [],
+            'warnings' => [],
+            'field_errors' => []
+        ];
+        
+        try {
+            $config = ImportTypeConfig::getConfig($type);
+            
+            // Preload reference data for foreign key resolution
+            $referenceData = $this->preloadReferenceData($type);
+            
+            // Check for foreign key mapping errors
+            $foreignKeyMappingResult = $this->mapForeignKeys($rowData, $type, $referenceData);
+            $rowData = $foreignKeyMappingResult['row'];
+            
+            if (!empty($foreignKeyMappingResult['warnings'])) {
+                $result['warnings'] = $foreignKeyMappingResult['warnings'];
+            }
+            
+            // Perform validation
+            $validationResult = $this->validateRow($rowData, $type);
+            
+            $result['valid'] = $validationResult['valid'];
+            
+            if (!$validationResult['valid']) {
+                $result['errors'] = $validationResult['errors'];
+                
+                // Map errors to fields for more granular feedback
+                $validator = Validator::make($rowData, $config['validation_rules'] ?? []);
+                if ($validator->fails()) {
+                    foreach ($validator->errors()->messages() as $field => $messages) {
+                        $result['field_errors'][$field] = $messages;
+                    }
+                }
+            }
+            
+            return $result;
+            
+        } catch (\Exception $e) {
+            Log::error('Row validation failed: ' . $e->getMessage());
+            return [
+                'valid' => false,
+                'errors' => [$e->getMessage()],
+                'warnings' => [],
+                'field_errors' => []
+            ];
+        }
+    }
+
+    /**
      * Preload reference data for foreign key mapping.
      *
      * @param string $type Type of import ('device', 'vehicle', 'driver')
@@ -573,55 +521,59 @@ class CsvImportService
      */
     private function preloadReferenceData(string $type): array
     {
+        $config = ImportTypeConfig::getConfig($type);
         $data = [];
         
-        switch ($type) {
-            case 'device':
-                // Load device types
-                $data['device_types'] = \App\Models\DeviceType::all()->mapWithKeys(function ($item) {
-                    return [strtolower($item->name) => $item->id];
+        // Load reference data for foreign keys
+        if (!empty($config['foreign_keys'])) {
+            foreach ($config['foreign_keys'] as $fieldName => $foreignKeyConfig) {
+                $modelClass = $foreignKeyConfig['model'];
+                $field = $foreignKeyConfig['field'];
+                $idField = $foreignKeyConfig['id_field'];
+                
+                // Load the model data for lookups
+                $models = $modelClass::all();
+                
+                // Create a lookup table mapping the field value (lowercase) to the ID
+                $data[$fieldName] = $models->mapWithKeys(function ($item) use ($field, $idField) {
+                    return [strtolower($item->$field) => $item->$idField];
                 })->toArray();
-                break;
                 
-            case 'vehicle':
-                // Load vehicle types
-                $data['vehicle_types'] = \App\Models\VehicleType::all()->mapWithKeys(function ($item) {
-                    return [strtolower($item->name) => $item->id];
-                })->toArray();
-                
-                // Load vehicle models with their brands for more context
-                $data['vehicle_models'] = [];
-                $data['vehicle_brands'] = [];
-                
-                $vehicleBrands = \App\Models\VehicleBrand::with('models')->get();
-                foreach ($vehicleBrands as $brand) {
-                    $data['vehicle_brands'][strtolower($brand->name)] = $brand->id;
+                // Handle special case for vehicle models with brands
+                if (isset($foreignKeyConfig['relation']) && $foreignKeyConfig['relation'] === 'brand') {
+                    $data["{$fieldName}_with_brand"] = [];
                     
-                    foreach ($brand->models as $model) {
-                        // Store with both standalone model name and brand+model format
-                        $data['vehicle_models'][strtolower($model->name)] = $model->id;
-                        $data['vehicle_models'][strtolower($brand->name . ' ' . $model->name)] = $model->id;
+                    // Load models with their brands
+                    $modelsWithBrands = $modelClass::with($foreignKeyConfig['relation'])->get();
+                    
+                    foreach ($modelsWithBrands as $model) {
+                        if ($model->{$foreignKeyConfig['relation']}) {
+                            $brandName = $model->{$foreignKeyConfig['relation']}->{$foreignKeyConfig['combined_field']};
+                            $combinedKey = strtolower($brandName . ' ' . $model->$field);
+                            $data["{$fieldName}_with_brand"][$combinedKey] = $model->$idField;
+                        }
                     }
                 }
-                break;
-                
-            case 'driver':
-                // For drivers, load country codes mapping if needed
-                $data['countries'] = [
-                    'fr' => 'FR', 'france' => 'FR',
-                    'uk' => 'GB', 'united kingdom' => 'GB', 'great britain' => 'GB', 'england' => 'GB',
-                    'de' => 'DE', 'germany' => 'DE',
-                    'es' => 'ES', 'spain' => 'ES',
-                    'it' => 'IT', 'italy' => 'IT',
-                    'us' => 'US', 'usa' => 'US', 'united states' => 'US',
-                    'ca' => 'CA', 'canada' => 'CA',
-                    'be' => 'BE', 'belgium' => 'BE',
-                    'nl' => 'NL', 'netherlands' => 'NL',
-                    'ch' => 'CH', 'switzerland' => 'CH',
-                    'pt' => 'PT', 'portugal' => 'PT',
-                    // Add more countries as needed
-                ];
-                break;
+            }
+        }
+        
+        // Special case for drivers (country codes)
+        if ($type === 'driver') {
+            // For drivers, load country codes mapping if needed
+            $data['countries'] = [
+                'fr' => 'FR', 'france' => 'FR',
+                'uk' => 'GB', 'united kingdom' => 'GB', 'great britain' => 'GB', 'england' => 'GB',
+                'de' => 'DE', 'germany' => 'DE',
+                'es' => 'ES', 'spain' => 'ES',
+                'it' => 'IT', 'italy' => 'IT',
+                'us' => 'US', 'usa' => 'US', 'united states' => 'US',
+                'ca' => 'CA', 'canada' => 'CA',
+                'be' => 'BE', 'belgium' => 'BE',
+                'nl' => 'NL', 'netherlands' => 'NL',
+                'ch' => 'CH', 'switzerland' => 'CH',
+                'pt' => 'PT', 'portugal' => 'PT',
+                // Add more countries as needed
+            ];
         }
         
         return $data;
@@ -638,130 +590,89 @@ class CsvImportService
     private function mapForeignKeys(array $row, string $type, array $referenceData): array
     {
         $warnings = [];
+        $config = ImportTypeConfig::getConfig($type);
         
-        switch ($type) {
-            case 'device':
-                // Map device_type_id
-                if (!empty($row['device_type_id'])) {
-                    $deviceTypeName = trim($row['device_type_id']);
-                    $deviceTypeKey = strtolower($deviceTypeName);
-                    
-                    if (isset($referenceData['device_types'][$deviceTypeKey])) {
-                        $row['device_type_id'] = $referenceData['device_types'][$deviceTypeKey];
-                    } else {
-                        // Not found, add a warning
-                        $warnings[] = __("common.csv_import.unknown_device_type", ['value' => $deviceTypeName]);
-                        // Keep the original value for now, validation will catch it
-                    }
-                }
-                break;
+        if (empty($config['foreign_keys'])) {
+            return ['row' => $row, 'warnings' => []];
+        }
+        
+        foreach ($config['foreign_keys'] as $fieldName => $foreignKeyConfig) {
+            if (!empty($row[$fieldName])) {
+                $fieldValue = trim($row[$fieldName]);
+                $fieldValueKey = strtolower($fieldValue);
                 
-            case 'vehicle':
-                // Map vehicle_type_id
-                if (!empty($row['vehicle_type_id'])) {
-                    $vehicleTypeName = trim($row['vehicle_type_id']);
-                    $vehicleTypeKey = strtolower($vehicleTypeName);
-                    
-                    if (isset($referenceData['vehicle_types'][$vehicleTypeKey])) {
-                        $row['vehicle_type_id'] = $referenceData['vehicle_types'][$vehicleTypeKey];
-                    } else {
-                        $warnings[] = __("common.csv_import.unknown_vehicle_type", ['value' => $vehicleTypeName]);
-                    }
+                // Check if this value exists in the reference data
+                if (isset($referenceData[$fieldName][$fieldValueKey])) {
+                    $row[$fieldName] = $referenceData[$fieldName][$fieldValueKey];
                 }
-                
-                // Map vehicle_model_id
-                if (!empty($row['vehicle_model_id'])) {
-                    $modelName = trim($row['vehicle_model_id']);
-                    $modelKey = strtolower($modelName);
-                    
-                    // Check direct model match
-                    if (isset($referenceData['vehicle_models'][$modelKey])) {
-                        $row['vehicle_model_id'] = $referenceData['vehicle_models'][$modelKey];
-                    } else {
-                        // Try to parse as "Brand Model" format
-                        $parts = explode(' ', $modelName, 2);
-                        if (count($parts) == 2) {
-                            $brandKey = strtolower($parts[0]);
-                            $combinedKey = strtolower($modelName);
-                            
-                            // Try the combined key first
-                            if (isset($referenceData['vehicle_models'][$combinedKey])) {
-                                $row['vehicle_model_id'] = $referenceData['vehicle_models'][$combinedKey];
-                            } 
-                            // If we have a brand, we could potentially add a new model in the future
-                            else if (isset($referenceData['vehicle_brands'][$brandKey])) {
-                                $warnings[] = __("common.csv_import.unknown_vehicle_model", [
-                                    'value' => $modelName,
-                                    'brand' => $parts[0]
-                                ]);
-                            } else {
-                                $warnings[] = __("common.csv_import.unknown_vehicle_model_brand", ['value' => $modelName]);
-                            }
-                        } else {
-                            $warnings[] = __("common.csv_import.unknown_vehicle_model", ['value' => $modelName, 'brand' => 'N/A']);
-                        }
-                    }
+                // Check if it's a combined value (e.g. "Brand Model")
+                elseif (isset($referenceData["{$fieldName}_with_brand"]) && isset($referenceData["{$fieldName}_with_brand"][$fieldValueKey])) {
+                    $row[$fieldName] = $referenceData["{$fieldName}_with_brand"][$fieldValueKey];
                 }
-                break;
-                
-            case 'driver':
-                // Map country code to standard format if provided
-                if (!empty($row['card_issuing_country'])) {
-                    $countryInput = trim(strtolower($row['card_issuing_country']));
-                    
-                    // If it's already a valid 2-letter code (assuming uppercase)
-                    if (strlen($countryInput) === 2) {
-                        $row['card_issuing_country'] = strtoupper($countryInput);
-                    }
-                    // Otherwise try to map from country name to code
-                    else if (isset($referenceData['countries'][$countryInput])) {
-                        $row['card_issuing_country'] = $referenceData['countries'][$countryInput];
-                    } else {
-                        $warnings[] = __("common.csv_import.unknown_country_code", ['value' => $row['card_issuing_country']]);
-                    }
-                }
-                
-                // Format dates if they're not already in YYYY-MM-DD format
-                foreach (['birthdate', 'card_issuing_date', 'card_expiration_date'] as $dateField) {
-                    if (!empty($row[$dateField]) && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $row[$dateField])) {
-                        try {
-                            // Parse the date and convert to Y-m-d format
-                            $date = new \DateTime($row[$dateField]);
-                            $row[$dateField] = $date->format('Y-m-d');
-                        } catch (\Exception $e) {
-                            $warnings[] = __("common.csv_import.invalid_date_format", [
-                                'field' => $dateField,
-                                'value' => $row[$dateField]
+                // Try to parse as "Brand Model" format for vehicle models
+                elseif ($fieldName === 'vehicle_model_id') {
+                    $parts = explode(' ', $fieldValue, 2);
+                    if (count($parts) == 2) {
+                        $brandKey = strtolower($parts[0]);
+                        $combinedKey = strtolower($fieldValue);
+                        
+                        // If we have a brand, we could potentially add a new model in the future
+                        if (isset($referenceData['vehicle_brand_id'][$brandKey])) {
+                            $warnings[] = __("common.csv_import.unknown_vehicle_model", [
+                                'value' => $fieldValue,
+                                'brand' => $parts[0]
                             ]);
+                        } else {
+                            $warnings[] = __("common.csv_import.unknown_vehicle_model_brand", ['value' => $fieldValue]);
                         }
+                    } else {
+                        $warnings[] = __("common.csv_import.unknown_vehicle_model", ['value' => $fieldValue, 'brand' => 'N/A']);
                     }
                 }
-                break;
+                // Not found, add a warning
+                else {
+                    $warnings[] = __("common.csv_import.unknown_{$type}_{$fieldName}", ['value' => $fieldValue]);
+                }
+            }
+        }
+        
+        // Special handling for driver country codes
+        if ($type === 'driver' && !empty($row['card_issuing_country'])) {
+            $countryInput = trim(strtolower($row['card_issuing_country']));
+            
+            // If it's already a valid 2-letter code (assuming uppercase)
+            if (strlen($countryInput) === 2) {
+                $row['card_issuing_country'] = strtoupper($countryInput);
+            }
+            // Otherwise try to map from country name to code
+            elseif (isset($referenceData['countries'][$countryInput])) {
+                $row['card_issuing_country'] = $referenceData['countries'][$countryInput];
+            } else {
+                $warnings[] = __("common.csv_import.unknown_country_code", ['value' => $row['card_issuing_country']]);
+            }
+        }
+        
+        // Format dates if needed for driver imports
+        if ($type === 'driver') {
+            foreach (['birthdate', 'card_issuing_date', 'card_expiration_date'] as $dateField) {
+                if (!empty($row[$dateField]) && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $row[$dateField])) {
+                    try {
+                        // Parse the date and convert to Y-m-d format
+                        $date = new \DateTime($row[$dateField]);
+                        $row[$dateField] = $date->format('Y-m-d');
+                    } catch (\Exception $e) {
+                        $warnings[] = __("common.csv_import.invalid_date_format", [
+                            'field' => $dateField,
+                            'value' => $row[$dateField]
+                        ]);
+                    }
+                }
+            }
         }
         
         return [
             'row' => $row,
             'warnings' => $warnings
         ];
-    }
-
-    /**
-     * Get the unique field name based on import type.
-     *
-     * @param string $type Import type
-     * @return string Field used for uniqueness check
-     */
-    private function getUniqueField(string $type): string
-    {
-        switch ($type) {
-            case 'device':
-                return 'imei';
-            case 'vehicle':
-                return 'registration';
-            case 'driver':
-                return 'license_number';
-            default:
-                return '';
-        }
     }
 } 

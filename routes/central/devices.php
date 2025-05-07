@@ -19,6 +19,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('devices/import', [DeviceCsvImportController::class, 'create'])->name('devices.import');
     Route::post('devices/import/upload', [DeviceCsvImportController::class, 'upload'])->name('devices.import.upload');
     Route::post('devices/import/store', [DeviceCsvImportController::class, 'store'])->name('devices.import.store');
+    Route::post('devices/import/validate-row', [DeviceCsvImportController::class, 'validateRow'])->name('devices.import.validate-row');
     
     // QR Code Scanning
     Route::post('devices/scan-qr-code', [DeviceController::class, 'scanQrCode'])->name('devices.scan-qr-code');

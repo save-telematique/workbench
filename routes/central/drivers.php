@@ -18,6 +18,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/drivers/import', [DriverCsvImportController::class, 'create'])->name('drivers.import');
     Route::post('/drivers/import/upload', [DriverCsvImportController::class, 'upload'])->name('drivers.import.upload');
     Route::post('/drivers/import/store', [DriverCsvImportController::class, 'store'])->name('drivers.import.store');
+    Route::post('/drivers/import/validate-row', [DriverCsvImportController::class, 'validateRow'])->name('drivers.import.validate-row');
     
     // Driver CRUD Routes
     Route::get('/drivers', [DriverController::class, 'index'])->name('drivers.index');

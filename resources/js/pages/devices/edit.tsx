@@ -85,7 +85,7 @@ export default function Edit({ device, deviceTypes, tenants, vehicles }: DeviceE
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title={__("devices.actions.edit")} />
 
-      <DevicesLayout deviceId={device.id}>
+      <DevicesLayout device={device}>
         <div className="space-y-6">
           <HeadingSmall 
             title={__("devices.edit.heading", { serial: device.serial_number })}
