@@ -68,6 +68,53 @@ export type { Action } from "./data-table-row-actions"
  * - Action bar slots for custom controls
  * - Automatic translation of string headers
  * 
+ * ## Column Definitions
+ * 
+ * ### Basic Columns
+ * 
+ * For simple properties, use `accessorKey`:
+ * 
+ * ```tsx
+ * const columns = [
+ *   {
+ *     accessorKey: "name",
+ *     header: "users.fields.name",
+ *     enableSorting: true,
+ *   }
+ * ];
+ * ```
+ * 
+ * ### Nested Properties
+ * 
+ * For columns that display nested properties, always use `accessorFn` instead of `accessorKey` to ensure proper sorting:
+ * 
+ * ```tsx
+ * // CORRECT: Using accessorFn for nested properties
+ * {
+ *   accessorFn: (row) => row.tenant?.name ?? "",
+ *   id: "tenant", // id is required when using accessorFn
+ *   header: "vehicles.fields.tenant",
+ *   enableSorting: true,
+ *   cell: ({ row }) => (
+ *     <div>{row.original.tenant?.name ?? "-"}</div>
+ *   )
+ * }
+ * 
+ * // INCORRECT: This will not sort by tenant.name properly
+ * {
+ *   accessorKey: "tenant", // This sorts by the tenant object, not the tenant.name
+ *   header: "vehicles.fields.tenant",
+ *   cell: ({ row }) => (
+ *     <div>{row.original.tenant?.name ?? "-"}</div>
+ *   )
+ * }
+ * ```
+ * 
+ * Important notes:
+ * - Always provide a fallback value (e.g., `?? ""`) to handle null/undefined cases
+ * - When using `accessorFn`, you must specify an `id` property for the column
+ * - Make sure the `accessorFn` returns the same value type that's displayed in the cell
+ * 
  * ## Action Bar Slots
  * 
  * The DataTable now provides two slots for placing UI controls:

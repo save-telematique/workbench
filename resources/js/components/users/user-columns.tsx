@@ -48,7 +48,8 @@ export function useUserColumns({
             enableHiding: true,
         },
         {
-            accessorKey: 'email_verified_at',
+            accessorFn: (row) => row.email_verified_at ? 1 : 0,
+            id: 'email_verified_at',
             header: `${translationNamespace}.fields.email_verified`,
             enableSorting: true,
             enableHiding: true,

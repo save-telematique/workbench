@@ -73,7 +73,8 @@ export const useColumns = () => {
       ),
     },
     {
-      accessorKey: "device_type",
+      accessorFn: (row) => row.type ? `${row.type.manufacturer} - ${row.type.name}` : "",
+      id: "device_type",
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
@@ -93,7 +94,8 @@ export const useColumns = () => {
       ),
     },
     {
-      accessorKey: "vehicle",
+      accessorFn: (row) => row.vehicle?.registration ?? "",
+      id: "vehicle",
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
@@ -115,7 +117,8 @@ export const useColumns = () => {
       ),
     },
     {
-      accessorKey: "tenant",
+      accessorFn: (row) => row.tenant?.name ?? "",
+      id: "tenant",
       enableHiding: true,
       enableSorting: true,
       header: __("devices.fields.tenant"),

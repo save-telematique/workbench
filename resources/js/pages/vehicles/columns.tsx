@@ -58,7 +58,8 @@ export const useColumns = () => {
       ),
     },
     {
-      accessorKey: "tenant",
+      accessorFn: (row) => row.tenant?.name ?? "",
+      id: "tenant",
       header: "vehicles.fields.tenant",
       enableSorting: true,
       enableHiding: true,
@@ -104,7 +105,8 @@ export const useColumns = () => {
       ),
     },
     {
-      accessorKey: "device",
+      accessorFn: (row) => row.device?.serial_number ?? "",
+      id: "device",
       header: "vehicles.fields.device",
       enableSorting: true,
       enableHiding: true,

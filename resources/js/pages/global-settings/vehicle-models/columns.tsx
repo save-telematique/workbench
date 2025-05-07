@@ -47,7 +47,8 @@ export function useVehicleModelColumns(): ColumnDef<VehicleModel>[] {
             cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
         },
         {
-            accessorKey: "vehicle_brand.name",
+            accessorFn: (row) => row.vehicle_brand?.name ?? "",
+            id: "vehicle_brand",
             header: ({ column }) => (
                 <DataTableColumnHeader 
                     column={column} 

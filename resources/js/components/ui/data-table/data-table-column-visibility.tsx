@@ -1,3 +1,42 @@
+/**
+ * # DataTable Column Visibility Component
+ * 
+ * This component handles column visibility, ordering, and pinning for DataTable.
+ * 
+ * ## Best Practices for Column Definitions
+ * 
+ * When defining columns for DataTable, follow these guidelines for proper sorting:
+ * 
+ * 1. For simple properties, use `accessorKey`:
+ *    ```
+ *    {
+ *      accessorKey: "name",
+ *      header: "common.name"
+ *    }
+ *    ```
+ * 
+ * 2. For nested properties or when displaying different values than what you want to sort by,
+ *    always use `accessorFn` with an explicit `id`:
+ *    ```
+ *    {
+ *      accessorFn: (row) => row.tenant?.name ?? "",
+ *      id: "tenant",
+ *      header: "vehicles.fields.tenant"
+ *    }
+ *    ```
+ * 
+ * 3. For boolean or status displays (badges, icons), use accessorFn to return sortable values:
+ *    ```
+ *    {
+ *      accessorFn: (row) => row.is_active ? 1 : 0,
+ *      id: "status",
+ *      header: "common.status"
+ *    }
+ *    ```
+ * 
+ * Refer to the documentation in resources/js/components/ui/data-table/index.tsx for more examples.
+ */
+
 "use client"
 
 import { Column, Table } from "@tanstack/react-table"

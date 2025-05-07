@@ -103,7 +103,8 @@ export function useColumns() {
       cell: ({ row }) => row.original.license_number || "-"
     },
     {
-      accessorKey: "tenant",
+      accessorFn: (row) => row.tenant?.name ?? "",
+      id: "tenant",
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
@@ -115,7 +116,8 @@ export function useColumns() {
       ),
     },
     {
-      accessorKey: "user",
+      accessorFn: (row) => row.user?.name ?? "",
+      id: "user",
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
