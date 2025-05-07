@@ -15,7 +15,10 @@ return [
     ],
     
     'sidebar' => [
+        'list' => 'Tous les conducteurs',
         'information' => 'Informations',
+        'license' => 'Détails du permis',
+        'settings' => 'Paramètres',
     ],
     
     'list' => [
@@ -40,6 +43,12 @@ return [
     ],
     
     'placeholders' => [
+        'surname' => 'Saisissez le nom',
+        'firstname' => 'Saisissez le prénom',
+        'phone' => 'Saisissez le numéro de téléphone',
+        'license_number' => 'Saisissez le numéro de permis',
+        'card_issuing_country' => 'Saisissez le pays d\'émission',
+        'card_number' => 'Saisissez le numéro de carte',
         'tenant' => 'Sélectionner un tenant',
         'user' => 'Sélectionner un utilisateur',
     ],
@@ -50,8 +59,11 @@ return [
     
     'sections' => [
         'driver_info' => 'Informations',
+        'driver_info_description' => 'Informations personnelles du conducteur',
         'license_info' => 'Informations du permis',
+        'license_info_description' => 'Détails concernant le permis et la carte du conducteur',
         'tenant_info' => 'Informations du tenant',
+        'tenant_info_description' => 'Associer ce conducteur à un tenant',
         'user_info' => 'Informations du compte utilisateur',
     ],
     
@@ -61,10 +73,22 @@ return [
     
     'create' => [
         'title' => 'Créer un conducteur',
+        'heading' => 'Ajouter un nouveau conducteur',
+        'description' => 'Créer un nouveau conducteur dans le système',
+        'card' => [
+            'title' => 'Détails du conducteur',
+            'description' => 'Saisissez les informations du conducteur'
+        ],
+        'success_message' => 'Conducteur créé avec succès !',
+        'submit_button' => 'Créer le conducteur',
     ],
     
     'edit' => [
         'title' => 'Modifier le conducteur',
+        'heading' => 'Modifier le conducteur',
+        'description' => 'Mettre à jour les détails de ce conducteur',
+        'form_title' => 'Modifier les détails du conducteur',
+        'form_description' => 'Mettre à jour les informations pour :name',
     ],
     
     'delete' => [
@@ -76,4 +100,29 @@ return [
         'title' => 'Restaurer le conducteur',
         'description' => 'Êtes-vous sûr de vouloir restaurer le conducteur :name ?',
     ],
+    
+    'input_methods' => [
+        'manual' => 'Saisie manuelle',
+        'scan' => 'Scanner le document',
+    ],
+    
+    'scan' => [
+        'upload_title' => 'Télécharger le document de permis',
+        'upload_description' => 'Téléchargez un permis ou une carte de conducteur pour extraire automatiquement les informations',
+        'select_image' => 'Sélectionner une image',
+        'change_image' => 'Changer l\'image',
+        'scanning' => 'Analyse du document...',
+        'scanning_hint' => 'Nous recherchons le nom, le numéro de permis et les dates',
+        'success' => 'Document analysé avec succès ! Les informations ont été appliquées au formulaire.',
+        'driver_license_document' => 'Document de permis de conduire',
+        'error' => 'Échec de l\'analyse du document',
+        'error_no_image' => 'Veuillez sélectionner une image à télécharger',
+        'error_invalid_format' => 'Format de fichier invalide. Veuillez télécharger un fichier JPG, PNG ou PDF',
+        'error_file_too_large' => 'Fichier trop volumineux. La taille maximale est de 10 Mo',
+        'error_reading_file' => 'Impossible de lire le fichier téléchargé',
+        'error_no_data_extracted' => 'Aucune information de conducteur n\'a pu être extraite de ce document',
+    ],
+    
+    'user_central' => 'Utilisateur central',
+    'no_users_for_tenant' => 'Aucun utilisateur n\'est disponible pour ce tenant',
 ]; 

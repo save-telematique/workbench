@@ -10,6 +10,9 @@ use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Services\ImageAnalysisService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 
 class DriverController extends Controller
 {
@@ -242,5 +245,47 @@ class DriverController extends Controller
         $driver->restore();
         
         return to_route('drivers.show', $driver);
+    }
+
+    /**
+     * Scan driver document and extract driver information.
+     */
+    public function scanDocument(Request $request, ImageAnalysisService $imageAnalysisService): JsonResponse
+    {
+        try {
+            // Validate the request with detailed error messages
+            $validated = $request->validate([
+                'file' => [
+                    'required',
+                    'file',
+                    'mimes:jpeg,png,jpg,webp,pdf',
+                    'max:10240', // 10MB limit
+                ],
+            ], [
+                'file.required' => __('drivers.scan.error_no_image'),
+                'file.file' => __('drivers.scan.error_invalid_format'),
+                'file.mimes' => __('drivers.scan.error_invalid_format'),
+                'file.max' => __('drivers.scan.error_file_too_large'),
+            ]);
+
+            // Use the image analysis service to extract data
+            $result = $imageAnalysisService->analyze($request->file('file'), 'driver');
+            
+            return response()->json($result);
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'data' => null,
+                'error' => $e->errors()['file'][0] ?? __('drivers.scan.error'),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Driver document scanning failed: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'data' => null,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 } 

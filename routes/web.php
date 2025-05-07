@@ -42,6 +42,7 @@ foreach (config('tenancy.central_domains') as $domain) {
             Route::put('/vehicles/{vehicle}', [App\Http\Controllers\Vehicles\VehicleController::class, 'update'])->name('vehicles.update');
             Route::delete('/vehicles/{vehicle}', [App\Http\Controllers\Vehicles\VehicleController::class, 'destroy'])->name('vehicles.destroy');
             Route::put('/vehicles/{vehicle}/restore', [App\Http\Controllers\Vehicles\VehicleController::class, 'restore'])->name('vehicles.restore');
+            Route::post('/vehicles/scan-registration', [App\Http\Controllers\Vehicles\VehicleController::class, 'scanRegistration'])->name('vehicles.scan-registration');
 
             // Driver Routes
             Route::get('/drivers', [App\Http\Controllers\Drivers\DriverController::class, 'index'])->name('drivers.index');
@@ -52,6 +53,7 @@ foreach (config('tenancy.central_domains') as $domain) {
             Route::put('/drivers/{driver}', [App\Http\Controllers\Drivers\DriverController::class, 'update'])->name('drivers.update');
             Route::delete('/drivers/{driver}', [App\Http\Controllers\Drivers\DriverController::class, 'destroy'])->name('drivers.destroy');
             Route::put('/drivers/{driver}/restore', [App\Http\Controllers\Drivers\DriverController::class, 'restore'])->name('drivers.restore');
+            Route::post('/drivers/scan-document', [App\Http\Controllers\Drivers\DriverController::class, 'scanDocument'])->name('drivers.scan-document');
 
             // Devices routes
             Route::prefix('devices')->name('devices.')->middleware(['auth', 'verified'])->group(function () {

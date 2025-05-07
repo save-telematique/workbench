@@ -220,4 +220,16 @@ return [
     'select_year' => 'Select Year',
     'select_brand' => 'Select Brand',
     'select_type' => 'Select Type',
+    
+    // Image Analysis
+    'image_analysis' => [
+        'error_reading_file' => 'Could not read the uploaded file.',
+        'error_empty_image' => 'The uploaded image is empty or corrupted.',
+        'invalid_type' => 'Invalid image analysis type specified.',
+        'error_converting_pdf' => 'Failed to convert PDF to image for analysis.',
+    ],
+    
+    // PDF handling
+    'pdf_document' => 'PDF Document',
+    'pdf_being_processed' => 'Your PDF is being processed for QR code detection',
 ]; 

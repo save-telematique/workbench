@@ -1,21 +1,12 @@
-import { Head, useForm } from "@inertiajs/react";
+import { Head } from "@inertiajs/react";
 import { type BreadcrumbItem } from "@/types";
 import { useTranslation } from "@/utils/translation";
 import DriversLayout from "@/layouts/drivers/layout";
 import AppLayout from "@/layouts/app-layout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
-import { useEffect, useState } from "react";
-
-
+import { ArrowLeft } from "lucide-react";
+import HeadingSmall from '@/components/heading-small';
+import DriverForm from "@/components/drivers/driver-form";
 
 interface CreateDriverProps {
   tenants: { id: string; name: string }[];
@@ -25,58 +16,6 @@ interface CreateDriverProps {
 export default function Create({ tenants, users }: CreateDriverProps) {
   const { __ } = useTranslation();
   
-  const form = useForm<{
-    surname: string;
-    firstname: string;
-    phone: string;
-    license_number: string;
-    card_issuing_country: string;
-    card_number: string;
-    birthdate: string;
-    card_issuing_date: string;
-    card_expiration_date: string;
-    tenant_id: string;
-    user_id: number | null;
-  }>({
-    surname: "",
-    firstname: "",
-    phone: "",
-    license_number: "",
-    card_issuing_country: "",
-    card_number: "",
-    birthdate: "",
-    card_issuing_date: "",
-    card_expiration_date: "",
-    tenant_id: tenants.length > 0 ? tenants[0].id : "",
-    user_id: null,
-  });
-
-  // Liste filtrée des utilisateurs en fonction du tenant sélectionné
-  const [filteredUsers, setFilteredUsers] = useState<typeof users>([]);
-
-  // Mettre à jour la liste des utilisateurs filtrés quand le tenant change
-  useEffect(() => {
-    if (!form.data.tenant_id) {
-      setFilteredUsers([]);
-      return;
-    }
-
-    // Filtrer les utilisateurs appartenant au tenant sélectionné ou sans tenant (null/undefined)
-    const tenantUsers = users.filter(user => 
-      user.tenant_id === form.data.tenant_id || user.tenant_id === null || user.tenant_id === undefined
-    );
-    
-    setFilteredUsers(tenantUsers);
-    
-    // Si l'utilisateur actuellement sélectionné n'appartient pas à ce tenant, réinitialiser
-    if (form.data.user_id !== null) {
-      const userExists = tenantUsers.some(user => user.id === form.data.user_id);
-      if (!userExists) {
-        form.setData('user_id', null);
-      }
-    }
-  }, [form.data.tenant_id, users]);
-
   const breadcrumbs: BreadcrumbItem[] = [
     {
       title: __('drivers.breadcrumbs.index'),
@@ -88,15 +27,20 @@ export default function Create({ tenants, users }: CreateDriverProps) {
     },
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    form.post(route('drivers.store'));
-  };
-
-  // Gérer le changement de tenant pour mettre à jour la liste des utilisateurs
-  const handleTenantChange = (value: string) => {
-    form.setData('tenant_id', value);
-    form.setData('user_id', null); // Réinitialiser la sélection d'utilisateur
+  // Empty driver object for the form
+  const emptyDriver = {
+    id: '',
+    firstname: '',
+    surname: '',
+    phone: '',
+    license_number: '',
+    card_issuing_country: '',
+    card_number: '',
+    birthdate: '',
+    card_issuing_date: '',
+    card_expiration_date: '',
+    tenant_id: tenants.length > 0 ? tenants[0].id : '',
+    user_id: null,
   };
 
   return (
@@ -104,222 +48,27 @@ export default function Create({ tenants, users }: CreateDriverProps) {
       <Head title={__("drivers.create.title")} />
 
       <DriversLayout showSidebar={false}>
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold tracking-tight">{__("drivers.create.title")}</h2>
+        <div className="flex items-center justify-between">
+          <HeadingSmall 
+            title={__("drivers.create.heading")} 
+            description={__("drivers.create.description")} 
+          />
+          <Button variant="outline" asChild>
+            <a href={route("drivers.index")}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              {__("common.back_to_list")}
+            </a>
+          </Button>
         </div>
-        
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>{__("drivers.sections.driver_info")}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label htmlFor="surname" className="text-sm font-medium">
-                      {__("drivers.fields.surname")} <span className="text-destructive">*</span>
-                    </label>
-                    <Input 
-                      id="surname"
-                      value={form.data.surname}
-                      onChange={e => form.setData('surname', e.target.value)}
-                    />
-                    {form.errors.surname && (
-                      <p className="text-sm text-destructive">{form.errors.surname}</p>
-                    )}
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <label htmlFor="firstname" className="text-sm font-medium">
-                      {__("drivers.fields.firstname")} <span className="text-destructive">*</span>
-                    </label>
-                    <Input 
-                      id="firstname"
-                      value={form.data.firstname}
-                      onChange={e => form.setData('firstname', e.target.value)}
-                    />
-                    {form.errors.firstname && (
-                      <p className="text-sm text-destructive">{form.errors.firstname}</p>
-                    )}
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <label htmlFor="phone" className="text-sm font-medium">{__("drivers.fields.phone")}</label>
-                    <Input 
-                      id="phone"
-                      value={form.data.phone}
-                      onChange={e => form.setData('phone', e.target.value)}
-                    />
-                    {form.errors.phone && (
-                      <p className="text-sm text-destructive">{form.errors.phone}</p>
-                    )}
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <label htmlFor="birthdate" className="text-sm font-medium">{__("drivers.fields.birthdate")}</label>
-                    <Input 
-                      id="birthdate"
-                      type="date"
-                      value={form.data.birthdate}
-                      onChange={e => form.setData('birthdate', e.target.value)}
-                    />
-                    {form.errors.birthdate && (
-                      <p className="text-sm text-destructive">{form.errors.birthdate}</p>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>{__("drivers.sections.license_info")}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label htmlFor="license_number" className="text-sm font-medium">{__("drivers.fields.license_number")}</label>
-                    <Input 
-                      id="license_number"
-                      value={form.data.license_number}
-                      onChange={e => form.setData('license_number', e.target.value)}
-                    />
-                    {form.errors.license_number && (
-                      <p className="text-sm text-destructive">{form.errors.license_number}</p>
-                    )}
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <label htmlFor="card_issuing_country" className="text-sm font-medium">{__("drivers.fields.card_issuing_country")}</label>
-                    <Input 
-                      id="card_issuing_country"
-                      value={form.data.card_issuing_country}
-                      onChange={e => form.setData('card_issuing_country', e.target.value)}
-                    />
-                    {form.errors.card_issuing_country && (
-                      <p className="text-sm text-destructive">{form.errors.card_issuing_country}</p>
-                    )}
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <label htmlFor="card_number" className="text-sm font-medium">{__("drivers.fields.card_number")}</label>
-                    <Input 
-                      id="card_number"
-                      value={form.data.card_number}
-                      onChange={e => form.setData('card_number', e.target.value)}
-                    />
-                    {form.errors.card_number && (
-                      <p className="text-sm text-destructive">{form.errors.card_number}</p>
-                    )}
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <label htmlFor="card_issuing_date" className="text-sm font-medium">{__("drivers.fields.card_issuing_date")}</label>
-                    <Input 
-                      id="card_issuing_date"
-                      type="date"
-                      value={form.data.card_issuing_date}
-                      onChange={e => form.setData('card_issuing_date', e.target.value)}
-                    />
-                    {form.errors.card_issuing_date && (
-                      <p className="text-sm text-destructive">{form.errors.card_issuing_date}</p>
-                    )}
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <label htmlFor="card_expiration_date" className="text-sm font-medium">{__("drivers.fields.card_expiration_date")}</label>
-                    <Input 
-                      id="card_expiration_date"
-                      type="date"
-                      value={form.data.card_expiration_date}
-                      onChange={e => form.setData('card_expiration_date', e.target.value)}
-                    />
-                    {form.errors.card_expiration_date && (
-                      <p className="text-sm text-destructive">{form.errors.card_expiration_date}</p>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>{__("drivers.sections.tenant_info")}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <label htmlFor="tenant_id" className="text-sm font-medium">
-                    {__("drivers.fields.tenant")} <span className="text-destructive">*</span>
-                  </label>
-                  <Select 
-                    value={form.data.tenant_id} 
-                    onValueChange={handleTenantChange}
-                  >
-                    <SelectTrigger id="tenant_id">
-                      <SelectValue placeholder={__("drivers.placeholders.tenant")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {tenants.map((tenant) => (
-                        <SelectItem key={tenant.id} value={tenant.id}>
-                          {tenant.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {form.errors.tenant_id && (
-                    <p className="text-sm text-destructive">{form.errors.tenant_id}</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>{__("drivers.sections.user_info")}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <label htmlFor="user_id" className="text-sm font-medium">{__("drivers.fields.user")}</label>
-                  <Select 
-                    value={form.data.user_id !== null ? form.data.user_id.toString() : "none"} 
-                    onValueChange={(value) => form.setData('user_id', value === "none" ? null : parseInt(value))}
-                    disabled={filteredUsers.length === 0}
-                  >
-                    <SelectTrigger id="user_id">
-                      <SelectValue placeholder={__("drivers.placeholders.user")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">{__("common.none")}</SelectItem>
-                      {filteredUsers.map((user) => (
-                        <SelectItem key={user.id} value={user.id.toString()}>
-                          {user.name} ({user.email})
-                          {user.tenant_id === null && (
-                            <span className="ml-2 text-xs text-muted-foreground">
-                              {__("drivers.user_central")}
-                            </span>
-                          )}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {filteredUsers.length === 0 && (
-                    <p className="text-sm text-muted-foreground">{__("drivers.no_users_for_tenant")}</p>
-                  )}
-                  {form.errors.user_id && (
-                    <p className="text-sm text-destructive">{form.errors.user_id}</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="flex justify-end">
-            <Button type="submit" disabled={form.processing}>
-              {__("common.save")}
-            </Button>
-          </div>
-        </form>
+        <div className="mt-6">
+          <DriverForm 
+            driver={emptyDriver}
+            tenants={tenants}
+            users={users}
+            isCreate={true}
+          />
+        </div>
       </DriversLayout>
     </AppLayout>
   );

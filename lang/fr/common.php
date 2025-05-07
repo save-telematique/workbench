@@ -222,5 +222,16 @@ return [
     'select_year' => 'Sélectionner une année',
     'select_brand' => 'Sélectionner une marque',
     'select_type' => 'Sélectionner un type',
+
+    'image_analysis' => [
+        'error_reading_file' => 'Impossible de lire le fichier téléchargé.',
+        'error_empty_image' => 'L\'image téléchargée est vide ou corrompue.',
+        'invalid_type' => 'Type d\'analyse d\'image spécifié invalide.',
+        'error_converting_pdf' => 'Échec de la conversion du PDF en image pour l\'analyse.',
+    ],
+    
+    // PDF handling
+    'pdf_document' => 'Document PDF',
+    'pdf_being_processed' => 'Votre PDF est en cours de traitement pour la détection de codes QR',
 ];
  

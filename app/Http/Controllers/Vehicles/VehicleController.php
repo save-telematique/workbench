@@ -12,6 +12,10 @@ use App\Models\VehicleBrand;
 use App\Models\VehicleModel;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Services\ImageAnalysisService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class VehicleController extends Controller
 {
@@ -31,20 +35,20 @@ class VehicleController extends Controller
                 $search = $request->input('search');
                 return $query->where(function ($q) use ($search) {
                     $q->where('registration', 'like', "%{$search}%")
-                      ->orWhereHas('model.vehicleBrand', function($q) use ($search) {
-                          $q->where('name', 'like', "%{$search}%");
-                      })
-                      ->orWhereHas('model', function($q) use ($search) {
-                          $q->where('name', 'like', "%{$search}%");
-                      })
-                      ->orWhere('vin', 'like', "%{$search}%");
+                        ->orWhereHas('model.vehicleBrand', function ($q) use ($search) {
+                            $q->where('name', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('model', function ($q) use ($search) {
+                            $q->where('name', 'like', "%{$search}%");
+                        })
+                        ->orWhere('vin', 'like', "%{$search}%");
                 });
             })
             ->when($request->filled('tenant_id') && $request->input('tenant_id') !== 'all', function ($query) use ($request) {
                 return $query->where('tenant_id', $request->input('tenant_id'));
             })
             ->when($request->filled('brand') && $request->input('brand') !== 'all', function ($query) use ($request) {
-                return $query->whereHas('model.vehicleBrand', function($q) use ($request) {
+                return $query->whereHas('model.vehicleBrand', function ($q) use ($request) {
                     $q->where('name', $request->input('brand'));
                 });
             })
@@ -139,7 +143,7 @@ class VehicleController extends Controller
             $validatedData['vehicle_model_id'] = $validatedData['model_id'];
             unset($validatedData['model_id']);
         }
-        
+
         // Remove brand field as it's not in the database
         if (isset($validatedData['brand'])) {
             unset($validatedData['brand']);
@@ -165,9 +169,9 @@ class VehicleController extends Controller
         // Get all tenants and devices for the select dialogs
         $tenants = Tenant::select(['id', 'name'])->get();
         $devices = Device::where(function ($query) use ($vehicle) {
-                $query->whereNull('vehicle_id')
-                      ->orWhere('vehicle_id', $vehicle->id);
-            })
+            $query->whereNull('vehicle_id')
+                ->orWhere('vehicle_id', $vehicle->id);
+        })
             ->with('type')
             ->get();
 
@@ -210,7 +214,7 @@ class VehicleController extends Controller
     public function edit(Vehicle $vehicle)
     {
         $vehicle->load(['model', 'model.vehicleBrand']);
-        
+
         $brands = VehicleBrand::select('id', 'name')->get();
         $models = VehicleModel::with('vehicleBrand')->get()->map(function ($model) {
             return [
@@ -221,12 +225,12 @@ class VehicleController extends Controller
             ];
         });
         $tenants = Tenant::select('id', 'name')->get();
-        
+
         // Get available devices (not assigned to any vehicle or assigned to this vehicle)
         $devices = Device::where(function ($query) use ($vehicle) {
-                $query->whereNull('vehicle_id')
-                      ->orWhere('vehicle_id', $vehicle->id);
-            })
+            $query->whereNull('vehicle_id')
+                ->orWhere('vehicle_id', $vehicle->id);
+        })
             ->with('type')
             ->get()
             ->map(function ($device) {
@@ -271,8 +275,8 @@ class VehicleController extends Controller
 
         // Handle device relationship
         $oldDeviceId = $vehicle->device_id;
-        $newDeviceId = isset($validatedData['device_id']) ? 
-            ($validatedData['device_id'] === 'none' ? null : $validatedData['device_id']) : 
+        $newDeviceId = isset($validatedData['device_id']) ?
+            ($validatedData['device_id'] === 'none' ? null : $validatedData['device_id']) :
             $oldDeviceId;
 
         // Remove the old association
@@ -310,7 +314,7 @@ class VehicleController extends Controller
         if ($vehicle->device_id) {
             Device::where('id', $vehicle->device_id)->update(['vehicle_id' => null]);
         }
-        
+
         $vehicle->delete();
 
         return to_route('vehicles.index');
@@ -325,4 +329,82 @@ class VehicleController extends Controller
 
         return to_route('vehicles.index');
     }
-} 
+
+    /**
+     * Scan vehicle registration document and extract vehicle information.
+     */
+    public function scanRegistration(Request $request, ImageAnalysisService $imageAnalysisService): JsonResponse
+    {
+        try {
+            // Validate the request with detailed error messages
+            $validated = $request->validate([
+                'file' => [
+                    'required',
+                    'file',
+                    'mimes:jpeg,png,jpg,webp,pdf',
+                    'max:10240', // 10MB limit
+                ],
+            ], [
+                'file.required' => __('vehicles.scan.error_no_image'),
+                'file.file' => __('vehicles.scan.error_invalid_format'),
+                'file.mimes' => __('vehicles.scan.error_invalid_format'),
+                'file.max' => __('vehicles.scan.error_file_too_large'),
+            ]);
+
+            // Use the unified image analysis service - it now handles PDF conversion internally
+            $result = $imageAnalysisService->analyze($request->file('file'), 'vehicle');
+            
+            if ($result['success'] && !empty($result['data'])) {
+                // Try to find matching brand and model in our database
+                $vehicleData = $result['data'];
+                $brandName = $vehicleData['brand'] ?? null;
+                $modelName = $vehicleData['model'] ?? null;
+                
+                if ($brandName) {
+                    // Find closest matching brand
+                    $matchingBrand = VehicleBrand::where('name', 'LIKE', "%{$brandName}%")
+                        ->orWhere(function($query) use ($brandName) {
+                            $query->whereRaw("LOWER(name) LIKE ?", ["%" . strtolower($brandName) . "%"]);
+                        })
+                        ->first();
+                    
+                    if ($matchingBrand) {
+                        $result['data']['brand_id'] = $matchingBrand->id;
+                        
+                        // If we have a model name and matching brand, try to find matching model
+                        if ($modelName) {
+                            $matchingModel = VehicleModel::where('vehicle_brand_id', $matchingBrand->id)
+                                ->where(function($query) use ($modelName) {
+                                    $query->where('name', 'LIKE', "%{$modelName}%")
+                                        ->orWhere(function($q) use ($modelName) {
+                                            $q->whereRaw("LOWER(name) LIKE ?", ["%" . strtolower($modelName) . "%"]);
+                                        });
+                                })
+                                ->first();
+                            
+                            if ($matchingModel) {
+                                $result['data']['model_id'] = $matchingModel->id;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return response()->json($result);
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'data' => null,
+                'error' => $e->errors()['file'][0] ?? __('vehicles.scan.error'),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in scanRegistration: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'data' => null,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+}

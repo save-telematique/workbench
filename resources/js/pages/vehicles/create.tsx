@@ -82,6 +82,7 @@ export default function Create({ tenants, devices, brands, models }: VehicleCrea
             vehicle={vehicle}
             tenants={tenants}
             devices={devices}
+            isCreate={true}
             brands={brands}
             models={models}
             onSuccess={(id) => {
