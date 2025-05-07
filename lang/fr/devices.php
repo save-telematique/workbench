@@ -282,4 +282,13 @@ return [
         'confirm_title' => 'Confirmer l\'importation des boitiers',
         'confirm_description' => 'Vous êtes sur le point d\'importer :count boitiers. Cette action ne peut pas être annulée. Voulez-vous continuer ?',
     ],
+    
+    'jobs' => [
+        'teltonika_update' => [
+            'start' => 'Démarrage de la tâche de mise à jour du dispositif Teltonika',
+            'no_imei' => 'Le dispositif n\'a pas d\'IMEI, ignorer la mise à jour de l\'API Teltonika',
+            'no_data' => 'Impossible de récupérer les données de l\'API Teltonika',
+            'success' => 'Mise à jour réussie des données du dispositif depuis l\'API Teltonika',
+        ],
+    ],
 ]; 

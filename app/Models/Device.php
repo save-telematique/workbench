@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Events\DeviceCreated;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -26,6 +27,15 @@ class Device extends Model
 
     protected $casts = [
         'last_contact_at' => 'datetime',
+    ];
+
+    /**
+     * The event map for the model.
+     *
+     * @var array
+     */
+    protected $dispatchesEvents = [
+        'created' => DeviceCreated::class,
     ];
 
     public function toSearchableArray()

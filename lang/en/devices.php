@@ -280,4 +280,13 @@ return [
         'confirm_title' => 'Confirm Device Import',
         'confirm_description' => 'You are about to import :count devices. This action cannot be undone. Do you want to continue?',
     ],
+    
+    'jobs' => [
+        'teltonika_update' => [
+            'start' => 'Starting Teltonika device update job',
+            'no_imei' => 'Device has no IMEI, skipping Teltonika API update',
+            'no_data' => 'Could not retrieve data from Teltonika API',
+            'success' => 'Successfully updated device data from Teltonika API',
+        ],
+    ],
 ]; 

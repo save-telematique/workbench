@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'teltonika' => [
+        'url' => env('TELTONIKA_API_URL', 'https://api.teltonika.lt'),
+        'api_key' => env('TELTONIKA_API_KEY'),
+    ],
+
 ];
