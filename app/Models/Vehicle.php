@@ -86,7 +86,7 @@ class Vehicle extends Model
 
     public function locations()
     {
-        return $this->hasMany(VehicleLocation::class, 'vehicle_id');
+        return $this->hasMany(VehicleLocation::class, 'vehicle_id')->orderBy('recorded_at', 'desc');
     }
 
     public function currentLocation()
