@@ -1,4 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
+import { type BreadcrumbItem } from "@/types";
 import { Plus } from 'lucide-react';
 
 import HeadingSmall from '@/components/heading-small';
@@ -10,10 +11,6 @@ import AppLayout from '@/layouts/app-layout';
 import GlobalSettingsLayout from '@/layouts/global-settings/layout';
 import { VehicleModel, useVehicleModelColumns } from './columns';
 
-interface BreadcrumbItem {
-    title: string;
-    href: string;
-}
 
 interface Props {
     vehicleModels: VehicleModel[];

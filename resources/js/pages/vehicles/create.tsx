@@ -1,4 +1,5 @@
 import { Head } from "@inertiajs/react";
+import { type BreadcrumbItem } from "@/types";
 import { useTranslation } from "@/utils/translation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -7,10 +8,7 @@ import AppLayout from '@/layouts/app-layout';
 import HeadingSmall from '@/components/heading-small';
 import VehicleForm from "@/components/vehicles/vehicle-form";
 
-interface BreadcrumbItem {
-  title: string;
-  href: string;
-}
+
 
 interface VehicleModel {
   id: string;

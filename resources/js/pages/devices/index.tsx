@@ -1,4 +1,5 @@
 import { Head, router } from "@inertiajs/react";
+import { type BreadcrumbItem } from "@/types";
 import { useTranslation } from "@/utils/translation";
 import { DataTable } from "@/components/ui/data-table/index";
 import { useColumns } from "./columns";
@@ -23,10 +24,7 @@ import {
 } from "@/components/ui/popover";
 import { usePermission } from "@/utils/permissions";
 
-interface BreadcrumbItem {
-  title: string;
-  href: string;
-}
+
 
 interface Device {
   id: string;

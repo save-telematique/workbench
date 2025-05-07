@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { type BreadcrumbItem } from "@/types";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { useTranslation } from "@/utils/translation";
 import { Button } from "@/components/ui/button";
@@ -19,10 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { usePermission } from "@/utils/permissions";
 
-interface BreadcrumbItem {
-  title: string;
-  href: string;
-}
+
 
 interface DeviceType {
   id: number;

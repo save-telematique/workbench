@@ -1,4 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
+import { type BreadcrumbItem } from "@/types";
 import { Users, Plus, Search } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -11,10 +12,6 @@ import { usePermission } from '@/utils/permissions';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 
-interface BreadcrumbItem {
-    title: string;
-    href: string;
-}
 
 interface UsersIndexProps {
     users: User[];

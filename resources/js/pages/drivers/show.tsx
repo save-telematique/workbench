@@ -1,4 +1,5 @@
 import { Head } from "@inertiajs/react";
+import { type BreadcrumbItem } from "@/types";
 import { useTranslation } from "@/utils/translation";
 import DriversLayout from "@/layouts/drivers/layout";
 import AppLayout from "@/layouts/app-layout";
@@ -14,10 +15,7 @@ import { RestoreDriverDialog } from "./dialogs/restore-dialog";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import FormattedDate from "@/components/formatted-date";
 
-interface BreadcrumbItem {
-  title: string;
-  href: string;
-}
+
 
 interface Driver {
   id: string;

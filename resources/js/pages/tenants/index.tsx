@@ -1,4 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
+import { type BreadcrumbItem } from "@/types";
 import { Building2, Plus, Search } from 'lucide-react';
 import { useState } from 'react';
 
@@ -11,10 +12,6 @@ import { type Tenant, useTenantsColumns } from './columns';
 import { usePermission } from '@/utils/permissions';
 import { Input } from '@/components/ui/input';
 
-interface BreadcrumbItem {
-    title: string;
-    href: string;
-}
 
 interface TenantsIndexProps {
     tenants: Tenant[];

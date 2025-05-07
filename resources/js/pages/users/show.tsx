@@ -1,4 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
+import { type BreadcrumbItem } from "@/types";
 import { ArrowLeft, CheckCircle, Pencil, Shield, UserRound, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
@@ -15,10 +16,6 @@ import { usePermission } from '@/utils/permissions';
 import { useTranslation } from '@/utils/translation';
 import HeadingSmall from '@/components/heading-small';
 
-interface BreadcrumbItem {
-    title: string;
-    href: string;
-}
 
 interface UserShowProps {
     user: {

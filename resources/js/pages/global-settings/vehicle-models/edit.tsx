@@ -1,4 +1,5 @@
 import { Head, useForm, Link } from '@inertiajs/react';
+import { type BreadcrumbItem } from "@/types";
 import { FormEvent, useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
 
@@ -21,10 +22,6 @@ import GlobalSettingsLayout from '@/layouts/global-settings/layout';
 import { VehicleModel } from './columns';
 import { VehicleBrand } from '../vehicle-brands/columns';
 
-interface BreadcrumbItem {
-    title: string;
-    href: string;
-}
 
 interface Props {
     vehicleModel: VehicleModel;

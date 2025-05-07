@@ -1,4 +1,5 @@
 import { Head, useForm } from "@inertiajs/react";
+import { type BreadcrumbItem } from "@/types";
 import { useTranslation } from "@/utils/translation";
 import DriversLayout from "@/layouts/drivers/layout";
 import AppLayout from "@/layouts/app-layout";
@@ -14,10 +15,7 @@ import {
 } from "@/components/ui/select";
 import { useEffect, useState } from "react";
 
-interface BreadcrumbItem {
-  title: string;
-  href: string;
-}
+
 
 interface CreateDriverProps {
   tenants: { id: string; name: string }[];

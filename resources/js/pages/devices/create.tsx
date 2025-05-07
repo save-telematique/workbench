@@ -22,11 +22,7 @@ import { useState, useRef } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import axios from 'axios';
-
-interface BreadcrumbItem {
-  title: string;
-  href: string;
-}
+import { type BreadcrumbItem } from "@/types";
 
 interface DeviceCreateProps {
   deviceTypes: { id: number; name: string; manufacturer: string }[];

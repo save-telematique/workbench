@@ -25,11 +25,7 @@ import {
   TableCell,
   TableRow,
 } from "@/components/ui/table";
-
-interface BreadcrumbItem {
-  title: string;
-  href: string;
-}
+import { type BreadcrumbItem } from "@/types";
 
 interface Device {
   id: string;

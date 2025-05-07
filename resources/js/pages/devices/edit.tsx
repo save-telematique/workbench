@@ -1,4 +1,5 @@
 import { Head, useForm } from "@inertiajs/react";
+import { type BreadcrumbItem } from "@/types";
 import { useTranslation } from "@/utils/translation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -19,10 +20,7 @@ import HeadingSmall from '@/components/heading-small';
 import { Transition } from '@headlessui/react';
 import { Separator } from "@/components/ui/separator";
 
-interface BreadcrumbItem {
-  title: string;
-  href: string;
-}
+
 
 interface Device {
   id: string;

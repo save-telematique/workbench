@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { type BreadcrumbItem } from "@/types";
 import { Head, router } from "@inertiajs/react";
 import AppLayout from "@/layouts/app-layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -22,10 +23,7 @@ import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import VehicleLocationMap, { LocationPoint } from "@/components/maps/vehicle-location-map";
 
-interface BreadcrumbItem {
-  title: string;
-  href: string;
-}
+
 
 interface DeviceMessage {
   id: number;

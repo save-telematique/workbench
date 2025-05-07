@@ -1,4 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
+import { type BreadcrumbItem } from "@/types";
 import { Users, Plus } from 'lucide-react';
 
 import HeadingSmall from '@/components/heading-small';
@@ -9,10 +10,6 @@ import { useTranslation } from '@/utils/translation';
 import { DataTable } from '@/components/ui/data-table/index';
 import { type TenantUser, useTenantUsersColumns } from './columns';
 
-interface BreadcrumbItem {
-    title: string;
-    href: string;
-}
 
 interface TenantUsersIndexProps {
     tenant: {

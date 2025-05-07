@@ -3,6 +3,11 @@ import { LucideProps } from "lucide-react";
 
 export type LucideIcon = ComponentType<LucideProps>;
 
+export interface BreadcrumbItem {
+  title: string;
+  href: string;
+}
+
 export interface NavItem {
   title: string;
   href: string;

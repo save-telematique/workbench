@@ -21,11 +21,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { usePermission } from "@/utils/permissions";
-
-interface BreadcrumbItem {
-  title: string;
-  href: string;
-}
+import { type BreadcrumbItem } from "@/types";
 
 interface Vehicle {
   id: string;

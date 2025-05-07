@@ -1,4 +1,5 @@
 import { Head, Link, useForm } from '@inertiajs/react';
+import { type BreadcrumbItem } from "@/types";
 import { Globe, Plus, ArrowLeft, Info } from 'lucide-react';
 import { FormEventHandler, useMemo } from 'react';
 import { Transition } from '@headlessui/react';
@@ -19,11 +20,6 @@ import AppLayout from '@/layouts/app-layout';
 import TenantsLayout from '@/layouts/tenants/layout';
 import { DataTable } from '@/components/ui/data-table/index';
 import { Domain, useDomainsColumns } from './domains/columns';
-
-interface BreadcrumbItem {
-    title: string;
-    href: string;
-}
 
 interface TenantsDomainsProps {
     tenant: {
