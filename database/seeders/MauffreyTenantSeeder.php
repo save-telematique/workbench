@@ -8,7 +8,7 @@ use App\Models\User;
 use App\Models\Vehicle;
 use Illuminate\Database\Seeder;
 
-class LeffTenantSeeder extends Seeder
+class MauffreyTenantSeeder extends Seeder
 {
     /**
      * Run the database seeds.

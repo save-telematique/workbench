@@ -20,4 +20,4 @@ Artisan::command('messages:process', function () {
             hint: 'This may take some time.'
         );
     }
-})->hourly();
+})->everyTenMinutes();

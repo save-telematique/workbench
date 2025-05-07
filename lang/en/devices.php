@@ -19,6 +19,11 @@ return [
         'created_at' => 'Created At',
         'updated_at' => 'Updated At',
         'deleted_at' => 'Deleted At',
+        'name' => 'Name',
+        'type' => 'Type',
+        'owner' => 'Owner',
+        'status' => 'Status',
+        'last_contact' => 'Last Contact',
     ],
     
     // Actions
@@ -33,6 +38,10 @@ return [
         'unassign_vehicle' => 'Unassign from Vehicle',
         'unassign_vehicle_short' => 'Unassign',
         'back_to_list' => 'Back to list',
+        'save' => 'Save Device',
+        'cancel' => 'Cancel',
+        'back' => 'Back to Devices',
+        'view_messages' => 'View Messages',
     ],
     
     // Messages
@@ -48,8 +57,8 @@ return [
     'confirm_force_delete' => 'Are you sure you want to permanently delete this device? This action cannot be undone.',
     'messages' => [
         'title' => 'Device Messages',
-        'description' => 'View raw messages received from this device',
-        'message_count' => 'messages',
+        'description' => 'View messages received from this device',
+        'message_count' => '{count} message|{count} messages',
         'no_messages' => 'No messages found for this device',
         'no_messages_title' => 'No messages available',
         'no_messages_for_date' => 'No messages found for :date',
@@ -87,6 +96,16 @@ return [
         'path_trace' => 'Vehicle path',
         'currently_moving' => 'Currently Moving',
         'active' => 'Active',
+        'sync' => [
+            'started' => 'Starting device messages synchronization...',
+            'last_timestamp' => 'Last message timestamp: :timestamp',
+            'no_messages' => 'No existing messages found. Using default timestamp: :timestamp',
+            'api_failed' => 'API call failed with status code: :status',
+            'no_new_messages' => 'No new messages found.',
+            'found_messages' => 'Found :count new messages to sync.',
+            'success' => 'Successfully synchronized :count device messages.',
+            'error' => 'An error occurred: :message',
+        ],
     ],
     
     // Map-related translations
@@ -135,6 +154,11 @@ return [
         'device_type' => 'Device Type',
         'vehicle' => 'Vehicle',
         'deleted' => 'Deletion Status',
+        'all' => 'All Devices',
+        'active' => 'Active Devices',
+        'inactive' => 'Inactive Devices',
+        'assigned' => 'Assigned Devices',
+        'unassigned' => 'Unassigned Devices',
     ],
     
     // Placeholders
@@ -146,6 +170,8 @@ return [
         'device_type' => 'Select device type',
         'vehicle' => 'Select vehicle',
         'tenant' => 'Select tenant',
+        'name' => 'Enter device name',
+        'type' => 'Select device type',
     ],
     
     // List related translations
@@ -209,5 +235,26 @@ return [
         'continue_to_form' => 'Continue to form',
         'continue_tooltip' => 'Proceed to the form to complete the missing information',
         'device_qr_code' => 'Device QR Code',
+    ],
+    
+    'status' => [
+        'active' => 'Active',
+        'inactive' => 'Inactive',
+        'maintenance' => 'Maintenance',
+    ],
+    
+    'notifications' => [
+        'created' => 'Device created successfully',
+        'updated' => 'Device updated successfully',
+        'deleted' => 'Device deleted successfully',
+    ],
+    
+    'search' => [
+        'placeholder' => 'Search by name, serial number, or IMEI',
+    ],
+    
+    'empty' => [
+        'title' => 'No devices found',
+        'description' => 'Start by adding your first device',
     ],
 ]; 

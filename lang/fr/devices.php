@@ -19,6 +19,13 @@ return [
         'created_at' => 'Créé le',
         'updated_at' => 'Mis à jour le',
         'deleted_at' => 'Supprimé le',
+        'name' => 'Nom',
+        'type' => 'Type',
+        'serial' => 'Numéro de Série',
+        'firmware' => 'Version du Firmware',
+        'owner' => 'Propriétaire',
+        'status' => 'Statut',
+        'last_contact' => 'Dernier Contact',
     ],
     
     // Actions
@@ -33,6 +40,10 @@ return [
         'unassign_vehicle' => 'Dissocier du véhicule',
         'unassign_vehicle_short' => 'Dissocier',
         'back_to_list' => 'Retour à la liste',
+        'save' => 'Enregistrer l\'Appareil',
+        'cancel' => 'Annuler',
+        'back' => 'Retour aux Appareils',
+        'view_messages' => 'Voir les Messages',
     ],
     
     // Messages
@@ -87,6 +98,16 @@ return [
         'path_trace' => 'Trajet du véhicule',
         'currently_moving' => 'Actuellement en mouvement',
         'active' => 'Actif',
+        'sync' => [
+            'started' => 'Démarrage de la synchronisation des messages des appareils...',
+            'last_timestamp' => 'Horodatage du dernier message : :timestamp',
+            'no_messages' => 'Aucun message existant trouvé. Utilisation de l\'horodatage par défaut : :timestamp',
+            'api_failed' => 'L\'appel API a échoué avec le code d\'état : :status',
+            'no_new_messages' => 'Aucun nouveau message trouvé.',
+            'found_messages' => 'Trouvé :count nouveaux messages à synchroniser.',
+            'success' => 'Synchronisation réussie de :count messages d\'appareils.',
+            'error' => 'Une erreur s\'est produite : :message',
+        ],
     ],
     
     // Map-related translations
@@ -135,6 +156,11 @@ return [
         'device_type' => 'Type de boitier',
         'vehicle' => 'Véhicule',
         'deleted' => 'Statut de suppression',
+        'all' => 'Tous les Appareils',
+        'active' => 'Appareils Actifs',
+        'inactive' => 'Appareils Inactifs',
+        'assigned' => 'Appareils Assignés',
+        'unassigned' => 'Appareils Non Assignés',
     ],
     
     // Placeholders
@@ -146,6 +172,8 @@ return [
         'device_type' => 'Sélectionnez le type de boitier',
         'vehicle' => 'Sélectionnez un véhicule',
         'tenant' => 'Sélectionnez un client',
+        'name' => 'Entrez le nom de l\'appareil',
+        'type' => 'Sélectionnez le type d\'appareil',
     ],
     
     // List related translations
@@ -209,5 +237,26 @@ return [
         'continue_to_form' => 'Continuer vers le formulaire',
         'continue_tooltip' => 'Passez au formulaire pour compléter les informations manquantes',
         'device_qr_code' => 'Code QR du dispositif',
+    ],
+    
+    'status' => [
+        'active' => 'Actif',
+        'inactive' => 'Inactif',
+        'maintenance' => 'Maintenance',
+    ],
+    
+    'notifications' => [
+        'created' => 'Boitier créé avec succès',
+        'updated' => 'Boitier mis à jour avec succès',
+        'deleted' => 'Boitier supprimé avec succès',
+    ],
+    
+    'search' => [
+        'placeholder' => 'Rechercher par nom, numéro de série ou IMEI',
+    ],
+    
+    'empty' => [
+        'title' => 'Aucun boitier trouvé',
+        'description' => 'Commencez par ajouter votre premier boitier',
     ],
 ]; 
