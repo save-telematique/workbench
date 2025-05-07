@@ -2,7 +2,6 @@ import { Head, Link } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 
 import HeadingSmall from '@/components/heading-small';
-import { type BreadcrumbItem } from '@/types';
 import { useTranslation } from '@/utils/translation';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table/index';
@@ -10,6 +9,11 @@ import { DataTable } from '@/components/ui/data-table/index';
 import AppLayout from '@/layouts/app-layout';
 import GlobalSettingsLayout from '@/layouts/global-settings/layout';
 import { VehicleType, useVehicleTypeColumns } from './columns';
+
+interface BreadcrumbItem {
+    title: string;
+    href: string;
+}
 
 interface Props {
     vehicleTypes: VehicleType[];
@@ -32,18 +36,10 @@ export default function VehicleTypes({ vehicleTypes }: Props) {
 
             <GlobalSettingsLayout>
                 <div className="space-y-6">
-                    <div className="flex justify-between items-center">
-                        <HeadingSmall 
-                            title={__('common.vehicle_types')} 
-                            description={__('common.manage_vehicle_types')} 
-                        />
-                        <Button asChild>
-                            <Link href={route('global-settings.vehicle-types.create')}>
-                                <Plus className="h-4 w-4 mr-2" />
-                                {__('common.create')}
-                            </Link>
-                        </Button>
-                    </div>
+                    <HeadingSmall 
+                        title={__('common.vehicle_types')} 
+                        description={__('common.manage_vehicle_types')} 
+                    />
                     
                     <DataTable 
                         columns={columns}
@@ -54,6 +50,14 @@ export default function VehicleTypes({ vehicleTypes }: Props) {
                             sorting: true,
                             pageSize: 10
                         }}
+                        actionBarRight={
+                            <Button asChild size="default" className="h-9">
+                                <Link href={route('global-settings.vehicle-types.create')}>
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    {__('common.create')}
+                                </Link>
+                            </Button>
+                        }
                     />
                 </div>
             </GlobalSettingsLayout>

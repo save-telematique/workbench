@@ -3,10 +3,8 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { CheckCircle, XCircle } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header"
+import { DataTableColumnHeader, DataTableRowActions } from "@/components/ui/data-table"
 import { useTranslation } from "@/utils/translation"
-import { DataTableRowActions } from "@/components/ui/data-table-row-actions"
 import { useStandardActions } from "@/utils/actions"
 
 // Type pour définir la structure de nos données

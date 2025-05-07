@@ -24,7 +24,7 @@ export interface Action {
   separator?: boolean;
 }
 
-interface DataTableRowActionsProps<TData> {
+export interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
   actions: Action[];
   menuLabel?: string;
@@ -48,11 +48,10 @@ export function DataTableRowActions<TData>({
           <Button variant="ghost" className="h-8 w-8 p-0">
             <span className="sr-only">{__("common.open_menu")}</span>
             <MoreHorizontal className="h-4 w-4" />
-        </Button>
-      </div>
-
+          </Button>
+        </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" className="w-[160px]">
         {menuLabel && <DropdownMenuLabel>{menuLabel}</DropdownMenuLabel>}
         
         {filteredActions.map((action, index) => {

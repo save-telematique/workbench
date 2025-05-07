@@ -1,12 +1,10 @@
-import { Link } from '@inertiajs/react';
 import { type ColumnDef } from '@tanstack/react-table';
-import { Eye, Pencil, CheckCircle, XCircle } from 'lucide-react';
+import { CheckCircle, XCircle } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/utils/translation';
 import FormattedDate from '@/components/formatted-date';
 import { Badge } from '@/components/ui/badge';
-import { DataTableRowActions } from '../ui/data-table-row-actions';
+import { DataTableRowActions } from '@/components/ui/data-table';
 import { useStandardActions } from '@/utils/actions';
 
 export interface User {
@@ -39,15 +37,21 @@ export function useUserColumns({
     return [
         {
             accessorKey: 'name',
-            header: __(`${translationNamespace}.fields.name`),
+            header: `${translationNamespace}.fields.name`,
+            enableSorting: true,
+            enableHiding: true,
         },
         {
             accessorKey: 'email',
-            header: __(`${translationNamespace}.fields.email`),
+            header: `${translationNamespace}.fields.email`,
+            enableSorting: true,
+            enableHiding: true,
         },
         {
             accessorKey: 'email_verified_at',
-            header: __(`${translationNamespace}.fields.email_verified`),
+            header: `${translationNamespace}.fields.email_verified`,
+            enableSorting: true,
+            enableHiding: true,
             cell: ({ row }) => {
                 const user = row.original;
                 return (
@@ -69,7 +73,9 @@ export function useUserColumns({
         },
         {
             accessorKey: 'created_at',
-            header: __(`${translationNamespace}.fields.created_at`),
+            header: `${translationNamespace}.fields.created_at`,
+            enableSorting: true,
+            enableHiding: true,
             cell: ({ row }) => {
                 const user = row.original;
                 return <FormattedDate date={user.created_at} format="DATE_MED" />;
@@ -77,6 +83,8 @@ export function useUserColumns({
         },
         {
             id: "actions",
+            enableHiding: false,
+            enableSorting: false,
             cell: ({ row }) => {
               const user = { ...row.original, resourceName: "users" };
               
@@ -88,6 +96,6 @@ export function useUserColumns({
                 />
               );
             },
-          },
+        },
     ];
 } 

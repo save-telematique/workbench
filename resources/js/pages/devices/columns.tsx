@@ -1,10 +1,8 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
-import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
-import { DataTableRowActions } from "@/components/ui/data-table-row-actions";
+import { DataTableColumnHeader, DataTableRowActions } from "@/components/ui/data-table";
 import { useTranslation } from "@/utils/translation";
-import { Link, router } from "@inertiajs/react";
+import { Link } from "@inertiajs/react";
 import { LicensePlate } from "@/components/ui/license-plate";
 import { useStandardActions } from "@/utils/actions";
 

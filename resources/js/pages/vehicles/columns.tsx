@@ -1,7 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
-import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
-import { DataTableRowActions } from "@/components/ui/data-table-row-actions";
+import { DataTableRowActions } from "@/components/ui/data-table/data-table-row-actions";
 import { useTranslation } from "@/utils/translation";
 import { Link } from "@inertiajs/react";
 import { LicensePlate } from "@/components/ui/license-plate";
@@ -35,12 +34,9 @@ export const useColumns = () => {
   const columns: ColumnDef<Vehicle>[] = [
     {
       accessorKey: "registration",
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title={__("vehicles.fields.registration")}
-        />
-      ),
+      header: "vehicles.fields.registration",
+      enableSorting: true,
+      enableHiding: true,
       cell: ({ row }) => (
         <div className="flex space-x-2">
           <span className="max-w-[500px] truncate font-medium">
@@ -63,12 +59,9 @@ export const useColumns = () => {
     },
     {
       accessorKey: "tenant",
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title={__("vehicles.fields.tenant")}
-        />
-      ),
+      header: "vehicles.fields.tenant",
+      enableSorting: true,
+      enableHiding: true,
       cell: ({ row }) => (
         <div className="w-[180px]">
           {row.original.tenant ? (
@@ -85,48 +78,36 @@ export const useColumns = () => {
     },
     {
       accessorKey: "brand",
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title={__("vehicles.fields.brand")}
-        />
-      ),
+      header: "vehicles.fields.brand",
+      enableSorting: true,
+      enableHiding: true,
       cell: ({ row }) => (
         <div className="w-[100px]">{row.getValue("brand")}</div>
       ),
     },
     {
       accessorKey: "model",
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title={__("vehicles.fields.model")}
-        />
-      ),
+      header: "vehicles.fields.model",
+      enableSorting: true,
+      enableHiding: true,
       cell: ({ row }) => (
         <div className="w-[120px]">{row.getValue("model")}</div>
       ),
     },
     {
       accessorKey: "vin",
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title={__("vehicles.fields.vin")}
-        />
-      ),
+      header: "vehicles.fields.vin",
+      enableSorting: true,
+      enableHiding: true,
       cell: ({ row }) => (
         <div className="w-[130px]">{row.getValue("vin")}</div>
       ),
     },
     {
       accessorKey: "device",
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title={__("vehicles.fields.device")}
-        />
-      ),
+      header: "vehicles.fields.device",
+      enableSorting: true,
+      enableHiding: true,
       cell: ({ row }) => (
         <div className="w-[180px]">
           {row.original.device ? (
@@ -143,6 +124,8 @@ export const useColumns = () => {
     },
     {
       id: "actions",
+      enableSorting: false,
+      enableHiding: false,
       cell: ({ row }) => {
         const vehicle = { ...row.original, resourceName: "vehicles" };
         

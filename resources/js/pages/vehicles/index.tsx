@@ -138,8 +138,9 @@ export default function Index({ vehicles, filters, brands, tenants }: VehiclesPa
                 {__('vehicles.list.get_started')}
               </p>
               {canCreateVehicles && (
-                <Button asChild>
+                <Button asChild size="default" className="h-9">
                   <Link href={route('vehicles.create')}>
+                    <Plus className="mr-2 h-4 w-4" />
                     {__('vehicles.actions.create')}
                   </Link>
                 </Button>
@@ -177,7 +178,7 @@ export default function Index({ vehicles, filters, brands, tenants }: VehiclesPa
               actionBarRight={
                 <div className="flex gap-2">
                   {canCreateVehicles && (
-                    <Button asChild>
+                    <Button asChild size="default" className="h-9">
                       <Link href={route("vehicles.create")}>
                         <Plus className="mr-2 h-4 w-4" />
                         {__("vehicles.actions.create")}
@@ -187,7 +188,7 @@ export default function Index({ vehicles, filters, brands, tenants }: VehiclesPa
                   
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button variant="outline" size="sm" className="h-9">
+                      <Button variant="outline" size="default" className="h-9">
                         <Filter className="mr-2 h-4 w-4" />
                         {__("common.filters")}
                         {activeFiltersCount > 0 && (

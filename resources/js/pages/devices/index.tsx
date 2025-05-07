@@ -133,144 +133,6 @@ export default function Index({ devices, filters, deviceTypes, tenants, vehicles
 
       <DevicesLayout>
         <div className="space-y-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <form onSubmit={handleSearch} className="flex items-center gap-2 w-full md:w-auto">
-              <div className="relative w-full md:w-80">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder={__("common.search")}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-8 w-full"
-                />
-              </div>
-              <Button type="submit" size="icon" variant="outline">
-                <Search className="h-4 w-4" />
-                <span className="sr-only">{__("common.search")}</span>
-              </Button>
-            </form>
-
-            <div className="flex gap-2 self-end">
-              {canCreateDevices && (
-                <Button asChild>
-                  <Link href={route("devices.create")}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    {__("devices.actions.create")}
-                  </Link>
-                </Button>
-              )}
-              
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-10">
-                    <Filter className="mr-2 h-4 w-4" />
-                    {__("common.filters")}
-                    {activeFiltersCount > 0 && (
-                      <span className="ml-2 rounded-full bg-primary text-primary-foreground w-5 h-5 text-xs flex items-center justify-center">
-                        {activeFiltersCount}
-                      </span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-80 p-4" align="end">
-                  <div className="space-y-4">
-                    <h4 className="font-medium">{__("common.filters")}</h4>
-                    
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium" htmlFor="tenant-filter">
-                        {__("devices.filters.tenant")}
-                      </label>
-                      <Select
-                        value={filterValues.tenant_id}
-                        onValueChange={(value) => handleFilterChange("tenant_id", value)}
-                      >
-                        <SelectTrigger id="tenant-filter" className="w-full">
-                          <SelectValue placeholder={__("devices.placeholders.tenant")} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">{__("common.all_tenants")}</SelectItem>
-                          {tenants.map((tenant) => (
-                            <SelectItem key={tenant.id} value={tenant.id}>
-                              {tenant.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium" htmlFor="device-type-filter">
-                        {__("devices.filters.device_type")}
-                      </label>
-                      <Select
-                        value={filterValues.device_type_id}
-                        onValueChange={(value) => handleFilterChange("device_type_id", value)}
-                      >
-                        <SelectTrigger id="device-type-filter" className="w-full">
-                          <SelectValue placeholder={__("devices.placeholders.device_type")} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">{__("common.all_device_types")}</SelectItem>
-                          {deviceTypes.map((type) => (
-                            <SelectItem key={type.id} value={type.id.toString()}>
-                              {type.manufacturer} - {type.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium" htmlFor="vehicle-filter">
-                        {__("devices.filters.vehicle")}
-                      </label>
-                      <Select
-                        value={filterValues.vehicle_id}
-                        onValueChange={(value) => handleFilterChange("vehicle_id", value)}
-                      >
-                        <SelectTrigger id="vehicle-filter" className="w-full">
-                          <SelectValue placeholder={__("devices.placeholders.vehicle")} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">{__("common.all_vehicles")}</SelectItem>
-                          {vehicles.map((vehicle) => (
-                            <SelectItem key={vehicle.id} value={vehicle.id}>
-                              {vehicle.registration}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {activeFiltersCount > 0 && (
-                      <Button 
-                        variant="outline" 
-                        onClick={resetFilters} 
-                        size="sm"
-                        className="w-full mt-4"
-                      >
-                        <X className="mr-2 h-4 w-4" />
-                        {__("common.reset_filters")}
-                      </Button>
-                    )}
-                  </div>
-                </PopoverContent>
-              </Popover>
-
-              {activeFiltersCount > 0 && (
-                <Button 
-                  variant="outline" 
-                  onClick={resetFilters} 
-                  size="sm"
-                  className="h-10"
-                >
-                  <X className="mr-2 h-4 w-4" />
-                  {__("common.reset_filters")}
-                </Button>
-              )}
-            </div>
-          </div>
-
           {devices?.data.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center animate-in fade-in-50">
               <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
@@ -280,8 +142,9 @@ export default function Index({ devices, filters, deviceTypes, tenants, vehicles
               <p className="mb-4 mt-2 text-sm text-muted-foreground">
                 {__('devices.list.get_started')}
               </p>
-              <Button asChild>
+              <Button asChild size="default" className="h-9">
                 <Link href={route('devices.create')}>
+                  <Plus className="mr-2 h-4 w-4" />
                   {__('devices.actions.create')}
                 </Link>
               </Button>
@@ -298,6 +161,145 @@ export default function Index({ devices, filters, deviceTypes, tenants, vehicles
                 pageSize: devices?.meta?.per_page || 10
               }}
               noResultsMessage={__('devices.list.no_devices')}
+              actionBarLeft={
+                <form onSubmit={handleSearch} className="flex items-center gap-2 w-full">
+                  <div className="relative w-full">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder={__("common.search")}
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-8 w-full"
+                    />
+                  </div>
+                  <Button type="submit" size="icon" variant="outline">
+                    <Search className="h-4 w-4" />
+                    <span className="sr-only">{__("common.search")}</span>
+                  </Button>
+                </form>
+              }
+              actionBarRight={
+                <div className="flex gap-2">
+                  {canCreateDevices && (
+                    <Button asChild size="default" className="h-9">
+                      <Link href={route("devices.create")}>
+                        <Plus className="mr-2 h-4 w-4" />
+                        {__("devices.actions.create")}
+                      </Link>
+                    </Button>
+                  )}
+                  
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" size="default" className="h-9">
+                        <Filter className="mr-2 h-4 w-4" />
+                        {__("common.filters")}
+                        {activeFiltersCount > 0 && (
+                          <span className="ml-2 rounded-full bg-primary text-primary-foreground w-5 h-5 text-xs flex items-center justify-center">
+                            {activeFiltersCount}
+                          </span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80 p-4" align="end">
+                      <div className="space-y-4">
+                        <h4 className="font-medium">{__("common.filters")}</h4>
+                        
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium" htmlFor="tenant-filter">
+                            {__("devices.filters.tenant")}
+                          </label>
+                          <Select
+                            value={filterValues.tenant_id}
+                            onValueChange={(value) => handleFilterChange("tenant_id", value)}
+                          >
+                            <SelectTrigger id="tenant-filter" className="w-full">
+                              <SelectValue placeholder={__("devices.placeholders.tenant")} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all">{__("common.all_tenants")}</SelectItem>
+                              {tenants.map((tenant) => (
+                                <SelectItem key={tenant.id} value={tenant.id}>
+                                  {tenant.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium" htmlFor="device-type-filter">
+                            {__("devices.filters.device_type")}
+                          </label>
+                          <Select
+                            value={filterValues.device_type_id}
+                            onValueChange={(value) => handleFilterChange("device_type_id", value)}
+                          >
+                            <SelectTrigger id="device-type-filter" className="w-full">
+                              <SelectValue placeholder={__("devices.placeholders.device_type")} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all">{__("common.all_device_types")}</SelectItem>
+                              {deviceTypes.map((type) => (
+                                <SelectItem key={type.id} value={type.id.toString()}>
+                                  {type.manufacturer} - {type.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium" htmlFor="vehicle-filter">
+                            {__("devices.filters.vehicle")}
+                          </label>
+                          <Select
+                            value={filterValues.vehicle_id}
+                            onValueChange={(value) => handleFilterChange("vehicle_id", value)}
+                          >
+                            <SelectTrigger id="vehicle-filter" className="w-full">
+                              <SelectValue placeholder={__("devices.placeholders.vehicle")} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all">{__("common.all_vehicles")}</SelectItem>
+                              <SelectItem value="none">{__("common.no_vehicle")}</SelectItem>
+                              {vehicles?.map((vehicle) => (
+                                <SelectItem key={vehicle.id} value={vehicle.id}>
+                                  {vehicle.registration}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {activeFiltersCount > 0 && (
+                          <Button 
+                            variant="outline" 
+                            onClick={resetFilters} 
+                            size="sm"
+                            className="w-full mt-4"
+                          >
+                            <X className="mr-2 h-4 w-4" />
+                            {__("common.reset_filters")}
+                          </Button>
+                        )}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+
+                  {activeFiltersCount > 0 && (
+                    <Button 
+                      variant="outline" 
+                      onClick={resetFilters} 
+                      size="sm"
+                      className="h-9"
+                    >
+                      <X className="mr-2 h-4 w-4" />
+                      {__("common.reset_filters")}
+                    </Button>
+                  )}
+                </div>
+              }
             />
           )}
         </div>

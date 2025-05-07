@@ -4,6 +4,7 @@ export { DataTable } from "./data-table"
 export { DataTableColumnHeader } from "./data-table-column-header"
 export { DataTablePagination } from "./data-table-pagination"
 export { DataTableColumnVisibility } from "./data-table-column-visibility"
+export { DataTableRowActions } from "./data-table-row-actions"
 
 // Types réexportés de react-table pour une utilisation facile
 export type {
@@ -15,6 +16,9 @@ export type {
   ColumnOrderState,
   ColumnPinningState,
 } from "@tanstack/react-table"
+
+// Export action type from row actions
+export type { Action } from "./data-table-row-actions"
 
 /**
  * # DataTable Component

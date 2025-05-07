@@ -3,9 +3,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useTranslation } from "@/utils/translation";
 import { Link } from "@inertiajs/react";
 import { Badge } from "@/components/ui/badge";
-import { DataTableRowActions } from "@/components/ui/data-table-row-actions";
+import { DataTableRowActions } from "@/components/ui/data-table/data-table-row-actions";
 import { useStandardActions } from "@/utils/actions";
-import { Button } from "@/components/ui/button";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 
 interface Driver {

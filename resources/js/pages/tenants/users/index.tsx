@@ -1,4 +1,3 @@
-import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { Users, Plus } from 'lucide-react';
 
@@ -9,6 +8,11 @@ import TenantsLayout from '@/layouts/tenants/layout';
 import { useTranslation } from '@/utils/translation';
 import { DataTable } from '@/components/ui/data-table/index';
 import { type TenantUser, useTenantUsersColumns } from './columns';
+
+interface BreadcrumbItem {
+    title: string;
+    href: string;
+}
 
 interface TenantUsersIndexProps {
     tenant: {
@@ -47,15 +51,6 @@ export default function TenantUsersIndex({ tenant, users }: TenantUsersIndexProp
                         title={__('tenant_users.list.heading')} 
                         description={__('tenant_users.list.description')} 
                     />
-                    
-                    <div className="flex justify-end">
-                        <Button asChild>
-                            <Link href={route('tenants.users.create', tenant.id)}>
-                                <Plus className="mr-2 h-4 w-4" />
-                                {__('tenant_users.list.add_user')}
-                            </Link>
-                        </Button>
-                    </div>
 
                     {users.length === 0 ? (
                         <div className="rounded-lg border bg-white p-8 text-center dark:border-neutral-800 dark:bg-neutral-950">
@@ -64,7 +59,7 @@ export default function TenantUsersIndex({ tenant, users }: TenantUsersIndexProp
                                 <h3 className="mt-2 text-sm font-semibold text-gray-900 dark:text-gray-100">{__('tenant_users.list.no_users')}</h3>
                                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{__('tenant_users.list.get_started')}</p>
                                 <div className="mt-6">
-                                    <Button asChild>
+                                    <Button asChild size="default" className="h-9">
                                         <Link href={route('tenants.users.create', tenant.id)}>
                                             <Plus className="mr-2 h-4 w-4" />
                                             {__('tenant_users.list.create_user')}
@@ -83,6 +78,14 @@ export default function TenantUsersIndex({ tenant, users }: TenantUsersIndexProp
                                 sorting: true
                             }}
                             noResultsMessage={__('users.list.no_users')}
+                            actionBarRight={
+                                <Button asChild size="default" className="h-9">
+                                    <Link href={route('tenants.users.create', tenant.id)}>
+                                        <Plus className="mr-2 h-4 w-4" />
+                                        {__('tenant_users.list.add_user')}
+                                    </Link>
+                                </Button>
+                            }
                         />
                     )}
                 </div>

@@ -1,4 +1,3 @@
-import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Globe, Plus, ArrowLeft, Info } from 'lucide-react';
 import { FormEventHandler, useMemo } from 'react';
@@ -20,6 +19,11 @@ import AppLayout from '@/layouts/app-layout';
 import TenantsLayout from '@/layouts/tenants/layout';
 import { DataTable } from '@/components/ui/data-table/index';
 import { Domain, useDomainsColumns } from './domains/columns';
+
+interface BreadcrumbItem {
+    title: string;
+    href: string;
+}
 
 interface TenantsDomainsProps {
     tenant: {
@@ -86,20 +90,12 @@ export default function TenantsDomains({ tenant, domains = [], app_url }: Tenant
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={__('tenants.domains.title', { name: tenant.name })} />
 
-            <TenantsLayout showSidebar={true} tenantId={tenant.id} activeTab="domains">
+            <TenantsLayout showSidebar={true} tenantId={tenant.id}>
                 <div className="space-y-6">
                     <HeadingSmall 
                         title={__('tenants.domains.heading')}
                         description={__('tenants.domains.description')}
                     />
-                    <div className="flex justify-end">
-                        <Button variant="outline"  asChild>
-                            <Link href={route('tenants.show', tenant.id)}>
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                {__('tenants.actions.back_to_tenant')}
-                            </Link>
-                        </Button>
-                    </div>
 
                     <div className="rounded-lg border bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-950">
                         <h3 className="text-lg font-medium mb-4">{__('tenants.domains.add_domain_title')}</h3>
@@ -177,6 +173,14 @@ export default function TenantsDomains({ tenant, domains = [], app_url }: Tenant
                                     sorting: true
                                 }}
                                 noResultsMessage={__('tenant.domains.no_domains')}
+                                actionBarRight={
+                                    <Button variant="outline" asChild size="default" className="h-9">
+                                        <Link href={route('tenants.show', tenant.id)}>
+                                            <ArrowLeft className="mr-2 h-4 w-4" />
+                                            {__('tenants.actions.back_to_tenant')}
+                                        </Link>
+                                    </Button>
+                                }
                             />
                         )}
                     </div>
