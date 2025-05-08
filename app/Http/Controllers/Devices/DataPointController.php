@@ -36,8 +36,16 @@ class DataPointController extends Controller
             return [$dataPointType->id => $this->telemetryService->getLatestReading($device, $dataPointType->id)];
         })->filter()->all();
 
+        // Load device with all necessary relationships for consistent display
+        $device->load([
+            'type',
+            'vehicle.tenant', 
+            'vehicle.model.vehicleBrand',
+            'tenant'
+        ]);
+
         return Inertia::render('devices/datapoints', [
-            'device' => $device->load(['vehicle', 'tenant']),
+            'device' => $device,
             'dataPointTypes' => $dataPointTypes,
             'latestReadings' => $latestReadings,
         ]);

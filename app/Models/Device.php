@@ -10,6 +10,8 @@ use Laravel\Scout\Searchable;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Carbon\Carbon;
 
 class Device extends Model
 {
@@ -37,6 +39,41 @@ class Device extends Model
     protected $dispatchesEvents = [
         'created' => DeviceCreated::class,
     ];
+
+    /**
+     * The attributes that should be appended to the model's array representation.
+     *
+     * @var array
+     */
+    protected $appends = ['is_online', 'name'];
+
+    /**
+     * Determine if the device is online.
+     * A device is considered online if it has communicated within the last 15 minutes.
+     */
+    protected function isOnline(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if (!$this->last_contact_at) {
+                    return false;
+                }
+                return $this->last_contact_at->diffInMinutes(now()) <= 15;
+            }
+        );
+    }
+
+    /**
+     * Get the device name (serial number or IMEI if no serial number).
+     */
+    protected function name(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                return $this->serial_number ?: $this->imei ?: __('devices.unknown_device');
+            }
+        );
+    }
 
     public function toSearchableArray()
     {

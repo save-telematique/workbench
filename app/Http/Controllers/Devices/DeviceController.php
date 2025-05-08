@@ -139,10 +139,21 @@ class DeviceController extends Controller
      */
     public function show(Device $device): Response
     {
-        $device->load(['type', 'vehicle', 'tenant']);
+        // Load all the necessary relationships and ensure last_contact_at is included
+        // which will allow the is_online accessor to work properly
+        $device->load([
+            'type', 
+            'vehicle.tenant', 
+            'vehicle.model.vehicleBrand', 
+            'tenant'
+        ]);
+
+        // Include all device types for the edit form
+        $deviceTypes = DeviceType::all();
 
         return Inertia::render('devices/show', [
             'device' => $device,
+            'deviceTypes' => $deviceTypes,
         ]);
     }
 
@@ -209,29 +220,4 @@ class DeviceController extends Controller
             ->with('success', __('devices.force_deleted'));
     }
 
-    /**
-     * Assign a vehicle to the specified device.
-     */
-    public function assignVehicle(Device $device, AssignVehicleRequest $request): RedirectResponse
-    {
-        $device->update([
-            'vehicle_id' => $request->vehicle_id,
-        ]);
-
-        return to_route('devices.show', $device)
-            ->with('success', __('devices.vehicle_assigned'));
-    }
-
-    /**
-     * Unassign a vehicle from the specified device.
-     */
-    public function unassignVehicle(Device $device): RedirectResponse
-    {
-        $device->update([
-            'vehicle_id' => null,
-        ]);
-
-        return to_route('devices.show', $device)
-            ->with('success', __('devices.vehicle_unassigned'));
-    }
 } 

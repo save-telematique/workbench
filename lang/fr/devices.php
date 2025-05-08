@@ -245,6 +245,12 @@ return [
         'active' => 'Actif',
         'inactive' => 'Inactif',
         'maintenance' => 'Maintenance',
+        'online' => 'En ligne',
+        'offline' => 'Hors ligne',
+        'warning' => 'Attention',
+        'online_tooltip' => 'Le boitier a été actif dans les 15 dernières minutes',
+        'warning_tooltip' => 'Le boitier est inactif depuis 15 à 30 minutes',
+        'offline_tooltip' => 'Le boitier est inactif depuis plus de 30 minutes',
     ],
     
     'notifications' => [
@@ -295,7 +301,7 @@ return [
     ],
     
     'datapoints' => [
-        'title' => 'Explorateur de données',
+        'title' => 'Données',
         'description' => 'Explorez les données et la télémétrie de l\'appareil au fil du temps.',
         'data_point_types' => 'Types de données',
         'select_data_point' => 'Sélectionnez un point de données',
@@ -344,4 +350,6 @@ return [
         'show_only_with_data' => 'Afficher uniquement avec données',
         'has_data' => 'Avec données',
     ],
+    
+    'unknown_device' => 'Appareil Inconnu',
 ]; 

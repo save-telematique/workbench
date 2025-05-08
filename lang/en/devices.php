@@ -241,6 +241,12 @@ return [
         'active' => 'Active',
         'inactive' => 'Inactive',
         'maintenance' => 'Maintenance',
+        'online' => 'Online',
+        'offline' => 'Offline',
+        'warning' => 'Warning',
+        'online_tooltip' => 'Device has been active within the last 15 minutes',
+        'warning_tooltip' => 'Device has been inactive between 15-30 minutes',
+        'offline_tooltip' => 'Device has been inactive for more than 30 minutes',
     ],
     
     'notifications' => [
@@ -340,4 +346,6 @@ return [
         'show_only_with_data' => 'Show only with data',
         'has_data' => 'Has data',
     ],
+    
+    'unknown_device' => 'Unknown Device',
 ]; 

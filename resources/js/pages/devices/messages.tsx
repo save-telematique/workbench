@@ -149,7 +149,7 @@ export default function DeviceMessages({ device, messages, filters, allLocations
   // Format timestamp
   const formatTimestamp = (timestamp: string) => {
     const parsed = parseISO(timestamp);
-    return isValid(parsed) ? format(parsed, 'ppss', { locale: dateFnsLocale }) : 'N/A';
+    return isValid(parsed) ? format(parsed, 'pp', { locale: dateFnsLocale }) : 'N/A';
   };
   
   // Format full timestamp

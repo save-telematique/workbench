@@ -78,7 +78,7 @@ export default function VehicleLocationMap({
   // Timeline state
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [playbackIndex, setPlaybackIndex] = useState<number>(0);
-  const [playbackSpeed, setPlaybackSpeed] = useState<number>(1);
+  const [playbackSpeed, setPlaybackSpeed] = useState<number>(2);
   const animationRef = useRef<number | null>(null);
   const lastUpdateTimeRef = useRef<number>(0);
   
@@ -168,7 +168,7 @@ export default function VehicleLocationMap({
         const elapsed = timestamp - lastUpdateTimeRef.current;
         
         // Update based on playback speed - adjust interval as needed for smooth playback
-        if (elapsed > (1000 / playbackSpeed)) {
+        if (elapsed > (1000 / (playbackSpeed * 4))) {
           lastUpdateTimeRef.current = timestamp;
           setPlaybackIndex(prevIndex => {
             const newIndex = prevIndex + 1;
@@ -265,7 +265,7 @@ export default function VehicleLocationMap({
   // Format timestamp
   const formatTime = (timestamp: string) => {
     const parsed = parseISO(timestamp);
-    return isValid(parsed) ? format(parsed, 'ppss', { locale: dateFnsLocale }) : 'N/A';
+    return isValid(parsed) ? format(parsed, 'pp', { locale: dateFnsLocale }) : 'N/A';
   };
   
   // Format date

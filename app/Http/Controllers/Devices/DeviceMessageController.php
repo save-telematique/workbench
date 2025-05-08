@@ -28,6 +28,14 @@ class DeviceMessageController extends Controller
         $perPage = $request->input('per_page', 15);
         $date = $request->input('date') ? \Carbon\Carbon::parse($request->input('date')) : today();
 
+        // Load device with all necessary relationships for consistent display
+        $device->load([
+            'type',
+            'vehicle.tenant',
+            'vehicle.model.vehicleBrand',
+            'tenant'
+        ]);
+
         $messages = DeviceMessage::with('location')
             ->where('device_id', $device->id)
             ->when($date, function ($query, $date) {
@@ -54,9 +62,9 @@ class DeviceMessageController extends Controller
         return Inertia::render('devices/messages', [
             'device' => $device,
             'messages' => $messages,
-            'groupedDates' => $groupedMessages->keys(),
+            'date' => $date->toDateString(),
             'filters' => $request->only(['date', 'per_page']),
-            'allLocations' => $allLocations,
+            'allLocations' => $allLocations
         ]);
     }
 } 

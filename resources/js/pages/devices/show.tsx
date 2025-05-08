@@ -38,6 +38,7 @@ export interface Device {
   vehicle_id?: string;
   created_at: string;
   updated_at: string;
+  last_contact_at?: string;
   type: {
     id: number;
     name: string;
