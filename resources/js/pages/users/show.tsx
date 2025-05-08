@@ -19,7 +19,7 @@ import HeadingSmall from '@/components/heading-small';
 
 interface UserShowProps {
     user: {
-        id: string;
+        id: number;
         name: string;
         email: string;
         locale: string;

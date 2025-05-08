@@ -10,7 +10,7 @@ import { ReactNode } from 'react';
 interface UsersLayoutProps {
     children: ReactNode;
     showSidebar?: boolean;
-    userId?: string;
+    userId?: number;
 }
 
 export default function UsersLayout({ children, showSidebar = false, userId }: UsersLayoutProps) {
