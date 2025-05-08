@@ -62,16 +62,11 @@ class ProcessGpsDataJob implements ShouldQueue, DataPointHandlerJob
         $longitude = (float) $gpsValue['longitude'];
 
         if ($latitude == 0 && $longitude == 0) {
-            Log::info('Skipping GPS data point with (0,0) coordinates', ['device_data_point_id' => $this->deviceDataPoint->id]);
             return;
         }
 
         $device = $this->deviceDataPoint->device;
         if (!$device || !$device->vehicle) {
-            Log::info('GPS data point for device not associated with a vehicle or device missing', [
-                'device_id' => $this->deviceDataPoint->device_id, 
-                'has_vehicle' => $device ? ($device->vehicle ? 'yes' : 'no') : 'no_device_instance' 
-            ]);
             return;
         }
         $vehicle = $device->vehicle;
@@ -101,7 +96,6 @@ class ProcessGpsDataJob implements ShouldQueue, DataPointHandlerJob
             $distanceMeters = GeoHelper::vincentyGreatCircleDistance($currentLocation->latitude, $currentLocation->longitude, $latitude, $longitude);
             
             if ($timeDiffSeconds < 120 && $distanceMeters < 25) {
-                Log::info('Skipping GPS data point: location not changed significantly', ['vehicle_id' => $vehicle->id, 'timeDiff' => $timeDiffSeconds, 'distance' => $distanceMeters]);
                 return;
             }
 
@@ -110,12 +104,12 @@ class ProcessGpsDataJob implements ShouldQueue, DataPointHandlerJob
                  $maxSpeedMetersPerSecond = $maxSpeedKmh * 1000 / 3600;
                  $maxDistancePossible = $maxSpeedMetersPerSecond * $timeDiffSeconds;
                  if ($distanceMeters > $maxDistancePossible * 1.2) {
-                     Log::warning('Skipping GPS data point: physically improbable distance for time diff', [
-                        'vehicle_id' => $vehicle->id, 
-                        'distance_m' => $distanceMeters, 
-                        'time_diff_s' => $timeDiffSeconds, 
-                        'max_dist_possible_m' => round($maxDistancePossible,2)
-                    ]);
+                        Log::warning('Skipping GPS data point: physically improbable distance for time diff', [
+                            'vehicle_id' => $vehicle->id, 
+                            'distance_m' => $distanceMeters, 
+                            'time_diff_s' => $timeDiffSeconds, 
+                            'max_dist_possible_m' => round($maxDistancePossible,2)
+                        ]);
                      return;
                  }
             }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enum\DataPointDataType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -16,6 +17,7 @@ class DataPointType extends Model
     protected $fillable = [
         'id',
         'name',
+        'type',
         'unit',
         'category',
         'processing_steps',
@@ -23,6 +25,8 @@ class DataPointType extends Model
     ];
 
     protected $casts = [
+        'id' => 'integer',
+        'type' => DataPointDataType::class,
         'processing_steps' => 'array', // Will be cast to array/object from JSONB
     ];
 

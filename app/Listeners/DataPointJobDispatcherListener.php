@@ -61,7 +61,6 @@ class DataPointJobDispatcherListener // No ShouldQueue here, this listener itsel
 
                 if (in_array($deviceDataPoint->data_point_type_id, $reactsToTypes, true)) {
                     try {
-                        Log::debug("Dispatching job {$jobClass} for data point type ID: {$deviceDataPoint->data_point_type_id}");
                         $jobInstance = new $jobClass($deviceDataPoint);
                         
                         if ($jobInstance instanceof \Illuminate\Contracts\Queue\ShouldQueue) {

@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Enum\DataPointDataType;
 use App\Enum\MessageFields;
 use App\Events\NewDeviceDataPoint;
 use App\Helpers\GeoHelper;
@@ -25,57 +26,42 @@ class ProcessDeviceMessage implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(public DeviceMessage $message)
-    {
-    }
+    public function __construct(public DeviceMessage $message) {}
 
-    protected function applyProcessingSteps($rawValue, array $steps): mixed
+    /**
+     * Apply additional transformations to the raw value based on processing steps.
+     * This method is specific to ProcessDeviceMessage for atomic types.
+     */
+    protected function applyAdditionalTransformations(mixed $currentValue, ?array $steps, string $dataPointTypeNameForLog): mixed
     {
-        $currentValue = $rawValue;
-
-        if (is_string($currentValue)) {
-            $currentValue = str_replace("\0", "", $currentValue);
+        if (empty($steps)) {
+            return $currentValue;
         }
 
         foreach ($steps as $step) {
             $operation = $step['operation'] ?? null;
-            try {
-                switch ($operation) {
-                    case 'CAST_TO_INTEGER':
-                        $currentValue = intval($currentValue);
-                        break;
-                    case 'CAST_TO_FLOAT':
-                        $currentValue = floatval(str_replace(',', '.', (string) $currentValue));
-                        break;
-                    case 'CAST_TO_BOOLEAN':
-                        $trueValues = array_map('strtolower', $step['true_values'] ?? ['1', 'true', 'on']);
-                        $currentValue = in_array(strtolower((string) $currentValue), $trueValues);
-                        break;
-                    case 'DECODE_HEX':
-                        $currentValue = hexdec((string) $currentValue);
-                        break;
-                    case 'MULTIPLY_BY':
-                        $currentValue = floatval($currentValue) * ($step['factor'] ?? 1);
-                        break;
-                    case 'DIVIDE_BY':
-                        $divisor = $step['divisor'] ?? 1;
-                        $currentValue = $divisor != 0 ? floatval($currentValue) / $divisor : null;
-                        break;
-                    case 'STRING_REPLACE':
-                        $currentValue = str_replace($step['search'] ?? '', $step['replace'] ?? '', (string) $currentValue);
-                        break;
-                    default:
-                        Log::warning("Unknown processing step operation in ProcessDeviceMessage", ['operation' => $operation, 'message_id' => $this->message->id]);
-                }
-            } catch (Throwable $e) {
-                Log::error("Error applying processing step '{$operation}' in ProcessDeviceMessage", [
-                    'message_id' => $this->message->id,
-                    'raw_value' => $rawValue,
-                    'current_step_value' => $currentValue, // Value before this step failed (or during)
-                    'step' => $step,
-                    'error' => $e->getMessage()
-                ]);
-                return null; // Skip this data point if a step errors
+            switch ($operation) {
+                case 'DECODE_HEX':
+                    $currentValue = is_string($currentValue) ? hexdec($currentValue) : null;
+                    break;
+                case 'MULTIPLY_BY':
+                    $factor = $step['factor'] ?? ($step['multiplier'] ?? 1);
+                    $currentValue = (is_numeric($currentValue) && is_numeric($factor)) ? (floatval($currentValue) * floatval($factor)) : null;
+                    break;
+                case 'DIVIDE_BY':
+                    $divisor = $step['divisor'] ?? 1;
+                    $currentValue = (is_numeric($currentValue) && is_numeric($divisor) && floatval($divisor) != 0) ? (floatval($currentValue) / floatval($divisor)) : null;
+                    break;
+                case 'STRING_REPLACE':
+                    $search = $step['search'] ?? '';
+                    $replace = $step['replace'] ?? '';
+                    $currentValue = is_string($currentValue) ? str_replace($search, $replace, (string) $currentValue) : null;
+                    break;
+                default:
+                    Log::debug("Unknown operation '{$operation}' for DataPointType '{$dataPointTypeNameForLog}' in ProcessDeviceMessage applyAdditionalTransformations", [
+                        'message_id' => $this->message->id
+                    ]);
+                    break;
             }
         }
         return $currentValue;
@@ -103,27 +89,57 @@ class ProcessDeviceMessage implements ShouldQueue
         $vehicleId = $device->vehicle_id;
 
         $dataPointTypes = Cache::remember(
-            'data_point_types',
+            'data_point_types_all_keyed_by_id',
             now()->addHours(24),
-            function () {
-                return DataPointType::all();
-            }
+            fn() => DataPointType::all()->keyBy('id')
         );
 
         $insertDataPoints = [];
         try {
             foreach ($this->message->message['fields'] as $fieldKey => $rawValue) {
                 $dataPointTypeId = intval($fieldKey);
-
-                $dataPointType = $dataPointTypes->firstWhere('id', $dataPointTypeId);
+                $dataPointType = $dataPointTypes->get($dataPointTypeId);
 
                 if (!$dataPointType) {
+                    Log::warning("DataPointType not found for ID {$dataPointTypeId} in ProcessDeviceMessage", ['message_id' => $this->message->id]);
                     continue;
                 }
 
-                $processedValue = $this->applyProcessingSteps($rawValue, $dataPointType->processing_steps);
+                if ($dataPointType->category === 'COMPOSITE') {
+                    continue;
+                }
 
-                if ($processedValue === null && $rawValue !== null) {
+                $processedValue = null;
+                $cleanRawValue = is_string($rawValue) ? str_replace("\0", "", $rawValue) : $rawValue;
+
+                switch ($dataPointType->type) {
+                    case DataPointDataType::INTEGER:
+                        $processedValue = intval($cleanRawValue);
+                        break;
+                    case DataPointDataType::FLOAT:
+                        $processedValue = floatval(str_replace(',', '.', (string) $cleanRawValue));
+                        break;
+                    case DataPointDataType::BOOLEAN:
+                        $trueValues = ['1', 'true', 'on', 1, true];
+                        $processedValue = in_array(strtolower((string) $cleanRawValue), array_map('strtolower', $trueValues), true);
+                        break;
+                    case DataPointDataType::JSON:
+                        $processedValue = $cleanRawValue;
+                        break;
+                    case DataPointDataType::STRING:
+                        $processedValue = (string) $cleanRawValue;
+                        break;
+                    case DataPointDataType::RAW:
+                    default:
+                        $processedValue = $cleanRawValue;
+                        break;
+                }
+
+                if ($processedValue !== null && !empty($dataPointType->processing_steps)) {
+                    $processedValue = $this->applyAdditionalTransformations($processedValue, $dataPointType->processing_steps, $dataPointType->name);
+                }
+
+                if ($processedValue === null && $cleanRawValue !== null && !empty($dataPointType->processing_steps)) {
                     continue;
                 }
 
@@ -147,12 +163,11 @@ class ProcessDeviceMessage implements ShouldQueue
             $this->message->processed_at = now();
             $this->message->save();
         } catch (Throwable $e) {
-            Log::error('Error processing device message', [
+            Log::error('Error processing device message batch', [
                 'message_id' => $this->message->id,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            throw $e;
         }
     }
 }

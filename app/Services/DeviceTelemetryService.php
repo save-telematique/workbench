@@ -54,18 +54,17 @@ class DeviceTelemetryService
      * @param Carbon $endTime
      * @return \Illuminate\Support\Collection
      */
-    public function getReadingsForPeriod(Device $device, int $dataPointTypeId, Carbon $startTime, Carbon $endTime):
-    \Illuminate\Support\Collection
+    public function getReadingsForPeriod(Device $device, int $dataPointTypeId, Carbon $startTime, Carbon $endTime): \Illuminate\Support\Collection
     {
         $dataPointType = $this->resolveDataPointType($dataPointTypeId);
         if (!$dataPointType || $dataPointType->category === 'COMPOSITE') {
-            // TODO: Implement period queries for COMPOSITE types if needed (more complex)
-            Log::warning('Period queries for COMPOSITE types are not yet fully supported directly via getReadingsForPeriod.', ['type_id' => $dataPointType?->id]);
+            Log::warning('Period queries for COMPOSITE types are not yet fully supported directly via getReadingsForPeriod.', [
+                'type_id' => $dataPointType?->id,
+                'device_id' => $device->id
+            ]);
             return collect();
         }
 
-        // Caching for period queries can be complex due to date ranges. 
-        // For simplicity, direct DB query for now, or cache with a key incorporating the precise range.
         return DeviceDataPoint::where('device_id', $device->id)
             ->where('data_point_type_id', $dataPointType->id)
             ->whereBetween('recorded_at', [$startTime, $endTime])
@@ -75,7 +74,7 @@ class DeviceTelemetryService
                 'recorded_at'
             ]);
     }
-    
+
     /**
      * Get aggregated data for a specific device, type, and period.
      * Example: Average speed over the last 24 hours.
@@ -89,17 +88,19 @@ class DeviceTelemetryService
      * @return mixed
      */
     public function getAggregatedReadings(
-        Device $device, 
+        Device $device,
         int $dataPointTypeId,
         string $aggregationFunction,
-        Carbon $startTime, 
+        Carbon $startTime,
         Carbon $endTime,
         ?string $timeBucket = null
-    ): mixed
-    {
+    ): mixed {
         $dataPointType = $this->resolveDataPointType($dataPointTypeId);
         if (!$dataPointType || $dataPointType->category === 'COMPOSITE') {
-            Log::warning('Aggregation queries for COMPOSITE types are not yet supported directly.', ['type_id' => $dataPointType?->id]);
+            Log::warning('Aggregation queries for COMPOSITE types are not yet supported directly.', [
+                'type_id' => $dataPointType?->id,
+                'device_id' => $device->id
+            ]);
             return null;
         }
 
@@ -107,50 +108,43 @@ class DeviceTelemetryService
             ->where('data_point_type_id', $dataPointType->id)
             ->whereBetween('recorded_at', [$startTime, $endTime]);
 
-        // Ensure aggregation function is safe (e.g., from a whitelist)
         $allowedAggregations = ['avg', 'sum', 'count', 'min', 'max'];
-        $aggregationFunction = strtolower($aggregationFunction);
-        if (!in_array($aggregationFunction, $allowedAggregations)) {
-            Log::error('Invalid aggregation function requested.', ['function' => $aggregationFunction]);
+        $safeAggregationFunction = strtolower($aggregationFunction);
+        if (!in_array($safeAggregationFunction, $allowedAggregations)) {
+            Log::error('Invalid aggregation function requested.', ['function' => $aggregationFunction, 'device_id' => $device->id]);
             return null;
         }
 
-        // For numeric aggregation, value should be a JSON number.
-        // Casting (value#>>'{}') to numeric works if the JSONB value is a scalar (number or string representing a number).
         $valueColumnForNumericAggregation = DB::raw("(value#>>'{}')::numeric");
 
         if ($timeBucket) {
-            $timeBucket = strtolower($timeBucket);
-            $dateTruncExpression = match ($timeBucket) {
+            $safeTimeBucket = strtolower($timeBucket);
+            $dateTruncExpression = match ($safeTimeBucket) {
                 'hour' => "DATE_TRUNC('hour', recorded_at)",
                 'day' => "DATE_TRUNC('day', recorded_at)",
                 default => null,
             };
 
             if (!$dateTruncExpression) {
-                Log::error('Invalid time bucket for aggregation.', ['bucket' => $timeBucket]);
+                Log::error('Invalid time bucket for aggregation.', ['bucket' => $timeBucket, 'device_id' => $device->id]);
                 return null;
             }
 
-            return $query->selectRaw("{$dateTruncExpression} as time_group, {$aggregationFunction}({$valueColumnForNumericAggregation}) as aggregate_value")
-                        ->groupBy('time_group')
-                        ->orderBy('time_group')
-                        ->pluck('aggregate_value', 'time_group');
+            return $query->selectRaw("{$dateTruncExpression} as time_group, {$safeAggregationFunction}({$valueColumnForNumericAggregation}) as aggregate_value")
+                ->groupBy('time_group')
+                ->orderBy('time_group')
+                ->pluck('aggregate_value', 'time_group');
         } else {
-            // For a single aggregate value without grouping by time
-            // Use Laravel's built-in aggregate functions if possible, or a raw expression
-            switch ($aggregationFunction) {
+            switch ($safeAggregationFunction) {
                 case 'count':
-                    return $query->count(); // Counts rows, not the value itself unless specified
-                // For other functions, we need to apply them to the value column.
-                // The following will return a single value.
+                    return $query->count();
                 case 'avg':
                 case 'sum':
                 case 'min':
                 case 'max':
-                     return $query->{$aggregationFunction}($valueColumnForNumericAggregation);
+                    return $query->{$safeAggregationFunction}($valueColumnForNumericAggregation);
                 default:
-                    return null; // Should have been caught by allowedAggregations check
+                    return null; // Should be caught by allowedAggregations
             }
         }
     }
@@ -160,7 +154,6 @@ class DeviceTelemetryService
      */
     protected function resolveDataPointType(int $id): ?DataPointType
     {
-        // Find by integer ID directly
         return DataPointType::find($id);
     }
 
@@ -173,50 +166,76 @@ class DeviceTelemetryService
             return null;
         }
 
-        $config = $compositeType->processing_steps;
-        $logic = $config['logic'] ?? null;
-
+        $processingSteps = $compositeType->processing_steps;
+        $currentValue = null;
+        $sourceValueAcquired = false; 
         try {
-            switch ($logic) {
-                case 'GET_LATEST_FROM_SOURCE':
-                    if (isset($config['source_data_point_type_id'])) {
-                        // Pass the integer ID directly
-                        return $this->getLatestReading($device, $config['source_data_point_type_id']);
-                    }
-                    break;
-                
-                case 'PRIORITY_PICK':
-                    if (isset($config['sources']) && is_array($config['sources'])) {
-                        $sources = collect($config['sources'])->sortBy('priority')->all();
-                        foreach ($sources as $sourceConfig) {
-                            if (!isset($sourceConfig['data_point_type_id'])) continue;
-                            
-                            // Pass the integer ID directly
-                            $sourceValue = $this->getLatestReading($device, $sourceConfig['data_point_type_id']);
-                            
-                            if (isset($sourceConfig['transform']) && is_array($sourceConfig['transform']) && $sourceValue !== null) {
-                                // $sourceValue = (new AtomicProcessor())->process($sourceValue, $sourceConfig['transform'], $device->vehicle); 
-                                Log::debug('Inline transformation for composite source called but not fully implemented in this basic service', ['source' => $sourceConfig]);
-                            }
-
-                            if ($sourceValue !== null) {
-                                return $sourceValue;
-                            }
+            foreach ($processingSteps as $step) {
+                $logic = $step['logic'] ?? ($step['operation'] ?? null); 
+                switch ($logic) {
+                    case 'GET_LATEST_FROM_SOURCE':
+                        if (isset($step['source_data_point_type_id'])) {
+                            $currentValue = $this->getLatestReading($device, $step['source_data_point_type_id']);
+                            $sourceValueAcquired = true;
+                        } else {
+                            Log::warning('GET_LATEST_FROM_SOURCE step missing source_data_point_type_id', [
+                                'composite_type_id' => $compositeType->id,
+                                'device_id' => $device->id
+                            ]);
+                            return null;
                         }
-                    }
-                    break;
-                default:
-                    Log::warning('Unknown or unsupported composite logic type.', ['logic' => $logic, 'type_id' => $compositeType->id]);
-                    return null;
+                        continue; // Move to next step after acquiring source
+
+                    case 'PRIORITY_PICK':
+                        if (isset($step['sources']) && is_array($step['sources'])) {
+                            $sortedSources = collect($step['sources'])->sortBy('priority')->values()->all();
+                            foreach ($sortedSources as $sourceConfig) {
+                                if (!isset($sourceConfig['data_point_type_id'])) continue;
+                                $sourceValue = $this->getLatestReading($device, $sourceConfig['data_point_type_id']);
+                                if ($sourceValue !== null) {
+                                    $currentValue = $sourceValue;
+                                    $sourceValueAcquired = true;
+                                    break;
+                                }
+                            }
+                            if (!$sourceValueAcquired) $currentValue = null; // No source found from priority pick
+                        } else {
+                            Log::warning('PRIORITY_PICK step missing or invalid sources array', [
+                                'composite_type_id' => $compositeType->id,
+                                'device_id' => $device->id
+                            ]);
+                            return null;
+                        }
+                        continue;
+                    case 'DECODE_HEX':
+                        $currentValue = is_string($currentValue) ? hexdec($currentValue) : null;
+                        break;
+                    case 'MULTIPLY_BY':
+                        $factor = $step['factor'] ?? ($step['multiplier'] ?? 1);
+                        $currentValue = (is_numeric($currentValue) && is_numeric($factor)) ? (floatval($currentValue) * floatval($factor)) : null;
+                        break;
+                    case 'DIVIDE_BY':
+                        $divisor = $step['divisor'] ?? 1;
+                        $currentValue = (is_numeric($currentValue) && is_numeric($divisor) && floatval($divisor) != 0) ? (floatval($currentValue) / floatval($divisor)) : null;
+                        break;
+                    case 'STRING_REPLACE':
+                        $search = $step['search'] ?? '';
+                        $replace = $step['replace'] ?? '';
+                        $currentValue = is_string($currentValue) ? str_replace($search, $replace, $currentValue) : null;
+                        break;
+                    default:
+                        break;
+                }
             }
         } catch (Throwable $e) {
-            Log::error('Error calculating composite value', [
-                'device_id' => $device->id, 
-                'composite_type_id' => $compositeType->id, 
-                'error' => $e->getMessage()
+            Log::error('Error calculating composite value for DeviceTelemetryService', [
+                'device_id' => $device->id,
+                'composite_type_id' => $compositeType->id,
+                'error_message' => $e->getMessage(),
+                'error_trace' => $e->getTraceAsString(), // Limit trace in production if too verbose
             ]);
             return null;
         }
-        return null;
+        return $currentValue;
     }
 }

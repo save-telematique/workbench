@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enum\DataPointDataType;
 use App\Enum\MessageFields;
 use App\Models\DataPointType;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -15,9 +16,6 @@ class DataPointTypeSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->command->info('Seeding DataPointTypes...');
-
-        // Helper to create a descriptive name from enum case name
         $formatName = function (string $caseName): string {
             return Str::of($caseName)->replace('_', ' ')->title()->toString();
         };
@@ -39,42 +37,67 @@ class DataPointTypeSeeder extends Seeder
             $name = $formatName($caseName);
             $comment = $parsedEnumCases[$caseName]['comment'] ?? '';
 
-            // Specific overrides for known types
-            $processingSteps = match ($field) {
-                MessageFields::TOTAL_ODOMETER => [[ 'operation' => 'CAST_TO_INTEGER' ]], // meters to km
-                MessageFields::IGNITION, MessageFields::MOVEMENT => [[ 'operation' => 'CAST_TO_BOOLEAN', 'true_values' => ['1'], 'false_values' => ['0'] ]],
-                MessageFields::FUEL_LEVEL_PERCENT, MessageFields::ADBLUE_LEVEL_PERCENT => [[ 'operation' => 'CAST_TO_FLOAT' ]], // Often percentages are float
-                MessageFields::FUEL_LEVEL_LITERS => [[ 'operation' => 'CAST_TO_FLOAT' ]],
-                MessageFields::ENGINE_TEMPERATURE, MessageFields::PCB_TEMPERATURE => [[ 'operation' => 'CAST_TO_INTEGER' ]], // Assuming integer temperatures
-                MessageFields::EXTERNAL_VOLTAGE, MessageFields::BATTERY_VOLTAGE => [[ 'operation' => 'CAST_TO_FLOAT' ]], // Voltages with decimals
-                default => [],
-            };
+            // Determine DataPointDataType based on the old processing_steps logic
+            $dataType = DataPointDataType::STRING; // Default to STRING
+            $atomicProcessingSteps = null; // For atomic types, processing_steps will be replaced by 'type'
+
+            switch ($field) {
+                case MessageFields::TOTAL_ODOMETER:
+                case MessageFields::ENGINE_TEMPERATURE:
+                case MessageFields::PCB_TEMPERATURE:
+                    $dataType = DataPointDataType::INTEGER;
+                    break;
+                case MessageFields::IGNITION:
+                case MessageFields::MOVEMENT:
+                    $dataType = DataPointDataType::BOOLEAN;
+                    break;
+                case MessageFields::FUEL_LEVEL_PERCENT:
+                case MessageFields::ADBLUE_LEVEL_PERCENT:
+                case MessageFields::FUEL_LEVEL_LITERS:
+                case MessageFields::EXTERNAL_VOLTAGE:
+                case MessageFields::BATTERY_VOLTAGE:
+                    $dataType = DataPointDataType::FLOAT;
+                    break;
+                case MessageFields::GPS_DATA:
+                case MessageFields::DEVICE_DATA:
+                    $dataType = DataPointDataType::JSON;
+                    break;
+                default:
+                    $dataType = DataPointDataType::RAW;
+                    break;
+            }
 
             DataPointType::updateOrCreate(
                 ['id' => $id],
                 [
                     'name' => $name,
+                    'type' => $dataType, 
                     'category' => 'ATOMIC',
-                    'processing_steps' => $processingSteps,
+                    'processing_steps' => $atomicProcessingSteps,
                     'description' => trim($comment) ?: null,
+                    'unit' => null,
                 ]
             );
         }
 
-        $this->command->info('Finished seeding ATOMIC DataPointTypes.');
-
-        // Seed COMPOSITE types (examples)
         DataPointType::updateOrCreate(
             ['id' => 1000001],
             [
                 'name' => 'Odomètre Kilomètres',
+                'type' => DataPointDataType::FLOAT,
                 'unit' => 'km',
                 'category' => 'COMPOSITE',
                 'processing_steps' => [
-                    'logic' => 'GET_LATEST_FROM_SOURCE',
-                    'source_data_point_type_id' => MessageFields::TOTAL_ODOMETER->value, // Use int value directly
+                    [
+                        'logic' => 'GET_LATEST_FROM_SOURCE',
+                        'source_data_point_type_id' => MessageFields::TOTAL_ODOMETER->value,
+                    ],
+                    [
+                        'logic' => 'MULTIPLY_BY',
+                        'multiplier' => 0.001,
+                    ],
                 ],
-                'description' => 'Alias pour l\'odomètre total, déjà converti en kilomètres.',
+                'description' => 'Alias pour l\'odomètre total. Source en mètres, affiché en km.',
             ]
         );
         
@@ -82,16 +105,17 @@ class DataPointTypeSeeder extends Seeder
             ['id' => 1000002],
             [
                 'name' => 'État du Contact (Booléen)',
+                'type' => DataPointDataType::BOOLEAN, // Final type is boolean
                 'unit' => null,
                 'category' => 'COMPOSITE',
                 'processing_steps' => [
-                    'logic' => 'GET_LATEST_FROM_SOURCE',
-                    'source_data_point_type_id' => MessageFields::IGNITION->value, // Use int value directly
+                    [
+                        'logic' => 'GET_LATEST_FROM_SOURCE',
+                        'source_data_point_type_id' => MessageFields::IGNITION->value,
+                    ]
                 ],
                 'description' => 'Alias pour l\'état du contact, déjà en booléen.',
             ]
         );
-
-        $this->command->info('Finished seeding COMPOSITE DataPointTypes.');
     }
 }
