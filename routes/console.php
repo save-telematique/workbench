@@ -1,11 +1,12 @@
 <?php
 
+use App\Models\DeviceDataPoint;
 use App\Models\DeviceMessage;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use function Laravel\Prompts\progress;
 
-Artisan::command('messages:process', function () {
+Artisan::command('device-messages:process', function () {
     if (DeviceMessage::whereNull('processed_at')->exists()) {
         $messages = progress(
             label: 'Processing messages',
@@ -21,3 +22,9 @@ Artisan::command('messages:process', function () {
         );
     }
 })->everyTenMinutes();
+
+Artisan::command('test', function () {
+    $deviceDataPoint = DeviceDataPoint::find("0196aff6-9dcc-7084-842d-44fcce767c85");
+
+    dd($deviceDataPoint->value);
+});

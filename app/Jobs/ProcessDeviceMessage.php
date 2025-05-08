@@ -3,13 +3,20 @@
 namespace App\Jobs;
 
 use App\Enum\MessageFields;
+use App\Events\NewDeviceDataPoint;
 use App\Helpers\GeoHelper;
+use App\Models\DataPointType;
+use App\Models\DeviceDataPoint;
 use App\Models\DeviceMessage;
 use App\Models\Vehicle;
 use Carbon\Carbon;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class ProcessDeviceMessage implements ShouldQueue
 {
@@ -20,129 +27,58 @@ class ProcessDeviceMessage implements ShouldQueue
      */
     public function __construct(public DeviceMessage $message)
     {
-        //
     }
 
-    /**
-     * Process GPS data from the device message.
-     *
-     * @param Collection $fields
-     * @param Vehicle $vehicle
-     * @param Carbon $recordedAt
-     * @return void
-     */
-    protected function handleGpsData(Collection $fields, Vehicle $vehicle, Carbon $recordedAt): void
+    protected function applyProcessingSteps($rawValue, array $steps): mixed
     {
-        if (!$fields->has(MessageFields::GPS_DATA->value)) {
-            return;
-        }
-        
-        $gpsData = $fields->get(MessageFields::GPS_DATA->value);
-        $latitude = $gpsData['latitude'];
-        $longitude = $gpsData['longitude'];
-        
-        // Skip invalid GPS coordinates
-        if ($latitude == 0 || $longitude == 0) {
-            return;
+        $currentValue = $rawValue;
+
+        if (is_string($currentValue)) {
+            $currentValue = str_replace("\0", "", $currentValue);
         }
 
-        // Create location data array
-        $locationData = [
-            'vehicle_id' => $vehicle->id,
-            'latitude' => $latitude,
-            'longitude' => $longitude,
-            'altitude' => $gpsData['altitude'],
-            'heading' => $gpsData['angle'],
-            'satellites' => $gpsData['satellites'],
-            'speed' => $gpsData['speed'],
-            'moving' => $fields->get(MessageFields::MOVEMENT->value) ?? 0,
-            'ignition' => $fields->get(MessageFields::IGNITION->value) ?? 0,
-            'recorded_at' => $recordedAt,
-            'device_message_id' => $this->message->id,
-        ];
-
-        // Get current location for validation
-        $currentLocation = $vehicle->currentLocation;
-        
-        // Skip if location hasn't changed significantly
-        if ($currentLocation) {
-            $timeDiff = abs($currentLocation->recorded_at->diffInSeconds($recordedAt));
-            
-            if ($currentLocation) {
-                $timeDiff = abs($currentLocation->recorded_at->diffInSeconds($recordedAt));
-                $maxSpeed = 28; // 100 km/h to m/s
-
-                $distance = GeoHelper::vincentyGreatCircleDistance($currentLocation->latitude, $currentLocation->longitude, $latitude, $longitude);
-
-                if ($timeDiff < 120 && $distance < 15) {
-                    return;
+        foreach ($steps as $step) {
+            $operation = $step['operation'] ?? null;
+            try {
+                switch ($operation) {
+                    case 'CAST_TO_INTEGER':
+                        $currentValue = intval($currentValue);
+                        break;
+                    case 'CAST_TO_FLOAT':
+                        $currentValue = floatval(str_replace(',', '.', (string) $currentValue));
+                        break;
+                    case 'CAST_TO_BOOLEAN':
+                        $trueValues = array_map('strtolower', $step['true_values'] ?? ['1', 'true', 'on']);
+                        $currentValue = in_array(strtolower((string) $currentValue), $trueValues);
+                        break;
+                    case 'DECODE_HEX':
+                        $currentValue = hexdec((string) $currentValue);
+                        break;
+                    case 'MULTIPLY_BY':
+                        $currentValue = floatval($currentValue) * ($step['factor'] ?? 1);
+                        break;
+                    case 'DIVIDE_BY':
+                        $divisor = $step['divisor'] ?? 1;
+                        $currentValue = $divisor != 0 ? floatval($currentValue) / $divisor : null;
+                        break;
+                    case 'STRING_REPLACE':
+                        $currentValue = str_replace($step['search'] ?? '', $step['replace'] ?? '', (string) $currentValue);
+                        break;
+                    default:
+                        Log::warning("Unknown processing step operation in ProcessDeviceMessage", ['operation' => $operation, 'message_id' => $this->message->id]);
                 }
-
-                $maxDistance = $maxSpeed * $timeDiff;
-                if ($distance > $maxDistance) {
-                    return;
-                }
-            }
-
-            // Skip if the movement is physically impossible (likely incorrect GPS data)
-            $maxSpeed = 28; // 100 km/h in m/s
-            $maxDistance = $maxSpeed * $timeDiff;
-            
-            if ($timeDiff > 0) {
-                $distance = GeoHelper::vincentyGreatCircleDistance(
-                    $currentLocation->latitude, 
-                    $currentLocation->longitude, 
-                    $latitude, 
-                    $longitude
-                );
-                
-                if ($distance > $maxDistance) {
-                    return;
-                }
+            } catch (Throwable $e) {
+                Log::error("Error applying processing step '{$operation}' in ProcessDeviceMessage", [
+                    'message_id' => $this->message->id,
+                    'raw_value' => $rawValue,
+                    'current_step_value' => $currentValue, // Value before this step failed (or during)
+                    'step' => $step,
+                    'error' => $e->getMessage()
+                ]);
+                return null; // Skip this data point if a step errors
             }
         }
-
-        // Store the new location
-        $location = $vehicle->locations()->create($locationData);
-        
-        // Update the vehicle with the new current location
-        $vehicle->current_vehicle_location_id = $location->id;
-    }
-
-    /**
-     * Process device data from the device message.
-     *
-     * @param Collection $fields
-     * @return void
-     */
-    protected function handleDeviceData(Collection $fields): void
-    {
-        if (!$fields->has(MessageFields::DEVICE_DATA->value)) {
-            return;
-        }
-        
-        $deviceData = $fields->get(MessageFields::DEVICE_DATA->value);
-        $device = $this->message->device;
-        
-        if (isset($boxData['firmwareVersion'])) {
-            $device->firmware_version = $deviceData['firmwareVersion'];
-            $device->save();
-        }
-    }
-
-    /**
-     * Handle odometer data from the device message.
-     *
-     * @param Collection $fields
-     * @param Vehicle $vehicle
-     * @return void
-     */
-    protected function handleOdometerData(Collection $fields, Vehicle $vehicle): void
-    {
-        if ($fields->has(MessageFields::TOTAL_ODOMETER->value)) {
-            $odometer = intval($fields->get(MessageFields::TOTAL_ODOMETER->value)) / 1000;
-            $vehicle->odometer = $odometer;
-        }
+        return $currentValue;
     }
 
     /**
@@ -150,41 +86,73 @@ class ProcessDeviceMessage implements ShouldQueue
      */
     public function handle(): void
     {
-        // Skip if message was already processed
         if ($this->message->processed_at !== null) {
             return;
         }
 
-        // Skip if device is not associated with a vehicle
-        if ($this->message->device->vehicle_id === null) {
+        if (!isset($this->message->message['fields']) || !is_array($this->message->message['fields'])) {
             $this->message->processed_at = now();
             $this->message->save();
             return;
         }
 
-        // Process message if it exists
-        if (isset($this->message->message)) {
-            $recordedAt = Carbon::parse($this->message->message['messageTimeUtc'], 'UTC')
-                ->tz(config('app.timezone'));
-                
-            $fields = collect($this->message->message['fields']);
-            $vehicle = $this->message->device->vehicle;
+        $recordedAt = Carbon::parse($this->message->message['messageTimeUtc'] ?? $this->message->created_at, 'UTC')
+            ->tz(config('app.timezone'));
 
-            // Process different types of data
-            $this->handleGpsData($fields, $vehicle, $recordedAt);
-            $this->handleDeviceData($fields);
-            $this->handleOdometerData($fields, $vehicle);
+        $device = $this->message->device;
+        $vehicleId = $device->vehicle_id;
 
-            // Save vehicle changes
-            $vehicle->save();
+        $dataPointTypes = Cache::remember(
+            'data_point_types',
+            now()->addHours(24),
+            function () {
+                return DataPointType::all();
+            }
+        );
+
+        $insertDataPoints = [];
+        try {
+            foreach ($this->message->message['fields'] as $fieldKey => $rawValue) {
+                $dataPointTypeId = intval($fieldKey);
+
+                $dataPointType = $dataPointTypes->firstWhere('id', $dataPointTypeId);
+
+                if (!$dataPointType) {
+                    continue;
+                }
+
+                $processedValue = $this->applyProcessingSteps($rawValue, $dataPointType->processing_steps);
+
+                if ($processedValue === null && $rawValue !== null) {
+                    continue;
+                }
+
+                $insertDataPoints[] = DeviceDataPoint::create([
+                    'device_message_id' => $this->message->id,
+                    'device_id' => $device->id,
+                    'vehicle_id' => $vehicleId,
+                    'data_point_type_id' => $dataPointType->id,
+                    'value' => $processedValue,
+                    'recorded_at' => $recordedAt,
+                ]);
+            }
+
+            if (!empty($insertDataPoints)) {
+                event(new NewDeviceDataPoint($insertDataPoints));
+            }
+
+            $device->last_contact_at = $recordedAt;
+            $device->save();
+
+            $this->message->processed_at = now();
+            $this->message->save();
+        } catch (Throwable $e) {
+            Log::error('Error processing device message', [
+                'message_id' => $this->message->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            throw $e;
         }
-
-        // Update device last contact time
-        $this->message->device->last_contact_at = $this->message->created_at;
-        $this->message->device->save();
-
-        // Mark message as processed
-        $this->message->processed_at = now();
-        $this->message->save();
     }
 }

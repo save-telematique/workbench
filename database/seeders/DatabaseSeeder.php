@@ -7,6 +7,7 @@ use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
+use Database\Seeders\DataPointTypeSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -54,10 +55,11 @@ class DatabaseSeeder extends Seeder
         $this->call([
             VehicleStaticDataSeeder::class,
             DeviceStaticDataSeeder::class,
+            DataPointTypeSeeder::class, // This is the one we are focusing on
         ]);
 
         $this->call(LeffTenantSeeder::class);
         $this->call(DemoTenantSeeder::class);
-        //$this->call(MauffreyTenantSeeder::class);
+        $this->call(MauffreyTenantSeeder::class);
     }
 }

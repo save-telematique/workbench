@@ -21,6 +21,7 @@ class Vehicle extends Model
         'registration',
         'vin',
         'imei',
+        'odometer',
     ];
 
     /**
