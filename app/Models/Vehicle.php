@@ -20,8 +20,8 @@ class Vehicle extends Model
         'vehicle_type_id',
         'registration',
         'vin',
-        'imei',
         'odometer',
+        'current_vehicle_location_id'
     ];
 
     /**
