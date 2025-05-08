@@ -2,6 +2,7 @@ import { useTranslation } from "@/utils/translation";
 import DevicesLayout from "@/layouts/devices/layout";
 import { PageProps } from "@/types";
 import GenericImportPage from "@/components/import/generic-import-page";
+import { FieldType } from "@/components/editable-import-table";
 
 interface DeviceImportPageProps extends PageProps {
   deviceTypes: Array<{
@@ -39,6 +40,14 @@ export default function DeviceImport(props: DeviceImportPageProps) {
     device_type_id: deviceTypeOptions
   };
 
+  const fieldTypes: Record<string, FieldType> = {
+    device_type_id: 'select',
+    serial_number: 'text',
+    imei: 'text',
+    sim_number: 'text',
+    firmware_version: 'text',
+  };
+
   const breadcrumbs = [
     {
       title: __('devices.breadcrumbs.index'),
@@ -64,6 +73,7 @@ export default function DeviceImport(props: DeviceImportPageProps) {
       fieldOptions={fieldOptions}
       mandatoryFields={['device_type_id', 'serial_number', 'imei']}
       tenants={tenants}
+      fieldTypes={fieldTypes}
     />
   );
 } 

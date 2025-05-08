@@ -6,7 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { useTranslation } from "@/utils/translation";
 import { Calendar as CalendarIcon, Map, FilterIcon, Clock } from "lucide-react";
 import { PageProps } from "@/types";
-import { DateTime } from "luxon";
+import { format, parseISO, isValid, differenceInSeconds, Locale } from 'date-fns';
+import { fr, enUS } from 'date-fns/locale';
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -22,8 +23,7 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink, Paginati
 import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import VehicleLocationMap, { LocationPoint } from "@/components/maps/vehicle-location-map";
-
-
+import { type Device } from "@/pages/devices/show";
 
 interface DeviceMessage {
   id: number;
@@ -34,6 +34,7 @@ interface DeviceMessage {
   created_at: string;
   updated_at: string;
   location?: VehicleLocation | null;
+  device_message_id: string;
 }
 
 interface VehicleLocation {
@@ -51,14 +52,6 @@ interface VehicleLocation {
   address_details: Record<string, unknown> | null;
   recorded_at: string;
   device_message_id: string;
-}
-
-interface Device {
-  id: string;
-  name: string;
-  device_type_id: number;
-  serial_number: string;
-  tenant_id: string;
 }
 
 interface DeviceMessagesPageProps extends PageProps {
@@ -81,9 +74,20 @@ interface DeviceMessagesPageProps extends PageProps {
 
 export default function DeviceMessages({ device, messages, filters, allLocations }: DeviceMessagesPageProps) {
   const { __ } = useTranslation();
+
+  // Locale mapping for date-fns
+  const dateFnsLocales: Record<string, Locale> = {
+    en: enUS,
+    fr: fr,
+  };
+  // Determine current locale for date-fns (simplified, assuming appLocale is like 'en', 'fr')
+  // TODO: Enhance locale detection if appLocale can be more complex (e.g., 'en-US')
+  const appLocaleString = document.documentElement.lang || 'fr'; 
+  const dateFnsLocale = dateFnsLocales[appLocaleString.substring(0, 2)] || enUS;
+
   // Default to today if no date is provided
   const [date, setDate] = useState<string>(
-    filters.date || DateTime.now().toFormat('yyyy-MM-dd')
+    filters.date || format(new Date(), 'yyyy-MM-dd')
   );
   
   const [perPage, setPerPage] = useState<number>(filters.per_page || 10);
@@ -144,12 +148,14 @@ export default function DeviceMessages({ device, messages, filters, allLocations
 
   // Format timestamp
   const formatTimestamp = (timestamp: string) => {
-    return DateTime.fromISO(timestamp).toLocaleString(DateTime.TIME_WITH_SECONDS);
+    const parsed = parseISO(timestamp);
+    return isValid(parsed) ? format(parsed, 'ppss', { locale: dateFnsLocale }) : 'N/A';
   };
   
   // Format full timestamp
   const formatFullTimestamp = (timestamp: string) => {
-    return DateTime.fromISO(timestamp).toLocaleString(DateTime.DATETIME_MED);
+    const parsed = parseISO(timestamp);
+    return isValid(parsed) ? format(parsed, 'PP p', { locale: dateFnsLocale }) : 'N/A';
   };
 
   // Render map link for location
@@ -171,10 +177,13 @@ export default function DeviceMessages({ device, messages, filters, allLocations
   const calculateProcessingTime = (createdAt: string, processedAt: string | null) => {
     if (!processedAt) return null;
     
-    const created = DateTime.fromISO(createdAt);
-    const processed = DateTime.fromISO(processedAt);
-    const diff = processed.diff(created, ['seconds']).seconds;
-    
+    const createdDate = parseISO(createdAt);
+    const processedDate = parseISO(processedAt);
+
+    if (!isValid(createdDate) || !isValid(processedDate)) {
+      return null; 
+    }
+    const diff = differenceInSeconds(processedDate, createdDate);
     return diff.toFixed(2);
   };
 
@@ -196,7 +205,7 @@ export default function DeviceMessages({ device, messages, filters, allLocations
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
-      <Head title={`${__("devices.messages.title")} - ${device.name}`} />
+      <Head title={`${__("devices.messages.title")} - ${device.serial_number}`} />
       
       <DevicesLayout showSidebar={true} device={device}>
         <div className="space-y-6">
@@ -259,7 +268,7 @@ export default function DeviceMessages({ device, messages, filters, allLocations
                   <h3 className="text-lg font-medium">{__("devices.messages.no_messages_title")}</h3>
                   <p className="text-sm text-muted-foreground mt-1">
                     {date 
-                      ? __("devices.messages.no_messages_for_date", { date: DateTime.fromISO(date).toLocaleString(DateTime.DATE_FULL) }) 
+                      ? __("devices.messages.no_messages_for_date", { date: format(parseISO(date), 'PPPP', { locale: dateFnsLocale }) }) 
                       : __("devices.messages.no_messages")}
                   </p>
                 </div>
@@ -382,7 +391,7 @@ export default function DeviceMessages({ device, messages, filters, allLocations
                                       <TableRow>
                                         <TableCell className="font-medium">{__("devices.messages.recorded_at")}</TableCell>
                                         <TableCell>
-                                          {DateTime.fromISO(message.location.recorded_at).toLocaleString(DateTime.DATETIME_MED)}
+                                          {format(parseISO(message.location.recorded_at), 'PP p', { locale: dateFnsLocale })}
                                         </TableCell>
                                       </TableRow>
                                     </TableBody>

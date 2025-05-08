@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\CsvImportService;
+use App\Services\Import\ImporterInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
@@ -13,41 +14,28 @@ trait BaseCsvImportTrait
     /**
      * CSV Import Service instance
      */
-    protected $csvImportService;
+    protected CsvImportService $csvImportService;
 
     /**
-     * Return import configuration specific to the entity
+     * Importer Handler instance
      */
-    abstract protected function getImportConfig(): array;
-
-    /**
-     * Return additional data for the import form
-     */
-    abstract protected function getImportFormData(): array;
-
-    /**
-     * Return the entity for import
-     */
-    abstract protected function createEntityFromImportData(array $entityData): object;
+    protected ImporterInterface $importerHandler;
 
     /**
      * Show the import form
      */
     public function create()
     {
-        $config = $this->getImportConfig();
-        $this->authorize($config['permission']);
+        $this->authorize($this->importerHandler->getRequiredPermission());
 
-        // Get available tenants for the form (only for central users)
         $tenants = [];
         if (Gate::allows('view_tenants')) {
             $tenants = \App\Models\Tenant::orderBy('name')->get();
         }
 
-        // Get additional data specific to this entity type
-        $formData = $this->getImportFormData();
+        $formData = $this->importerHandler->getFormData();
 
-        return Inertia::render($config['inertia_page'], array_merge([
+        return Inertia::render($this->importerHandler->getInertiaPageName(), array_merge([
             'tenants' => $tenants,
         ], $formData));
     }
@@ -57,8 +45,7 @@ trait BaseCsvImportTrait
      */
     public function upload(Request $request)
     {
-        $config = $this->getImportConfig();
-        $this->authorize($config['permission']);
+        $this->authorize($this->importerHandler->getRequiredPermission());
 
         $validator = Validator::make($request->all(), [
             'file' => 'required|file|mimes:csv,txt,xlsx,xls|max:10240', // 10MB max
@@ -74,7 +61,7 @@ trait BaseCsvImportTrait
             ], 422);
         }
 
-        $result = $this->csvImportService->import($request->file('file'), $config['type']);
+        $result = $this->csvImportService->import($request->file('file'), $this->importerHandler);
 
         return response()->json($result);
     }
@@ -84,13 +71,10 @@ trait BaseCsvImportTrait
      */
     public function store(Request $request)
     {
-        $config = $this->getImportConfig();
-        $this->authorize($config['permission']);
+        $this->authorize($this->importerHandler->getRequiredPermission());
         
-        $validator = Validator::make($request->all(), [
-            $config['request_array_name'] => 'required|array',
-            'tenant_id' => 'nullable|exists:tenants,id',
-        ]);
+        $rules = $this->importerHandler->getStoreRequestValidationRules();
+        $validator = Validator::make($request->all(), $rules);
         
         if ($validator->fails()) {
             return response()->json([
@@ -99,23 +83,24 @@ trait BaseCsvImportTrait
             ], 422);
         }
         
-        $entitiesToImport = $request->input($config['request_array_name']);
+        $entitiesToImport = $request->input($this->importerHandler->getRequestArrayName());
         $tenantId = $request->input('tenant_id');
         $importedCount = 0;
         $errors = [];
         
         foreach ($entitiesToImport as $index => $entityData) {
             try {
-                // Force tenant_id if provided
-                if ($tenantId) {
+                if ($tenantId && method_exists($this->importerHandler->getModelClass(), 'scopeTenant')) {
                     $entityData['tenant_id'] = $tenantId;
                 }
                 
-                $entity = $this->createEntityFromImportData($entityData);
-                $entity->save();
+                $entity = $this->importerHandler->createEntity($entityData);
+                if (method_exists($entity, 'save')) {
+                    $entity->save();
+                }
                 $importedCount++;
             } catch (\Exception $e) {
-                $errors[] = "Error importing {$config['type']} at row " . ($index + 1) . ": " . $e->getMessage();
+                $errors[] = "Error importing {$this->importerHandler->getFriendlyName()} at row " . ($index + 1) . ": " . $e->getMessage();
             }
         }
         
@@ -131,12 +116,10 @@ trait BaseCsvImportTrait
      */
     public function validateRow(Request $request)
     {
-        $config = $this->getImportConfig();
-        $this->authorize($config['permission']);
+        $this->authorize($this->importerHandler->getRequiredPermission());
         
         $validator = Validator::make($request->all(), [
             'row_data' => 'required|array',
-            'tenant_id' => 'nullable|exists:tenants,id',
         ]);
         
         if ($validator->fails()) {
@@ -144,13 +127,13 @@ trait BaseCsvImportTrait
                 'valid' => false,
                 'errors' => $validator->errors()->all(),
                 'warnings' => [],
+                'field_errors' => []
             ], 422);
         }
         
         $rowData = $request->input('row_data');
         
-        // Validate the row using the CsvImportService
-        $result = $this->csvImportService->validateSingleRow($rowData, $config['type']);
+        $result = $this->csvImportService->validateSingleRow($rowData, $this->importerHandler);
         
         return response()->json($result);
     }

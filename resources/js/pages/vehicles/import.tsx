@@ -2,6 +2,7 @@ import { useTranslation } from "@/utils/translation";
 import VehiclesLayout from "@/layouts/vehicles/layout";
 import { PageProps } from "@/types";
 import GenericImportPage from "@/components/import/generic-import-page";
+import { FieldType } from "@/components/editable-import-table";
 
 interface VehicleImportPageProps extends PageProps {
   vehicleTypes: Array<{
@@ -54,6 +55,16 @@ export default function VehicleImport(props: VehicleImportPageProps) {
     }))
   };
 
+  const fieldTypes: Record<string, FieldType> = {
+    registration: 'text',
+    vin: 'text',
+    vehicle_model_id: 'select',
+    vehicle_type_id: 'select',
+    year: 'number',
+    color: 'text',
+    notes: 'text',
+  };
+
   const breadcrumbs = [
     {
       title: __('vehicles.breadcrumbs.index'),
@@ -79,6 +90,7 @@ export default function VehicleImport(props: VehicleImportPageProps) {
       fieldOptions={fieldOptions}
       mandatoryFields={['vin', 'vehicle_model_id', 'vehicle_type_id']}
       tenants={tenants}
+      fieldTypes={fieldTypes}
     />
   );
 } 

@@ -4,7 +4,8 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import { useTranslation } from "@/utils/translation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { DateTime } from "luxon";
+import { format, parseISO, isValid, Locale } from 'date-fns';
+import { fr, enUS } from 'date-fns/locale';
 import { cn } from "@/lib/utils";
 import { Map as MapIcon, Compass, Eye, EyeOff, Maximize2, Minimize2, MapPin, Circle, Navigation2, LocateFixed, Play, Pause, SkipForward, SkipBack, ChevronDown } from "lucide-react";
 import { Toggle } from "@/components/ui/toggle";
@@ -63,6 +64,16 @@ export default function VehicleLocationMap({
   const [selectedPoint, setSelectedPoint] = useState<LocationPoint | null>(null);
   const [showAllPoints, setShowAllPoints] = useState<boolean>(initialShowAllPoints);
   const [showFullscreen, setShowFullscreen] = useState<boolean>(false);
+  
+  // Locale mapping for date-fns
+  const dateFnsLocales: Record<string, Locale> = {
+    en: enUS,
+    fr: fr,
+  };
+  // Determine current locale for date-fns (simplified, assuming appLocale is like 'en', 'fr')
+  // TODO: Enhance locale detection from a hook or context if available and more robust
+  const appLocaleString = typeof document !== 'undefined' ? document.documentElement.lang || 'fr' : 'fr'; 
+  const dateFnsLocale = dateFnsLocales[appLocaleString.substring(0, 2)] || enUS;
   
   // Timeline state
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -253,12 +264,14 @@ export default function VehicleLocationMap({
 
   // Format timestamp
   const formatTime = (timestamp: string) => {
-    return DateTime.fromISO(timestamp).toLocaleString(DateTime.TIME_WITH_SECONDS);
+    const parsed = parseISO(timestamp);
+    return isValid(parsed) ? format(parsed, 'ppss', { locale: dateFnsLocale }) : 'N/A';
   };
   
   // Format date
   const formatDate = (timestamp: string) => {
-    return DateTime.fromISO(timestamp).toLocaleString(DateTime.DATE_SHORT);
+    const parsed = parseISO(timestamp);
+    return isValid(parsed) ? format(parsed, 'P', { locale: dateFnsLocale }) : 'N/A';
   };
 
   // Handle play/pause

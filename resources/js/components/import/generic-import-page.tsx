@@ -1,11 +1,12 @@
+import React from "react";
 import { useState } from "react";
 import { Head, Link, router } from "@inertiajs/react";
 import { useTranslation } from "@/utils/translation";
 import AppLayout from "@/layouts/app-layout";
-import { PageProps } from "@/types";
+import { PageProps as InertiaPageProps } from '@inertiajs/core';
 import { CsvImportData } from "@/types/csv-import";
 import CsvImportUpload from "@/components/csv-import-upload";
-import EditableImportTable from "@/components/editable-import-table";
+import EditableImportTable, { FieldType } from "@/components/editable-import-table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -32,9 +33,9 @@ export interface GenericImportPageProps {
   entityType: 'device' | 'vehicle' | 'driver';
   
   /**
-   * The Inertia PageProps object
+   * The Inertia PageProps object, can extend InertiaPageProps if more specific props are known
    */
-  pageProps: any;
+  pageProps: InertiaPageProps;
   
   /**
    * The breadcrumbs for the page
@@ -47,7 +48,7 @@ export interface GenericImportPageProps {
   /**
    * Layout component to wrap the page content
    */
-  layoutComponent: React.ComponentType<{ children: React.ReactNode }>;
+  layoutComponent: React.ComponentType<{ children: React.ReactNode, breadcrumbs?: Array<{ title: string; href: string; }> }>;
   
   /**
    * API endpoint for CSV upload
@@ -80,6 +81,11 @@ export interface GenericImportPageProps {
   fieldOptions?: Record<string, Array<{ id: string | number; name: string }>>;
   
   /**
+   * Optional field type definitions (field name to type)
+   */
+  fieldTypes?: Record<string, FieldType>;
+  
+  /**
    * Array of mandatory field names
    */
   mandatoryFields: string[];
@@ -104,25 +110,26 @@ export default function GenericImportPage({
   indexRouteName,
   fieldDescriptions,
   fieldOptions,
+  fieldTypes,
   mandatoryFields,
   tenants = []
 }: GenericImportPageProps) {
   const { __ } = useTranslation();
   const [activeTab, setActiveTab] = useState<string>("tenant");
   const [importData, setImportData] = useState<CsvImportData | null>(null);
-  const [parsedEntities, setParsedEntities] = useState<Record<string, string | number | null>[]>([]);
+  const [parsedEntities, setParsedEntities] = useState<Record<string, string | number | null | boolean>[]>([]);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [selectedTenant, setSelectedTenant] = useState<string | null>(null);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState<boolean>(false);
-  const [entitiesToImport, setEntitiesToImport] = useState<Record<string, string | number | null>[]>([]);
+  const [entitiesToImport, setEntitiesToImport] = useState<Record<string, string | number | null | boolean>[]>([]);
 
   // Handle when import file is analyzed
   const handleImportComplete = (data: CsvImportData) => {
     setImportData(data);
     
     if (data.success && data.data) {
-      setParsedEntities(data.data);
+      setParsedEntities(data.data as Record<string, string | number | null | boolean>[]);
       
       // Always switch to review tab when processing is complete
       setActiveTab("review");
@@ -136,14 +143,20 @@ export default function GenericImportPage({
   };
 
   // Handle when entity data is updated
-  const handleEntityDataChange = (updatedEntities: Record<string, string | number | null>[]) => {
+  const handleEntityDataChange = (updatedEntities: Record<string, string | number | null | boolean>[]) => {
     setParsedEntities(updatedEntities);
   };
 
   // Handle confirm import (show confirmation dialog)
-  const handleConfirmImport = (validData: Record<string, string | number | null>[]) => {
+  const handleConfirmImport = (validData: Record<string, string | number | null | boolean>[]) => {
     setEntitiesToImport(validData);
     setConfirmDialogOpen(true);
+  };
+
+  // Define a more specific type for the requestBody
+  type ImportRequestBody = {
+    tenant_id: string | null;
+    [key: string]: Record<string, string | number | null | boolean>[] | string | null; // For the dynamic entity array
   };
 
   // Handle actual submission after confirmation
@@ -154,7 +167,7 @@ export default function GenericImportPage({
     setSuccessMessage(null);
     
     try {
-      const requestBody: Record<string, any> = {
+      const requestBody: ImportRequestBody = {
         tenant_id: selectedTenant,
       };
       
@@ -192,7 +205,7 @@ export default function GenericImportPage({
   };
 
   return (
-    <AppLayout breadcrumbs={breadcrumbs}>
+    <AppLayout {...pageProps} breadcrumbs={breadcrumbs}>
       <Head title={__(`${entityType}s.import.title`)} />
       
       <LayoutComponent>
@@ -231,7 +244,7 @@ export default function GenericImportPage({
             
             <TabsContent value="tenant" className="space-y-4">
               <Card>
-                <CardContent>
+                <CardContent className="pt-6">
                   <div className="mb-4">
                     <h3 className="text-lg font-medium mb-2">{__(`${entityType}s.import.select_tenant_title`)}</h3>
                     <p className="text-sm text-muted-foreground mb-4">{__(`${entityType}s.import.select_tenant_desc`)}</p>
@@ -243,7 +256,7 @@ export default function GenericImportPage({
                         </label>
                         <select
                           id="tenant-selector"
-                          className="w-full rounded-md border border-input px-3 py-2 text-sm"
+                          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                           value={selectedTenant || ''}
                           onChange={(e) => setSelectedTenant(e.target.value || null)}
                         >
@@ -296,6 +309,7 @@ export default function GenericImportPage({
                     warnings={importData.warnings || []}
                     fieldDescriptions={fieldDescriptions}
                     fieldOptions={fieldOptions}
+                    fieldTypes={fieldTypes}
                     mandatoryFields={mandatoryFields}
                     onDataChange={handleEntityDataChange}
                     onSubmit={handleConfirmImport}
@@ -327,7 +341,7 @@ export default function GenericImportPage({
               <AlertDialogHeader>
                 <AlertDialogTitle>{__(`${entityType}s.import.confirm_title`)}</AlertDialogTitle>
                 <AlertDialogDescription>
-                  {__(`${entityType}s.import.confirm_description_valid_only`)}
+                  {__(`${entityType}s.import.confirm_description_valid_only`, { count: entitiesToImport.length })}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

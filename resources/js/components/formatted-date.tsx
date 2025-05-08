@@ -1,61 +1,89 @@
 import React from 'react';
-import { DateTime } from 'luxon';
+import { format as formatDateFns, parseISO, isValid, formatDistanceToNow, Locale } from 'date-fns';
+import { fr, enUS } from 'date-fns/locale';
 import { useLocale } from '@/hooks/use-locale';
+
+// Locale mapping
+const locales: Record<string, Locale> = {
+  en: enUS,
+  fr: fr,
+};
 
 interface FormattedDateProps {
   date: string | Date | null;
-  format?: string;
+  format?: string; // This can be a date-fns format string or one of the predefined keys
   className?: string;
   fallback?: string;
-  locale?: string;
+  locale?: string; // Prop to override app's locale
 }
 
-export default function FormattedDate({ 
-  date, 
-  format = 'DATETIME_FULL', 
-  className = '', 
+export default function FormattedDate({
+  date,
+  format = 'DATETIME_FULL',
+  className = '',
   fallback = '--',
-  locale
+  locale: propLocale, // Renamed to avoid conflict
 }: FormattedDateProps) {
-  // Get the current locale from the useLocale hook
   const { locale: appLocale } = useLocale();
-  const currentLocale = locale || appLocale || document.documentElement.lang || 'fr';
-  
+  // Determine the locale string to use
+  const currentLocaleString = propLocale || appLocale || document.documentElement.lang || 'fr';
+  // Get the date-fns locale object, defaulting to enUS if not found
+  const dateFnsLocale = locales[currentLocaleString.substring(0, 2)] || enUS;
+
   if (!date) {
     return <span className={className}>{fallback}</span>;
   }
-  
-  const dateTime = typeof date === 'string' 
-    ? DateTime.fromISO(date).setLocale(currentLocale)
-    : DateTime.fromJSDate(date).setLocale(currentLocale);
-    
-  if (!dateTime.isValid) {
-    return <span className={className}>{fallback}</span>;
+
+  let parsedDate: Date;
+  if (typeof date === 'string') {
+    parsedDate = parseISO(date);
+  } else {
+    // If it's already a Date object, use it directly
+    parsedDate = date;
   }
-  
-  // Use format as a predefined format or custom format string
-  let formattedDate: string;
-  
+
+  if (!isValid(parsedDate)) {
+    // Attempt to parse with new Date() as a fallback for non-ISO strings
+    if (typeof date === 'string') {
+        const genericParsedDate = new Date(date);
+        if (isValid(genericParsedDate)) {
+            parsedDate = genericParsedDate;
+        } else {
+            return <span className={className}>{fallback}</span>;
+        }
+    } else {
+        return <span className={className}>{fallback}</span>;
+    }
+  }
+
+  let formattedDateString: string;
+
   switch (format) {
-    case 'DATETIME_FULL':
-      formattedDate = dateTime.toLocaleString(DateTime.DATETIME_FULL);
+    case 'DATETIME_FULL': 
+      formattedDateString = formatDateFns(parsedDate, 'PPPP p', { locale: dateFnsLocale });
       break;
-    case 'DATE_FULL':
-      formattedDate = dateTime.toLocaleString(DateTime.DATE_FULL);
+    case 'DATE_FULL': 
+      formattedDateString = formatDateFns(parsedDate, 'PPPP', { locale: dateFnsLocale });
       break;
-    case 'DATE_MED':
-      formattedDate = dateTime.toLocaleString(DateTime.DATE_MED);
+    case 'DATE_MED': 
+      formattedDateString = formatDateFns(parsedDate, 'PP', { locale: dateFnsLocale });
       break;
-    case 'TIME':
-      formattedDate = dateTime.toLocaleString(DateTime.TIME_SIMPLE);
+    case 'TIME': 
+      formattedDateString = formatDateFns(parsedDate, 'p', { locale: dateFnsLocale });
       break;
-    case 'RELATIVE':
-      formattedDate = dateTime.toRelative() || fallback;
+    case 'RELATIVE': 
+      formattedDateString = formatDistanceToNow(parsedDate, { addSuffix: true, locale: dateFnsLocale });
       break;
     default:
-      // Use format as a custom format string
-      formattedDate = dateTime.toFormat(format);
+      try {
+        formattedDateString = formatDateFns(parsedDate, format, { locale: dateFnsLocale });
+      } catch (error) {
+        console.error("Error formatting date with custom format:", error);
+        formattedDateString = formatDateFns(parsedDate, 'PPp', { locale: dateFnsLocale }); 
+      }
   }
   
-  return <span className={className} title={dateTime.toLocaleString(DateTime.DATETIME_FULL)}>{formattedDate}</span>;
+  const titleDateString = formatDateFns(parsedDate, 'PPPPpppp', { locale: dateFnsLocale });
+
+  return <span className={className} title={titleDateString}>{formattedDateString}</span>;
 } 
