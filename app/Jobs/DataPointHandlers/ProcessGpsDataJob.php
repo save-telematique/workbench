@@ -5,94 +5,114 @@ namespace App\Jobs\DataPointHandlers;
 use App\Contracts\DataPointHandlerJob;
 use App\Enum\MessageFields;
 use App\Models\DeviceDataPoint;
+use App\Models\Device;
+use App\Models\Vehicle;
+use App\Models\Tenant;
+use App\Models\VehicleStatus;
 use App\Helpers\GeoHelper;
 use App\Models\VehicleLocation;
+use App\Enum\DeviceDataPointType;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class ProcessGpsDataJob implements ShouldQueue, DataPointHandlerJob
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private DeviceDataPoint $deviceDataPoint;
+    protected DeviceDataPoint $deviceDataPoint;
+    protected Device $device;
+    protected ?Vehicle $vehicle;
 
     /**
      * Create a new job instance.
+     *
+     * @param DeviceDataPoint $deviceDataPoint
+     * @param Device $device
+     * @param Vehicle|null $vehicle
      */
-    public function __construct(DeviceDataPoint $deviceDataPoint)
+    public function __construct(DeviceDataPoint $deviceDataPoint, Device $device, ?Vehicle $vehicle)
     {
         $this->deviceDataPoint = $deviceDataPoint;
+        $this->device = $device;
+        $this->vehicle = $vehicle;
     }
 
     /**
-     * Get the data point type IDs that this job reacts to.
-     *
-     * @return array<int>
+     * @return DeviceDataPointType[]
      */
     public static function getReactsToDataPointTypes(): array
     {
-        return [MessageFields::GPS_DATA->value];
+        return [MessageFields::GPS_DATA];
     }
 
     /**
      * Execute the job.
+     *
+     * @return void
      */
     public function handle(): void
     {
-        $gpsValue = $this->deviceDataPoint->value;
-        if (!is_array($gpsValue) || 
-            !isset($gpsValue['latitude']) || 
-            !isset($gpsValue['longitude']) || 
-            !isset($gpsValue['altitude']) || 
-            !isset($gpsValue['angle']) || 
-            !isset($gpsValue['satellites']) || 
-            !isset($gpsValue['speed'])) {
-            Log::warning('GPS data point has invalid or incomplete value structure', [
+        if (!$this->vehicle) {
+            return;
+        }
+
+        $data = $this->deviceDataPoint->data;
+        if (!is_array($data) || 
+            !isset($data['latitude']) || 
+            !isset($data['longitude']) || 
+            !isset($data['altitude']) || 
+            !isset($data['angle']) || 
+            !isset($data['satellites']) || 
+            !isset($data['speed'])) {
+            Log::error('ProcessGpsDataJob: Invalid GPS data or missing coordinates.', [
                 'device_data_point_id' => $this->deviceDataPoint->id,
-                'value' => $gpsValue,
+                'device_id' => $this->device->id,
+                'vehicle_id' => $this->vehicle->id,
+                'data' => $data,
             ]);
             return;
         }
 
-        $latitude = (float) $gpsValue['latitude'];
-        $longitude = (float) $gpsValue['longitude'];
+        $latitude = (float) $data['latitude'];
+        $longitude = (float) $data['longitude'];
+        $timestamp = $this->deviceDataPoint->recorded_at;
 
         if ($latitude == 0 && $longitude == 0) {
+            Log::warning('ProcessGpsDataJob: Zero coordinates, skipping update.', [
+                'device_data_point_id' => $this->deviceDataPoint->id,
+                'device_id' => $this->device->id,
+                'vehicle_id' => $this->vehicle->id,
+            ]);
             return;
         }
 
-        $device = $this->deviceDataPoint->device;
-        if (!$device || !$device->vehicle) {
-            return;
-        }
-        $vehicle = $device->vehicle;
-        
-        $movement = $gpsValue['movement'] ?? false;
-        $ignition = $gpsValue['ignition'] ?? false;
+        $movement = $data['movement'] ?? false;
+        $ignition = $data['ignition'] ?? false;
 
         $locationData = [
-            'vehicle_id' => $vehicle->id,
+            'vehicle_id' => $this->vehicle->id,
             'latitude' => $latitude,
             'longitude' => $longitude,
-            'altitude' => (float) $gpsValue['altitude'],
-            'heading' => (int) $gpsValue['angle'],
-            'satellites' => (int) $gpsValue['satellites'],
-            'speed' => (float) $gpsValue['speed'],
+            'altitude' => (float) $data['altitude'],
+            'heading' => (int) $data['angle'],
+            'satellites' => (int) $data['satellites'],
+            'speed' => (float) $data['speed'],
             'moving' => (bool) $movement,
             'ignition' => (bool) $ignition,
-            'recorded_at' => $this->deviceDataPoint->recorded_at,
+            'recorded_at' => $timestamp,
             'device_message_id' => $this->deviceDataPoint->device_message_id,
+            'tenant_id' => $this->vehicle->tenant_id,
         ];
 
-        $currentLocation = $vehicle->currentLocation;
-        $recordedAt = $this->deviceDataPoint->recorded_at;
+        $currentLocation = $this->vehicle->currentLocation;
 
         if ($currentLocation) {
-            $timeDiffSeconds = abs($currentLocation->recorded_at->diffInSeconds($recordedAt));
+            $timeDiffSeconds = abs($currentLocation->recorded_at->diffInSeconds($timestamp));
             $distanceMeters = GeoHelper::vincentyGreatCircleDistance($currentLocation->latitude, $currentLocation->longitude, $latitude, $longitude);
             
             if ($timeDiffSeconds < 120 && $distanceMeters < 25) {
@@ -105,7 +125,7 @@ class ProcessGpsDataJob implements ShouldQueue, DataPointHandlerJob
                  $maxDistancePossible = $maxSpeedMetersPerSecond * $timeDiffSeconds;
                  if ($distanceMeters > $maxDistancePossible * 1.2) {
                         Log::warning('Skipping GPS data point: physically improbable distance for time diff', [
-                            'vehicle_id' => $vehicle->id, 
+                            'vehicle_id' => $this->vehicle->id, 
                             'distance_m' => $distanceMeters, 
                             'time_diff_s' => $timeDiffSeconds, 
                             'max_dist_possible_m' => round($maxDistancePossible,2)
@@ -116,7 +136,7 @@ class ProcessGpsDataJob implements ShouldQueue, DataPointHandlerJob
         }
 
         $location = VehicleLocation::create($locationData);
-        $vehicle->current_vehicle_location_id = $location->id;
-        $vehicle->save();
+        $this->vehicle->current_vehicle_location_id = $location->id;
+        $this->vehicle->save();
     }
 } 

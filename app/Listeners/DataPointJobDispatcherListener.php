@@ -8,6 +8,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
+use App\Models\Device;
+use App\Models\Vehicle;
 use ReflectionClass;
 use ReflectionException;
 
@@ -32,7 +34,7 @@ class DataPointJobDispatcherListener // No ShouldQueue here, this listener itsel
             $className = 'App\\Jobs\\DataPointHandlers\\' . File::name($file);
             try {
                 if (!class_exists($className)) continue;
-                
+
                 $reflection = new ReflectionClass($className);
                 if ($reflection->isInstantiable() && $reflection->implementsInterface(DataPointHandlerJob::class)) {
                     $this->handlerJobClasses[] = $className;
@@ -51,36 +53,25 @@ class DataPointJobDispatcherListener // No ShouldQueue here, this listener itsel
      */
     public function handle(NewDeviceDataPoint $event): void
     {
-        $firedJobCountOverall = 0;
-
         foreach ($event->deviceDataPoints as $deviceDataPoint) {
-            $firedJobCountForDataPoint = 0;
             foreach ($this->handlerJobClasses as $jobClass) {
                 /** @var DataPointHandlerJob $jobClass */
                 $reactsToTypes = $jobClass::getReactsToDataPointTypes();
 
                 if (in_array($deviceDataPoint->data_point_type_id, $reactsToTypes, true)) {
                     try {
-                        $jobInstance = new $jobClass($deviceDataPoint);
-                        
-                        if ($jobInstance instanceof \Illuminate\Contracts\Queue\ShouldQueue) {
-                             dispatch($jobInstance);
-                             $firedJobCountForDataPoint++;
-                             $firedJobCountOverall++;
-                        } else {
-                            app()->call([$jobInstance, 'handle']); 
-                            $firedJobCountForDataPoint++;
-                            $firedJobCountOverall++;
-                        }
+                        $jobInstance = new $jobClass($deviceDataPoint, $deviceDataPoint->device, $deviceDataPoint->device->vehicle);
 
+                        dispatch($jobInstance);
                     } catch (\Exception $e) {
                         Log::error("Error dispatching or handling job {$jobClass}", [
                             'exception' => $e,
-                            'device_data_point_id' => $deviceDataPoint->id
+                            'device_data_point_id' => $deviceDataPoint->id,
+                            'device_id' => $deviceDataPoint->device_id
                         ]);
                     }
                 }
             }
         }
     }
-} 
+}
