@@ -28,42 +28,22 @@ export function useTenantsColumns(): ColumnDef<Tenant>[] {
   return [
     {
       accessorKey: "name",
-      header: ({ column }) => (
-        <DataTableColumnHeader 
-          column={column} 
-          title={__('tenants.fields.name')} 
-        />
-      ),
+      header: __('tenants.fields.name'),
       cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
     },
     {
       accessorKey: "email",
-      header: ({ column }) => (
-        <DataTableColumnHeader 
-          column={column} 
-          title={__('tenants.fields.email')} 
-        />
-      ),
+      header: __('tenants.fields.email'),
       cell: ({ row }) => <div>{row.getValue("email") || "-"}</div>,
     },
     {
       accessorKey: "phone",
-      header: ({ column }) => (
-        <DataTableColumnHeader 
-          column={column} 
-          title={__('tenants.fields.phone')} 
-        />
-      ),
+      header: __('tenants.fields.phone'),
       cell: ({ row }) => <div>{row.getValue("phone") || "-"}</div>,
     },
     {
       accessorKey: "is_active",
-      header: ({ column }) => (
-        <DataTableColumnHeader 
-          column={column} 
-          title={__('tenants.fields.status_label')} 
-        />
-      ),
+      header: __('tenants.fields.status_label'),
       cell: ({ row }) => {
         const isActive = row.getValue("is_active")
         return (

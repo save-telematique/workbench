@@ -14,6 +14,7 @@ import {
   ColumnOrderState,
   ColumnPinningState,
   Column,
+  ColumnSizingState,
 } from "@tanstack/react-table"
 import { useEffect, useState, ReactNode, useMemo } from "react"
 
@@ -48,6 +49,7 @@ interface DataTableProps<TData, TValue> {
     columnManagement?: boolean
     pageSize?: number
     saveToPersistence?: boolean
+    columnResizing?: boolean
   }
   noResultsMessage?: string
   actionBarLeft?: ReactNode
@@ -79,6 +81,7 @@ export function DataTable<TData, TValue>({
     columnManagement = true,
     pageSize = 10,
     saveToPersistence = true,
+    columnResizing = true,
   } = config
   
   // Process columns to ensure all headers use DataTableColumnHeader
@@ -140,6 +143,7 @@ export function DataTable<TData, TValue>({
     pageIndex: 0,
     pageSize,
   })
+  const [columnSizing, setColumnSizing] = useState<ColumnSizingState>({})
 
   // Load saved column preferences from localStorage
   useEffect(() => {
@@ -163,10 +167,18 @@ export function DataTable<TData, TValue>({
       if (savedPinning) {
         setColumnPinning(JSON.parse(savedPinning))
       }
+      
+      // Load column sizing
+      if (columnResizing) {
+        const savedSizing = localStorage.getItem(`table-columns-${tableId}-sizing`)
+        if (savedSizing) {
+          setColumnSizing(JSON.parse(savedSizing))
+        }
+      }
     } catch (e) {
       console.error("Error loading table preferences from localStorage", e)
     }
-  }, [tableId, saveToPersistence])
+  }, [tableId, saveToPersistence, columnResizing])
 
   // Save column preferences to localStorage when they change
   useEffect(() => {
@@ -186,7 +198,12 @@ export function DataTable<TData, TValue>({
     if (leftPins.length > 0 || rightPins.length > 0) {
       localStorage.setItem(`table-columns-${tableId}-pinning`, JSON.stringify(columnPinning))
     }
-  }, [columnVisibility, columnOrder, columnPinning, tableId, saveToPersistence])
+
+    // Save column sizing
+    if (columnResizing && Object.keys(columnSizing).length > 0) {
+      localStorage.setItem(`table-columns-${tableId}-sizing`, JSON.stringify(columnSizing))
+    }
+  }, [columnVisibility, columnOrder, columnPinning, columnSizing, tableId, saveToPersistence, columnResizing])
 
   const table = useReactTable({
     data,
@@ -200,6 +217,8 @@ export function DataTable<TData, TValue>({
     onColumnVisibilityChange: setColumnVisibility,
     onColumnOrderChange: setColumnOrder,
     onColumnPinningChange: setColumnPinning,
+    onColumnSizingChange: columnResizing ? setColumnSizing : undefined,
+    columnResizeMode: columnResizing ? 'onChange' : undefined,
     state: {
       sorting: sorting ? sorting_ : undefined,
       columnFilters: filtering ? columnFilters : undefined,
@@ -207,6 +226,12 @@ export function DataTable<TData, TValue>({
       columnVisibility,
       columnOrder,
       columnPinning,
+      columnSizing: columnResizing ? columnSizing : undefined,
+    },
+    defaultColumn: {
+      minSize: 50,
+      size: 150,
+      maxSize: 500,
     },
   })
 
@@ -246,17 +271,39 @@ export function DataTable<TData, TValue>({
                   return (
                     <ContextMenu key={header.id}>
                       <ContextMenuTrigger asChild>
-                        <TableHead className={
-                          header.column.getIsPinned() 
-                            ? `sticky ${header.column.getIsPinned() === 'left' ? 'left-0' : 'right-0'} z-10 bg-background`
-                            : ''
-                        }>
+                        <TableHead 
+                          className={`relative ${
+                            header.column.getIsPinned() 
+                              ? (header.column.getIsPinned() === 'left' ? 'sticky left-0 z-10 bg-background' : 'sticky right-0 z-10 bg-background') 
+                              : ''
+                          }`}
+                          style={{
+                            width: header.getSize(),
+                            minWidth: header.column.columnDef.minSize ?? table.options.defaultColumn?.minSize,
+                            maxWidth: header.column.columnDef.maxSize ?? table.options.defaultColumn?.maxSize,
+                          }}
+                          colSpan={header.colSpan}
+                        >
                           {header.isPlaceholder
                             ? null
                             : flexRender(
                                 header.column.columnDef.header,
                                 header.getContext()
                               )}
+                          {header.column.getCanResize() && (
+                            <div
+                              {...{
+                                onMouseDown: header.getResizeHandler(),
+                                onTouchStart: header.getResizeHandler(),
+                                className: `absolute top-0 right-0 h-full w-1.5 cursor-col-resize select-none touch-none ${header.column.getIsResizing() ? 'bg-primary opacity-100' : 'bg-border opacity-0 group-hover/header:opacity-100'}`,
+                                style: {
+                                  transform: table.options.columnResizeDirection === 'rtl'
+                                    ? 'translateX(50%)'
+                                    : 'translateX(-50%)',
+                                }
+                              }}
+                            />
+                          )}
                         </TableHead>
                       </ContextMenuTrigger>
                       <ContextMenuContent>

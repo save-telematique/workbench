@@ -72,13 +72,106 @@ export function DataTableColumnVisibility<TData>({
 }: DataTableColumnVisibilityProps<TData>) {
   const { __ } = useTranslation()
   
+  // Helper function to extract column display name
+  const getColumnDisplayName = (column: Column<TData, unknown>): string | null => {
+    // Try to extract a displayable title from the column definition
+    try {
+
+      // Case 1: For columns with function headers, try to extract metadata
+      if (column.columnDef.header && typeof column.columnDef.header === 'function') {
+        // If we have meta.title, use that directly
+        if ('meta' in column.columnDef && column.columnDef.meta) {
+          const meta = column.columnDef.meta as ColumnMeta;
+          if (meta.title) {
+            return __(meta.title);
+          }
+        }
+        
+        // Try to use accessorKey as a fallback for meaningful column names
+        if ('accessorKey' in column.columnDef && typeof column.columnDef.accessorKey === 'string') {
+          return __(column.columnDef.accessorKey);
+        }
+        
+        // For action columns, try to use a meaningful ID as fallback
+        if (column.id && 
+            !column.id.includes('select_') && 
+            !column.id.includes('expand_')) {
+          // For action columns, display the ID without translation
+          if (column.id.includes('actions')) {
+            return column.id;
+          }
+          return __(column.id);
+        }
+        
+        // No meaningful title found
+        return null;
+      }
+      
+      // Case 2: For string headers, use directly (translated)
+      if (typeof column.columnDef.header === 'string') {
+        return column.columnDef.header;
+      } 
+      
+      // Case 3: Try accessorKey as fallback
+      if ('accessorKey' in column.columnDef && typeof column.columnDef.accessorKey === 'string') {
+        return __(column.columnDef.accessorKey);
+      }
+      
+      // Case 4: For columns with just an ID, use as last resort
+      if (column.id && 
+          !column.id.includes('select_') && 
+          !column.id.includes('expand_')) {
+        return __(column.id);
+      }
+      
+      // For columns without any title indicators, return null
+      return null;
+    } catch {
+      // If anything fails, don't show columns without proper headers
+      return null;
+    }
+  }
+  
+  // First get the column order from the table state
+  const columnOrderFromTableState = table.getState().columnOrder;
+  // Get all columns and sort them based on pinning status and columnOrderFromTableState
+  const managableColumns = table.getAllColumns()
+    .filter(column => column.getCanHide())
+    .filter(column => getColumnDisplayName(column) !== null)
+    .filter(column => column.id !== 'actions')
+    .sort((a, b) => {
+      // First, prioritize by pinning status
+      const aPinned = a.getIsPinned();
+      const bPinned = b.getIsPinned();
+      
+      // Put left-pinned columns first
+      if (aPinned === 'left' && bPinned !== 'left') return -1;
+      if (bPinned === 'left' && aPinned !== 'left') return 1;
+      
+      // Put right-pinned columns last
+      if (aPinned === 'right' && bPinned !== 'right') return 1;
+      if (bPinned === 'right' && aPinned !== 'right') return -1;
+      
+      // If both have the same pinning status (e.g., both unpinned or both pinned to the same side)
+      // sort by column order if available
+      if (columnOrderFromTableState.includes(a.id) && columnOrderFromTableState.includes(b.id)) {
+        return columnOrderFromTableState.indexOf(a.id) - columnOrderFromTableState.indexOf(b.id);
+      }
+      
+      // If only one column is in the order array, prioritize it
+      if (columnOrderFromTableState.includes(a.id)) return -1;
+      if (columnOrderFromTableState.includes(b.id)) return 1;
+      
+      // If neither column is in the order array, maintain original relative order (or fallback to id sort)
+      return a.id.localeCompare(b.id); // Fallback sort to ensure stability if not in columnOrder
+    });
+  
   // Reorder columns
   const reorderColumns = (result: DropResult) => {
     if (!result.destination) return
     
-    const currentColumnOrder = table.getAllColumns()
-      .filter(column => column.getCanHide())
-      .map(column => column.id)
+    // Use the IDs from the currently rendered (and sortable) managableColumns list
+    const currentColumnOrder = managableColumns.map(column => column.id)
     
     const newColumnOrder = [...currentColumnOrder]
     const [removed] = newColumnOrder.splice(result.source.index, 1)
@@ -171,97 +264,6 @@ export function DataTableColumnVisibility<TData>({
       }
     }
   }
-
-  // Helper function to extract column display name
-  const getColumnDisplayName = (column: Column<TData, unknown>): string | null => {
-    // Try to extract a displayable title from the column definition
-    try {
-      // Case 1: For columns with function headers, try to extract metadata
-      if (column.columnDef.header && typeof column.columnDef.header === 'function') {
-        // If we have meta.title, use that directly
-        if ('meta' in column.columnDef && column.columnDef.meta) {
-          const meta = column.columnDef.meta as ColumnMeta;
-          if (meta.title) {
-            return __(meta.title);
-          }
-        }
-        
-        // Try to use accessorKey as a fallback for meaningful column names
-        if ('accessorKey' in column.columnDef && typeof column.columnDef.accessorKey === 'string') {
-          return __(column.columnDef.accessorKey);
-        }
-        
-        // For action columns, try to use a meaningful ID as fallback
-        if (column.id && 
-            !column.id.includes('select_') && 
-            !column.id.includes('expand_')) {
-          // For action columns, display the ID without translation
-          if (column.id.includes('actions')) {
-            return column.id;
-          }
-          return __(column.id);
-        }
-        
-        // No meaningful title found
-        return null;
-      }
-      
-      // Case 2: For string headers, use directly (translated)
-      if (typeof column.columnDef.header === 'string') {
-        return column.columnDef.header;
-      } 
-      
-      // Case 3: Try accessorKey as fallback
-      if ('accessorKey' in column.columnDef && typeof column.columnDef.accessorKey === 'string') {
-        return __(column.columnDef.accessorKey);
-      }
-      
-      // Case 4: For columns with just an ID, use as last resort
-      if (column.id && 
-          !column.id.includes('select_') && 
-          !column.id.includes('expand_')) {
-        return __(column.id);
-      }
-      
-      // For columns without any title indicators, return null
-      return null;
-    } catch {
-      // If anything fails, don't show columns without proper headers
-      return null;
-    }
-  }
-
-  // First get the column order from the table state
-  const columnOrder = table.getState().columnOrder;
-  // Get all columns and sort them based on pinning status and columnOrder
-  const managableColumns = table.getAllColumns()
-    .filter(column => column.getCanHide())
-    .filter(column => getColumnDisplayName(column) !== null)
-    .sort((a, b) => {
-      // First, prioritize by pinning status
-      const aPinned = a.getIsPinned();
-      const bPinned = b.getIsPinned();
-      
-      // Put left-pinned columns first
-      if (aPinned === 'left' && bPinned !== 'left') return -1;
-      if (bPinned === 'left' && aPinned !== 'left') return 1;
-      
-      // Put right-pinned columns last
-      if (aPinned === 'right' && bPinned !== 'right') return 1;
-      if (bPinned === 'right' && aPinned !== 'right') return -1;
-      
-      // If both have the same pinning status, sort by column order
-      if (columnOrder.includes(a.id) && columnOrder.includes(b.id)) {
-        return columnOrder.indexOf(a.id) - columnOrder.indexOf(b.id);
-      }
-      
-      // If only one column is in the order array, prioritize it
-      if (columnOrder.includes(a.id)) return -1;
-      if (columnOrder.includes(b.id)) return 1;
-      
-      // If neither column is in the order array, maintain original order
-      return 0;
-    });
 
   return (
     <DropdownMenu>
