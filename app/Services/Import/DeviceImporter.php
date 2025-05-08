@@ -51,12 +51,9 @@ class DeviceImporter implements ImporterInterface
     public function getRowValidationRules(): array
     {
         return [
-            'device_type_id' => 'required',
+            'device_type_id' => 'required|exists:device_types,id',
             'serial_number' => 'required|string|max:255',
-            // IMEI unique check is handled by CsvImportService during full import, 
-            // For single row validation, we might not want to hit DB for unique check frequently.
-            // Or, if it's crucial, it can be 'required|string|max:255|unique:devices,imei'
-            'imei' => 'required|string|max:255',
+            'imei' => 'required|string|max:15|min:15|unique:devices,imei',
             'sim_number' => 'nullable|string|max:255',
             'firmware_version' => 'nullable|string|max:255',
         ];
@@ -69,10 +66,10 @@ class DeviceImporter implements ImporterInterface
             $arrayName => 'required|array',
             "{$arrayName}.*.device_type_id" => 'required|exists:device_types,id',
             "{$arrayName}.*.serial_number" => 'required|string|max:255',
-            "{$arrayName}.*.imei" => 'required|string|max:255|unique:devices,imei',
+            "{$arrayName}.*.imei" => 'required|string|max:15|min:15|unique:devices,imei',
             "{$arrayName}.*.sim_number" => 'nullable|string|max:255',
             "{$arrayName}.*.firmware_version" => 'nullable|string|max:255',
-            'tenant_id' => 'nullable|exists:tenants,id', // Common for all imports
+            'tenant_id' => 'nullable|exists:tenants,id',
         ];
     }
 

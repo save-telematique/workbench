@@ -52,13 +52,11 @@ class VehicleImporter implements ImporterInterface
 
     public function getRowValidationRules(): array
     {
-        // For single row validation, 'exists' can be slow if it hits DB.
-        // Consider if specific handling for live validation is needed.
         return [
-            'registration' => 'required|string|max:255',
-            'vin' => 'required|string|max:17|min:17', // VIN is typically 17 chars
-            'vehicle_model_id' => 'required', // ID or name to be resolved
-            'vehicle_type_id' => 'required', // ID or name to be resolved
+            'registration' => 'required|string|max:255|unique:vehicles,registration,NULL,id,tenant_id,' . (request()->input('tenant_id') ?? tenant('id')),
+            'vin' => 'required|string|max:17|min:17|unique:vehicles,vin,NULL,id,tenant_id,' . (request()->input('tenant_id') ?? tenant('id')),
+            'vehicle_model_id' => 'required|exists:vehicle_models,id',
+            'vehicle_type_id' => 'required|exists:vehicle_types,id',
             'notes' => 'nullable|string|max:1000',
         ];
     }
