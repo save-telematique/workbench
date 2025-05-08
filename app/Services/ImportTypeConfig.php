@@ -112,7 +112,7 @@ class ImportTypeConfig
                     'model' => \App\Models\VehicleModel::class,
                     'field' => 'name',
                     'id_field' => 'id',
-                    'relation' => 'brand',
+                    'relation' => 'vehicleBrand',
                     'combined_with' => 'vehicle_brand_id',
                     'combined_field' => 'name',
                 ],
