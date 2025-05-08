@@ -48,7 +48,7 @@ export default function GlobalSettingsLayout({ children }: PropsWithChildren) {
         <div className="px-4 py-6">
             <Heading title={__('common.global_settings')} description={__('common.manage_global_settings')} />
 
-            <div className="flex flex-col space-y-8 lg:flex-row lg:space-y-0 lg:space-x-12">
+            <div className="flex flex-col space-y-8 lg:flex-row lg:space-y-0 lg:space-x-6">
                 <aside className="w-full max-w-xl lg:w-48">
                     <nav className="flex flex-col space-y-1 space-x-0">
                         {sidebarNavItems.map((item, index) => (

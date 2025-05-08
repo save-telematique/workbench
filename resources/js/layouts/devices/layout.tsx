@@ -3,11 +3,17 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { Device } from '@/pages/devices/show';
-import { NavItem } from '@/types';
+import { NavItem as BaseNavItem } from '@/types';
 import { useTranslation } from '@/utils/translation';
 import { Link } from '@inertiajs/react';
-import { Cog, Info, MessageSquare } from 'lucide-react';
+import { Cog, Info, MessageSquare, ChartBar } from 'lucide-react';
 import { ReactNode } from 'react';
+
+// Extend the NavItem interface to include active property
+interface DeviceNavItem extends BaseNavItem {
+    active?: boolean;
+}
+
 interface DevicesLayoutProps {
     children: ReactNode;
     showSidebar?: boolean;
@@ -24,21 +30,32 @@ export default function DevicesLayout({ children, showSidebar = false, device }:
 
     const currentPath = window.location.pathname;
 
-    const sidebarNavItems: NavItem[] = [
+    const sidebarNavItems: DeviceNavItem[] = [
         {
             title: __('devices.tabs.information'),
             href: device ? route('devices.show', device.id) : '',
             icon: Info,
-        },
-        {
-            title: __('devices.messages.title'),
-            href: device ? route('devices.messages.index', device.id) : '',
-            icon: MessageSquare,
+            active: device ? route().current("devices.show", { device: device.id }) : false,
         },
     ];
 
     if (device) {
-        if (device.type.manufacturer === 'Teltonika') {
+        sidebarNavItems.push({
+            title: __('devices.messages.title'),
+            href: route('devices.messages.index', device.id),
+            icon: MessageSquare,
+            active: route().current("devices.messages.index", { device: device.id }),
+        });
+        sidebarNavItems.push({
+            title: __("devices.datapoints.title"),
+            href: route("devices.datapoints.index", { device: device.id }),
+            icon: ChartBar,
+            active: route().current("devices.datapoints.index", { device: device.id }),
+        });
+    }
+
+    if (device) {
+        if (device.type?.manufacturer === 'Teltonika') {
             sidebarNavItems.push({
                 title: __('devices.tabs.config'),
                 href: 'https://fota.teltonika.lt/devices?selected=' + device.imei,
@@ -66,7 +83,7 @@ export default function DevicesLayout({ children, showSidebar = false, device }:
                                             'bg-muted': item.href.endsWith(currentPath),
                                         })}
                                     >
-                                        {item.href.startsWith('http') ? (
+                                        {item.external ? (
                                             <a href={item.href} target="_blank" className="flex items-center px-3 py-2 w-full">
                                                 {Icon && <Icon className="mr-2 h-4 w-4" />}
                                                 {item.title}

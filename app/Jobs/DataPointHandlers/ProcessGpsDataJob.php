@@ -47,7 +47,7 @@ class ProcessGpsDataJob implements ShouldQueue, DataPointHandlerJob
      */
     public static function getReactsToDataPointTypes(): array
     {
-        return [MessageFields::GPS_DATA];
+        return [MessageFields::GPS_DATA->value];
     }
 
     /**
@@ -61,7 +61,7 @@ class ProcessGpsDataJob implements ShouldQueue, DataPointHandlerJob
             return;
         }
 
-        $data = $this->deviceDataPoint->data;
+        $data = $this->deviceDataPoint->value;
         if (!is_array($data) || 
             !isset($data['latitude']) || 
             !isset($data['longitude']) || 

@@ -1,14 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
-use Stancl\Tenancy\Middleware\InitializeTenancyByDomainOrSubdomain;
-use App\Http\Controllers\Devices\DeviceController;
-use App\Http\Controllers\Devices\DeviceMessageController;
-use App\Http\Controllers\Devices\DeviceCsvImportController;
-use App\Http\Controllers\Vehicles\VehicleCsvImportController;
-use App\Http\Controllers\Drivers\DriverCsvImportController;
-use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
+use App\Http\Controllers\Devices\DataPointController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,7 +20,7 @@ foreach (config('tenancy.central_domains') as $domain) {
         // Public routes
         require __DIR__ . '/central/home.php';
         require __DIR__ . '/auth.php';
-        
+
         // Authenticated routes
         Route::middleware(['auth', 'verified'])->group(function () {
             require __DIR__ . '/central/dashboard.php';
@@ -38,11 +31,13 @@ foreach (config('tenancy.central_domains') as $domain) {
             require __DIR__ . '/settings.php';
             require __DIR__ . '/tenants.php';
             require __DIR__ . '/global-settings.php';
-        });
-        
 
+            Route::get('/devices/{device}/datapoints', [DataPointController::class, 'index'])->name('devices.datapoints.index');
+            Route::get('/api/devices/datapoints', [DataPointController::class, 'getDataPoints'])->name('api.devices.datapoints');
+        });
     });
 }
 
 // Tenant routes are loaded in app/Providers/RouteServiceProvider.php
 
+// Add the datapoints routes to make them available in both contexts

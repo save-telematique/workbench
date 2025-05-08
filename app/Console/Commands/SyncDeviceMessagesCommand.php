@@ -15,7 +15,7 @@ class SyncDeviceMessagesCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'device-messages:sync';
+    protected $signature = 'device-messages:sync {--days=1}';
 
     /**
      * The console command description.
@@ -40,7 +40,7 @@ class SyncDeviceMessagesCommand extends Command
                 $this->info(__('devices.messages.sync.last_timestamp', ['timestamp' => $lastTimestamp]));
             } else {
                 // If no messages exist, use a default date (e.g., 24 hours ago)
-                $lastTimestamp = Carbon::now()->subDay()->toDateTimeString();
+                $lastTimestamp = Carbon::now()->subDays($this->option('days'))->toDateTimeString();
                 $this->info(__('devices.messages.sync.no_messages', ['timestamp' => $lastTimestamp]));
             }
 

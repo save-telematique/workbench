@@ -15,26 +15,24 @@ class DataPointType extends Model
     protected $keyType = 'integer';
 
     protected $fillable = [
-        'id',
         'name',
-        'type',
+        'description',
+        'data_type',
         'unit',
         'category',
         'processing_steps',
-        'description',
     ];
 
     protected $casts = [
-        'id' => 'integer',
-        'type' => DataPointDataType::class,
-        'processing_steps' => 'array', // Will be cast to array/object from JSONB
+        'data_type' => DataPointDataType::class,
+        'processing_steps' => 'json',
     ];
 
     /**
-     * Get the data points associated with this type.
+     * Get the data points of this type.
      */
-    public function deviceDataPoints()
+    public function dataPoints()
     {
-        return $this->hasMany(DeviceDataPoint::class, 'data_point_type_id');
+        return $this->hasMany(DeviceDataPoint::class);
     }
 }

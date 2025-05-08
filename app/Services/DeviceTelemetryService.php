@@ -85,7 +85,7 @@ class DeviceTelemetryService
      * @param Carbon $startTime
      * @param Carbon $endTime
      * @param string|null $timeBucket (e.g., 'hour', 'day') - for grouping by time intervals
-     * @return mixed
+     * @return array
      */
     public function getAggregatedReadings(
         Device $device,
@@ -94,14 +94,14 @@ class DeviceTelemetryService
         Carbon $startTime,
         Carbon $endTime,
         ?string $timeBucket = null
-    ): mixed {
+    ) {
         $dataPointType = $this->resolveDataPointType($dataPointTypeId);
         if (!$dataPointType || $dataPointType->category === 'COMPOSITE') {
             Log::warning('Aggregation queries for COMPOSITE types are not yet supported directly.', [
                 'type_id' => $dataPointType?->id,
                 'device_id' => $device->id
             ]);
-            return null;
+            return [];
         }
 
         $query = DeviceDataPoint::where('device_id', $device->id)
@@ -112,10 +112,8 @@ class DeviceTelemetryService
         $safeAggregationFunction = strtolower($aggregationFunction);
         if (!in_array($safeAggregationFunction, $allowedAggregations)) {
             Log::error('Invalid aggregation function requested.', ['function' => $aggregationFunction, 'device_id' => $device->id]);
-            return null;
+            return [];
         }
-
-        $valueColumnForNumericAggregation = DB::raw("(value#>>'{}')::numeric");
 
         if ($timeBucket) {
             $safeTimeBucket = strtolower($timeBucket);
@@ -127,25 +125,53 @@ class DeviceTelemetryService
 
             if (!$dateTruncExpression) {
                 Log::error('Invalid time bucket for aggregation.', ['bucket' => $timeBucket, 'device_id' => $device->id]);
-                return null;
+                return [];
             }
 
-            return $query->selectRaw("{$dateTruncExpression} as time_group, {$safeAggregationFunction}({$valueColumnForNumericAggregation}) as aggregate_value")
+            // Use a direct string for the numeric cast instead of interpolating DB::raw object
+            $numericCastSql = "(value#>>'{}')::numeric";
+            
+            // Return data as array of objects with value and recorded_at properties instead of key-value pairs
+            $rawAggregatedData = $query->selectRaw("{$dateTruncExpression} as time_group, {$safeAggregationFunction}({$numericCastSql}) as aggregate_value")
                 ->groupBy('time_group')
                 ->orderBy('time_group')
-                ->pluck('aggregate_value', 'time_group');
+                ->get();
+                
+            // Transform to the expected format
+            return $rawAggregatedData->map(function($item) {
+                return [
+                    'value' => (float) $item->aggregate_value,
+                    'recorded_at' => $item->time_group
+                ];
+            })->values()->all();
         } else {
+            // For non-grouped aggregations:
+            // Update to use the raw SQL string directly for aggregate functions
+            $numericCastSql = "(value#>>'{}')::numeric";
+            
+            // For non-grouped aggregations, just return a single item with the current time
+            $result = null;
             switch ($safeAggregationFunction) {
                 case 'count':
-                    return $query->count();
+                    $result = $query->count();
+                    break;
                 case 'avg':
                 case 'sum':
                 case 'min':
                 case 'max':
-                    return $query->{$safeAggregationFunction}($valueColumnForNumericAggregation);
+                    $result = DB::select("SELECT {$safeAggregationFunction}({$numericCastSql}) as result FROM ({$query->toSql()}) as subquery", $query->getBindings())[0]->result ?? 0;
+                    break;
                 default:
-                    return null; // Should be caught by allowedAggregations
+                    return []; // Should be caught by allowedAggregations
             }
+            
+            // Return as array of objects format (single item)
+            return [
+                [
+                    'value' => (float) $result,
+                    'recorded_at' => now()->toISOString()
+                ]
+            ];
         }
     }
 
