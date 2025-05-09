@@ -2,7 +2,7 @@ import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import { NavItem as BaseNavItem } from '@/types';
+import { NavItem as BaseNavItem, DeviceResource } from '@/types';
 import { useTranslation } from '@/utils/translation';
 import { Link } from '@inertiajs/react';
 import { Cog, Info, MessageSquare, ChartBar, Signal, Clock, Server, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
@@ -19,32 +19,14 @@ interface DeviceNavItem extends BaseNavItem {
     active?: boolean;
 }
 
-// Define device display interface with all properties needed for the summary
-interface DeviceDisplay {
-    id: string;
-    serial_number?: string;
-    imei?: string;
-    last_contact_at?: string;
-    type?: {
-        name?: string;
-        manufacturer?: string;
-    };
-    vehicle?: {
-        id: string;
-        registration: string;
-    };
-    // Allow accessing name from the model's accessor
-    name?: string;
-}
-
 interface DevicesLayoutProps {
     children: ReactNode;
     showSidebar?: boolean;
-    device?: DeviceDisplay;
+    device?: DeviceResource;
 }
 
 // Device summary component
-function DeviceSummary({ device }: { device: DeviceDisplay }) {
+function DeviceSummary({ device }: { device: DeviceResource }) {
     const { __ } = useTranslation();
     const locale = document.documentElement.lang === 'fr' ? fr : enUS;
     
@@ -85,13 +67,10 @@ function DeviceSummary({ device }: { device: DeviceDisplay }) {
     };
 
     return (
-        <Card className="mb-4 overflow-hidden py-0" 
-        >
+        <Card className="mb-4 overflow-hidden py-0">
             <CardContent className="p-0">
                 <div className="flex flex-col">
-                    {/* Header with status badge */}
                     <div className="flex flex-col items-center p-3 border-b">
-                        <h3 className="text-base font-medium mb-2">{device.name}</h3>
                         <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger>
@@ -172,7 +151,7 @@ function DeviceSummary({ device }: { device: DeviceDisplay }) {
                         {device.vehicle && (
                             <div className="flex items-center gap-2 pt-2 border-t">
                                 <div className="flex-1 flex items-center justify-center">
-                                    <Link href={route('vehicles.show', device.vehicle.id)}>
+                                    <Link href={route('vehicles.show', { vehicle: device.vehicle.id })}>
                                         <LicensePlate registration={device.vehicle.registration} />
                                     </Link>
                                 </div>
@@ -198,24 +177,21 @@ export default function DevicesLayout({ children, showSidebar = false, device }:
     const sidebarNavItems: DeviceNavItem[] = [
         {
             title: __('devices.tabs.information'),
-            href: device ? route('devices.show', device.id) : '',
+            href: device ? route('devices.show', { device: device.id }) : '',
             icon: Info,
-            active: device ? route().current("devices.show", { device: device.id }) : false,
         },
     ];
 
     if (device) {
         sidebarNavItems.push({
             title: __('devices.messages.title'),
-            href: route('devices.messages.index', device.id),
+            href: route('devices.messages.index', { device: device.id }),
             icon: MessageSquare,
-            active: route().current("devices.messages.index", { device: device.id }),
         });
         sidebarNavItems.push({
             title: __("devices.datapoints.title"),
             href: route("devices.datapoints.index", { device: device.id }),
             icon: ChartBar,
-            active: route().current("devices.datapoints.index", { device: device.id }),
         });
     }
 

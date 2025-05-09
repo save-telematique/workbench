@@ -76,12 +76,12 @@ interface VehicleFormProps {
 // Define the form data type
 interface VehicleFormData {
   registration: string;
-  brand_id?: number | null; // Not submitted, only used for UI filtering
+  brand_id?: number | null;
   vehicle_model_id: number | null;
-  vehicle_type_id: number | null;
+  vehicle_type_id: number | null ;
   vin: string;
-  tenant_id: string | null;
-  device_id: string | null;
+  tenant_id: string | null | undefined;
+  device_id: string | null | undefined;
   country: string;
   [key: string]: string | number | null | undefined;
 }
@@ -178,7 +178,6 @@ export default function VehicleForm({
       registration: analysisData.registration || data.registration,
       vin: analysisData.vin || data.vin,
       country: analysisData.country || data.country,
-      vehicle_type: analysisData.vehicle_type || data.vehicle_type,
     };
 
     // If we got brand_id and model_id from the backend, use them
@@ -189,6 +188,10 @@ export default function VehicleForm({
       if (analysisData.model_id) {
         updatedData.vehicle_model_id = analysisData.model_id;
       }
+    }
+
+    if (analysisData.vehicle_type) {
+      updatedData.vehicle_type_id = analysisData.vehicle_type;
     }
 
     setData(updatedData);

@@ -77,7 +77,7 @@ class Device extends Model
 
     public function toSearchableArray()
     {
-        return array_merge($this->toArray(),[
+        return [
             'id' => (string) $this->id,
             'tenant_id' => (string) $this->tenant_id,
             'imei' => (string) $this->imei,
@@ -86,12 +86,13 @@ class Device extends Model
             'type_name' => (string) ($this->type?->name ?? ''),
             'type_manufacturer' => (string) ($this->type?->manufacturer ?? ''),
             'tenant_name' => (string) ($this->tenant?->name ?? ''),
+            'vehicle_id' => (string) ($this->vehicle?->id ?? ''),
             'vehicle_registration' => (string) ($this->vehicle?->registration ?? ''),
             'vehicle_model' => (string) ($this->vehicle?->model?->name ?? ''),
             'vehicle_brand' => (string) ($this->vehicle?->model?->vehicleBrand?->name ?? ''),
             'created_at' => $this->created_at->timestamp,
             '__soft_deleted' => (bool) $this->trashed(),
-        ]);
+        ];
     }
 
     protected function makeAllSearchableUsing(Builder $query): Builder

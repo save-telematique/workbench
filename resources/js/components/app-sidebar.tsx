@@ -4,77 +4,89 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { LayoutGrid, Building2, Users, Settings, Cpu, Car, UserCog } from 'lucide-react';
+import { LayoutGrid, Building2, Users, Settings, Cpu, Car, UserCog, LucideIcon } from 'lucide-react';
 import AppLogo from './app-logo';
 import { useTranslation } from '@/utils/translation';
 import { usePermission, useTenantUser } from '@/utils/permissions';
 
+type NavItemConfig = {
+    title: string;
+    href: string;
+    icon: LucideIcon;
+    hasPermission?: boolean | null;
+    access: 'central' | 'shared' | 'tenant';
+};
 export function AppSidebar() {
     const { __ } = useTranslation();
     const isTenantUser = useTenantUser();
     
     // Build navigation items based on permissions
     const mainNavItems: NavItem[] = [];
-    
-    // Dashboard is available to everyone
-    mainNavItems.push({
-        title: __('common.dashboard'),
-        href: '/dashboard',
-        icon: LayoutGrid,
-    });
-    
-    // Tenants - only for central users with view_tenants permission
-    if (usePermission('view_tenants') && !isTenantUser) {
-        mainNavItems.push({
-            title: __('common.tenants'),
+
+
+    const navItemsConfig: NavItemConfig[] = [
+        {
+            title: 'common.dashboard',
+            href: '/dashboard',
+            icon: LayoutGrid,
+            access: 'shared'
+        },
+        {
+            title: 'common.tenants', 
             href: '/tenants',
             icon: Building2,
-        });
-    }
-    
-    // Users - only for central users with view_users permission
-    if (usePermission('view_users') && !isTenantUser) {
-        mainNavItems.push({
-            title: __('users.list.breadcrumb'),
-            href: '/users',
+            hasPermission: usePermission('view_tenants'),
+            access: 'central'
+        },
+        {
+            title: 'users.list.breadcrumb',
+            href: '/users', 
             icon: Users,
-        });
-    }
-    
-    // Devices - requires view_devices permission
-    if (usePermission('view_devices')) {
-        mainNavItems.push({
-            title: __('devices.title'),
+            hasPermission: usePermission('view_users'),
+            access: 'central'
+        },
+        {
+            title: 'devices.title',
             href: '/devices',
             icon: Cpu,
-        });
-    }
-    
-    // Vehicles - requires view_vehicles permission
-    if (usePermission('view_vehicles')) {
-        mainNavItems.push({
-            title: __('vehicles.title'),
+            hasPermission: usePermission('view_devices'),
+            access: 'central'
+        },
+        {
+            title: 'vehicles.title',
             href: '/vehicles',
             icon: Car,
-        });
-    }
-    
-    // Drivers - requires view_drivers permission
-    if (usePermission('view_drivers')) {
-        mainNavItems.push({
-            title: __('drivers.title'),
+            hasPermission: usePermission('view_vehicles'),
+            access: 'shared'
+        },
+        {
+            title: 'drivers.title',
             href: '/drivers',
             icon: UserCog,
-        });
-    }
-    
-    // Global Settings - only for central users with view_global_settings permission
-    if (usePermission('view_global_settings') && !isTenantUser) {
-        mainNavItems.push({
-            title: __('common.global_settings'),
+            hasPermission: usePermission('view_drivers'),
+            access: 'shared'
+        },
+        {
+            title: 'common.global_settings',
             href: '/global-settings',
             icon: Settings,
-        });
+            hasPermission: usePermission('view_global_settings'),
+            access: 'central'
+        }
+    ];
+
+    for (const item of navItemsConfig) {
+        if (
+            (item.hasPermission === undefined || item.hasPermission) && 
+            ((isTenantUser && (item.access === 'tenant' || item.access === 'shared')) ||
+            (!isTenantUser && (item.access === 'central' || item.access === 'shared')))
+        ) {
+            mainNavItems.push({
+                title: __(item.title),
+                href: item.href,
+                icon: item.icon
+            });
+        }
     }
 
     const footerNavItems: NavItem[] = [];

@@ -1,5 +1,5 @@
 import { Head } from "@inertiajs/react";
-import { type BreadcrumbItem, VehicleResource, TenantResource, DeviceResource, VehicleBrandResource, VehicleModelResource, VehicleTypeResource } from "@/types";
+import { type BreadcrumbItem, TenantResource, DeviceResource, VehicleBrandResource, VehicleModelResource, VehicleTypeResource } from "@/types";
 import { useTranslation } from "@/utils/translation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";

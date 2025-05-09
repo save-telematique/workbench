@@ -13,5 +13,5 @@ use Inertia\Inertia;
 */
 
 Route::get('/', function () {
-    return Inertia::render('welcome');
+    return 'home';
 })->name('home'); 

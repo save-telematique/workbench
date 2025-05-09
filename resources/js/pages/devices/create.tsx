@@ -1,48 +1,21 @@
-import { Head, useForm } from "@inertiajs/react";
+import { Head } from "@inertiajs/react";
 import { useTranslation } from "@/utils/translation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { FormError } from "@/components/form-error";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import DevicesLayout from "@/layouts/devices/layout";
 import AppLayout from '@/layouts/app-layout';
 import HeadingSmall from '@/components/heading-small';
-import { Transition } from '@headlessui/react';
-import { Separator } from "@/components/ui/separator";
-import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import ImageAnalysisUpload from "@/components/image-analysis-upload";
-import { type AnalysisData } from "@/types/analysis";
-import { type BreadcrumbItem } from "@/types";
+import { type BreadcrumbItem, DeviceTypeResource, TenantResource, VehicleResource } from "@/types";
+import DeviceForm from "@/components/devices/device-form";
 
 interface DeviceCreateProps {
-  deviceTypes: { id: number; name: string; manufacturer: string }[];
-  tenants: { id: string; name: string }[];
-  vehicles: { id: string; registration: string }[];
+  deviceTypes: DeviceTypeResource[];
+  tenants: TenantResource[];
+  vehicles: Pick<VehicleResource, 'id' | 'registration'>[];
 }
 
 export default function Create({ deviceTypes, tenants, vehicles }: DeviceCreateProps) {
   const { __ } = useTranslation();
-  const { data, setData, post, processing, errors, recentlySuccessful } = useForm({
-    device_type_id: "",
-    tenant_id: "none",
-    vehicle_id: "none",
-    firmware_version: "",
-    serial_number: "",
-    sim_number: "",
-    imei: "",
-  });
-
-  const [activeTab, setActiveTab] = useState("manual");
 
   const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -54,37 +27,6 @@ export default function Create({ deviceTypes, tenants, vehicles }: DeviceCreateP
       href: route('devices.create'),
     },
   ];
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    post(route("devices.store"));
-  }
-
-  // Handle analysis completion
-  const handleAnalysisComplete = (analysisData: AnalysisData) => {
-    // Create a properly typed updatedData object
-    const updatedData = {
-      ...data,
-      serial_number: analysisData.serial_number?.toString() || data.serial_number,
-      imei: analysisData.imei?.toString() || data.imei,
-      firmware_version: analysisData.firmware_version?.toString() || data.firmware_version,
-    };
-
-    // If we got device_type_id from the backend, use it
-    if ('device_type_id' in analysisData && analysisData.device_type_id) {
-      updatedData.device_type_id = analysisData.device_type_id.toString();
-    } else if ('device_type' in analysisData && analysisData.device_type) {
-      // Try to find the device type by name
-      const matchingType = deviceTypes.find(type => 
-        type.name.toLowerCase().includes((analysisData.device_type as string).toLowerCase())
-      );
-      if (matchingType) {
-        updatedData.device_type_id = matchingType.id.toString();
-      }
-    }
-
-    setData(updatedData);
-  };
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
@@ -104,202 +46,15 @@ export default function Create({ deviceTypes, tenants, vehicles }: DeviceCreateP
           </Button>
         </div>
 
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>{__("devices.create.card.title")}</CardTitle>
-            <CardDescription>{__("devices.create.card.description")}</CardDescription>
-          </CardHeader>
-          
-          <Tabs defaultValue="manual" value={activeTab} onValueChange={setActiveTab}>
-            <div className="px-6">
-              <TabsList className="grid w-full max-w-md grid-cols-2">
-                <TabsTrigger value="manual">{__("devices.input_methods.manual")}</TabsTrigger>
-                <TabsTrigger value="scan">{__("devices.input_methods.scan")}</TabsTrigger>
-              </TabsList>
-            </div>
-            
-            <form onSubmit={handleSubmit}>
-              <TabsContent value="scan" className="mt-4 px-6">
-                <ImageAnalysisUpload
-                  analysisType="device"
-                  onAnalysisComplete={handleAnalysisComplete}
-                  onChangeTab={setActiveTab}
-                  apiEndpoint={route('devices.scan-qr-code')}
-                />
-              </TabsContent>
-              
-              <TabsContent value="manual">
-                <CardContent className="space-y-6">
-                  <div className="grid gap-6 md:grid-cols-2">
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="device_type_id" className="text-sm font-medium">
-                          {__("devices.fields.device_type")} <span className="text-destructive">*</span>
-                        </Label>
-                        <Select
-                          value={data.device_type_id}
-                          onValueChange={(value) => setData("device_type_id", value)}
-                        >
-                          <SelectTrigger id="device_type_id" className="mt-1">
-                            <SelectValue placeholder={__("devices.placeholders.device_type")} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {deviceTypes.map((type) => (
-                              <SelectItem key={type.id} value={type.id.toString()}>
-                                {type.manufacturer} - {type.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormError message={errors.device_type_id} />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="serial_number" className="text-sm font-medium">
-                          {__("devices.fields.serial_number")} <span className="text-destructive">*</span>
-                        </Label>
-                        <Input
-                          id="serial_number"
-                          type="text"
-                          value={data.serial_number}
-                          onChange={(e) => setData("serial_number", e.target.value)}
-                          placeholder={__("devices.placeholders.serial_number")}
-                          className="mt-1"
-                        />
-                        <FormError message={errors.serial_number} />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="sim_number" className="text-sm font-medium">
-                          {__("devices.fields.sim_number")}
-                        </Label>
-                        <Input
-                          id="sim_number"
-                          type="text"
-                          value={data.sim_number}
-                          onChange={(e) => setData("sim_number", e.target.value)}
-                          placeholder={__("devices.placeholders.sim_number")}
-                          className="mt-1"
-                        />
-                        <FormError message={errors.sim_number} />
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="imei" className="text-sm font-medium">
-                          {__("devices.fields.imei")} <span className="text-destructive">*</span>
-                        </Label>
-                        <Input
-                          id="imei"
-                          type="text"
-                          value={data.imei}
-                          onChange={(e) => setData("imei", e.target.value)}
-                          placeholder={__("devices.placeholders.imei")}
-                          className="mt-1"
-                        />
-                        <FormError message={errors.imei} />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="firmware_version" className="text-sm font-medium">
-                          {__("devices.fields.firmware_version")}
-                        </Label>
-                        <Input
-                          id="firmware_version"
-                          type="text"
-                          value={data.firmware_version}
-                          onChange={(e) => setData("firmware_version", e.target.value)}
-                          placeholder={__("devices.placeholders.firmware_version")}
-                          className="mt-1"
-                        />
-                        <FormError message={errors.firmware_version} />
-                      </div>
-                    </div>
-                  </div>
-
-                  <Separator className="my-6" />
-
-                  <div className="grid gap-6 md:grid-cols-2 pb-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="tenant_id" className="text-sm font-medium">
-                        {__("devices.fields.tenant")}
-                      </Label>
-                      <Select
-                        value={data.tenant_id}
-                        onValueChange={(value) => setData("tenant_id", value)}
-                      >
-                        <SelectTrigger id="tenant_id" className="mt-1">
-                          <SelectValue placeholder={__("devices.placeholders.tenant")} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">{__("common.none")}</SelectItem>
-                          {tenants.map((tenant) => (
-                            <SelectItem key={tenant.id} value={tenant.id}>
-                              {tenant.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormError message={errors.tenant_id} />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="vehicle_id" className="text-sm font-medium">
-                        {__("devices.fields.vehicle")}
-                      </Label>
-                      <Select
-                        value={data.vehicle_id}
-                        onValueChange={(value) => setData("vehicle_id", value)}
-                      >
-                        <SelectTrigger id="vehicle_id" className="mt-1">
-                          <SelectValue placeholder={__("devices.placeholders.vehicle")} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">{__("common.none")}</SelectItem>
-                          {vehicles.map((vehicle) => (
-                            <SelectItem key={vehicle.id} value={vehicle.id}>
-                              {vehicle.registration}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormError message={errors.vehicle_id} />
-                    </div>
-                  </div>
-                </CardContent>
-                <CardFooter className="flex justify-between border-t pt-6">
-                  <Button 
-                    variant="outline" 
-                    type="button"
-                    onClick={() => window.location.href = route('devices.index')}
-                  >
-                    {__("common.cancel")}
-                  </Button>
-                  
-                  <div className="flex items-center gap-4">
-                    <Transition
-                      show={recentlySuccessful}
-                      enter="transition ease-in-out"
-                      enterFrom="opacity-0"
-                      leave="transition ease-in-out"
-                      leaveTo="opacity-0"
-                    >
-                      <p className="text-sm text-neutral-600">
-                        {__('devices.create.success_message')}
-                      </p>
-                    </Transition>
-                    
-                    <Button type="submit" disabled={processing}>
-                      <Save className="mr-2 h-4 w-4" />
-                      {__("devices.create.submit_button")}
-                    </Button>
-                  </div>
-                </CardFooter>
-              </TabsContent>
-            </form>
-          </Tabs>
-        </Card>
+        <div className="mt-6">
+          <DeviceForm
+            device={{}}
+            deviceTypes={deviceTypes}
+            tenants={tenants}
+            vehicles={vehicles}
+            isCreate={true}
+          />
+        </div>
       </DevicesLayout>
     </AppLayout>
   );

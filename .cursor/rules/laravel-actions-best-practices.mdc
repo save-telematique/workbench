@@ -117,12 +117,9 @@ This document outlines best practices for using the `lorisleiva/laravel-actions`
     use Lorisleiva\Actions\ActionRequest;
     use App\Models\Vehicle; // Example model
 
-    public function authorize(ActionRequest $request, ?Vehicle $vehicle = null): bool // $vehicle is optional if not always present
+    public function authorize(ActionRequest $request): bool // $vehicle is optional if not always present
     {
-        if ($vehicle) {
-            return $request->user()->can('update', $vehicle); // Example for an update action
-        }
-        return $request->user()->can('create', Vehicle::class); // Example for a create action
+        return $request->user()->can('store', $request->vehicle); // Example for a create action
     }
     ```
     The `AsAction` trait will automatically call this method if it exists before `handle` or `asController`.

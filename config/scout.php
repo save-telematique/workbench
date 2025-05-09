@@ -266,6 +266,10 @@ return [
                             'type' => 'string',
                         ],
                         [
+                            'name' => 'vehicle_id',
+                            'type' => 'string',
+                        ],
+                        [
                             'name' => 'vehicle_registration',
                             'type' => 'string',
                         ],

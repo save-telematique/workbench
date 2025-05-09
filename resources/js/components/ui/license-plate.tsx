@@ -92,7 +92,7 @@ export function LicensePlate({
         </div>
         
         {/* White plate with registration */}
-        <div className="bg-white flex items-center justify-center flex-1">
+        <div className="bg-background flex items-center justify-center flex-1">
           <span className={cn("font-bold tracking-wider", styles.text)}>{formattedRegistration}</span>
         </div>
       </div>

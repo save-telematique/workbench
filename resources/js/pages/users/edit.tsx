@@ -27,11 +27,11 @@ export default function UserEdit({ user }: UserEditProps) {
         },
         {
             title: __('users.show.breadcrumb', { name: user.name }),
-            href: route('users.show', user.id),
+            href: route('users.show', { user: user.id }),
         },
         {
             title: __('users.edit.breadcrumb'),
-            href: route('users.edit', user.id),
+            href: route('users.edit', { user: user.id }),
         },
     ];
 
@@ -43,7 +43,7 @@ export default function UserEdit({ user }: UserEditProps) {
                 <div className="space-y-6">
                     <div className="flex justify-end">
                         <Button variant="outline"  asChild>
-                            <Link href={route('users.show', user.id)}>
+                            <Link href={route('users.show', { user: user.id })}>
                                 <ArrowLeft className="mr-2 h-4 w-4" />
                                 {__('common.back')}
                             </Link>
@@ -53,8 +53,8 @@ export default function UserEdit({ user }: UserEditProps) {
                     <UserForm
                         user={user}
                         translationNamespace="users"
-                        submitUrl={route('users.update', user.id)}
-                        cancelUrl={route('users.show', user.id)}
+                        submitUrl={route('users.update', { user: user.id })}
+                        cancelUrl={route('users.show', { user: user.id })}
                     />
                 </div>
             </UsersLayout>

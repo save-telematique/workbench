@@ -1,12 +1,12 @@
 import { Head, router } from "@inertiajs/react";
-import { type BreadcrumbItem } from "@/types";
+import { type BreadcrumbItem, DeviceResource, DeviceTypeResource, TenantResource, VehicleResource, ResourceCollection } from "@/types";
 import { useTranslation } from "@/utils/translation";
 import { DataTable } from "@/components/ui/data-table/index";
 import { useColumns } from "./columns";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, X, Filter, Plus, Cpu, Upload } from "lucide-react";
+import { Search, X, Filter, Plus, Upload } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -25,49 +25,17 @@ import {
 import { usePermission } from "@/utils/permissions";
 
 
-
-interface Device {
-  id: string;
-  imei: string;
-  serial_number: string;
-  sim_number: string;
-  firmware_version?: string;
-  type: {
-    id: number;
-    name: string;
-    manufacturer: string;
-  };
-  vehicle?: {
-    id: string;
-    registration: string;
-  };
-  tenant?: {
-    id: string;
-    name: string;
-  };
-  deleted_at: string | null;
-}
-
 interface DevicesPageProps {
-  devices: {
-    data: Device[];
-    links: Record<string, string>;
-    meta: {
-      current_page: number;
-      last_page: number;
-      per_page: number;
-      [key: string]: unknown;
-    };
-  };
+  devices: ResourceCollection<DeviceResource>;
   filters: {
     search?: string;
     tenant_id?: string;
     device_type_id?: string;
     vehicle_id?: string;
   };
-  deviceTypes: { id: number; name: string; manufacturer: string }[];
-  tenants: { id: string; name: string }[];
-  vehicles?: { id: string; registration: string }[];
+  deviceTypes: DeviceTypeResource[];
+  tenants: TenantResource[];
+  vehicles?: Pick<VehicleResource, 'id' | 'registration'>[];
 }
 
 export default function Index({ devices, filters, deviceTypes, tenants, vehicles = [] }: DevicesPageProps) {
@@ -130,24 +98,6 @@ export default function Index({ devices, filters, deviceTypes, tenants, vehicles
       <Head title={__("devices.title")} />
 
       <DevicesLayout>
-        <div className="space-y-6">
-          {devices?.data.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center animate-in fade-in-50">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
-                <Cpu className="h-10 w-10 text-primary" />
-              </div>
-              <h3 className="mt-4 text-lg font-semibold">{__('devices.list.no_devices')}</h3>
-              <p className="mb-4 mt-2 text-sm text-muted-foreground">
-                {__('devices.list.get_started')}
-              </p>
-              <Button asChild size="default" className="h-9">
-                <Link href={route('devices.create')}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  {__('devices.actions.create')}
-                </Link>
-              </Button>
-            </div>
-          ) : (
             <DataTable
               columns={columns}
               data={devices?.data || []}
@@ -269,8 +219,7 @@ export default function Index({ devices, filters, deviceTypes, tenants, vehicles
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="all">{__("common.all_vehicles")}</SelectItem>
-                              <SelectItem value="none">{__("common.no_vehicle")}</SelectItem>
-                              {vehicles?.map((vehicle) => (
+                              {vehicles.map((vehicle) => (
                                 <SelectItem key={vehicle.id} value={vehicle.id}>
                                   {vehicle.registration}
                                 </SelectItem>
@@ -280,36 +229,22 @@ export default function Index({ devices, filters, deviceTypes, tenants, vehicles
                         </div>
 
                         {activeFiltersCount > 0 && (
-                          <Button 
-                            variant="outline" 
-                            onClick={resetFilters} 
-                            size="sm"
-                            className="w-full mt-4"
+                          <Button
+                            variant="outline"
+                            type="button"
+                            onClick={resetFilters}
+                            className="mt-2 w-full"
                           >
                             <X className="mr-2 h-4 w-4" />
-                            {__("common.reset_filters")}
+                            {__("common.clear_filters")}
                           </Button>
                         )}
                       </div>
                     </PopoverContent>
                   </Popover>
-
-                  {activeFiltersCount > 0 && (
-                    <Button 
-                      variant="outline" 
-                      onClick={resetFilters} 
-                      size="sm"
-                      className="h-9"
-                    >
-                      <X className="mr-2 h-4 w-4" />
-                      {__("common.reset_filters")}
-                    </Button>
-                  )}
                 </div>
               }
             />
-          )}
-        </div>
       </DevicesLayout>
     </AppLayout>
   );

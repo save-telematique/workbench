@@ -4,8 +4,6 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import { useTranslation } from "@/utils/translation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { format, parseISO, isValid, Locale } from 'date-fns';
-import { fr, enUS } from 'date-fns/locale';
 import { cn } from "@/lib/utils";
 import { Map as MapIcon, Compass, Eye, EyeOff, Maximize2, Minimize2, MapPin, Circle, Navigation2, LocateFixed, Play, Pause, SkipForward, SkipBack, ChevronDown } from "lucide-react";
 import { Toggle } from "@/components/ui/toggle";
@@ -13,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Slider } from "@/components/ui/slider";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { formatDate } from "@/utils/format";
 
 // Define the location type
 export interface LocationPoint {
@@ -64,16 +63,6 @@ export default function VehicleLocationMap({
   const [selectedPoint, setSelectedPoint] = useState<LocationPoint | null>(null);
   const [showAllPoints, setShowAllPoints] = useState<boolean>(initialShowAllPoints);
   const [showFullscreen, setShowFullscreen] = useState<boolean>(false);
-  
-  // Locale mapping for date-fns
-  const dateFnsLocales: Record<string, Locale> = {
-    en: enUS,
-    fr: fr,
-  };
-  // Determine current locale for date-fns (simplified, assuming appLocale is like 'en', 'fr')
-  // TODO: Enhance locale detection from a hook or context if available and more robust
-  const appLocaleString = typeof document !== 'undefined' ? document.documentElement.lang || 'fr' : 'fr'; 
-  const dateFnsLocale = dateFnsLocales[appLocaleString.substring(0, 2)] || enUS;
   
   // Timeline state
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -264,16 +253,9 @@ export default function VehicleLocationMap({
 
   // Format timestamp
   const formatTime = (timestamp: string) => {
-    const parsed = parseISO(timestamp);
-    return isValid(parsed) ? format(parsed, 'pp', { locale: dateFnsLocale }) : 'N/A';
+    return formatDate(timestamp, 'TIME') || 'N/A';
   };
   
-  // Format date
-  const formatDate = (timestamp: string) => {
-    const parsed = parseISO(timestamp);
-    return isValid(parsed) ? format(parsed, 'P', { locale: dateFnsLocale }) : 'N/A';
-  };
-
   // Handle play/pause
   const togglePlayback = () => {
     setIsPlaying(!isPlaying);
@@ -611,7 +593,7 @@ export default function VehicleLocationMap({
             <div className="p-2 max-w-xs">
               <div className="flex items-center justify-between">
                 <h4 className="font-bold text-sm">{formatTime(selectedPoint.recorded_at)}</h4>
-                <span className="text-xs text-muted-foreground">{formatDate(selectedPoint.recorded_at)}</span>
+                <span className="text-xs text-muted-foreground">{formatDate(selectedPoint.recorded_at, 'DATE_MED')}</span>
               </div>
               
               {selectedPoint.address && (
@@ -690,7 +672,7 @@ export default function VehicleLocationMap({
           <Badge variant="outline" className="bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800">
             {formatTime(locations[0].recorded_at)}
           </Badge>
-          <span>{formatDate(locations[0].recorded_at)}</span>
+          <span>{formatDate(locations[0].recorded_at, 'DATE_MED')}</span>
         </div>
         
         <div className="flex items-center gap-1.5">
@@ -780,7 +762,7 @@ export default function VehicleLocationMap({
         </div>
         
         <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-          <span>{formatDate(locations[locations.length - 1].recorded_at)}</span>
+          <span>{formatDate(locations[locations.length - 1].recorded_at, 'DATE_MED')}</span>
           <Badge variant="outline" className="bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800">
             {formatTime(locations[locations.length - 1].recorded_at)}
           </Badge>

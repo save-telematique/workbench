@@ -3,17 +3,11 @@ import DevicesLayout from "@/layouts/devices/layout";
 import { PageProps } from "@/types";
 import GenericImportPage from "@/components/import/generic-import-page";
 import { FieldType } from "@/components/editable-import-table";
+import { DeviceTypeResource, TenantResource } from "@/types";
 
 interface DeviceImportPageProps extends PageProps {
-  deviceTypes: Array<{
-    id: number;
-    name: string;
-    manufacturer: string;
-  }>;
-  tenants: Array<{
-    id: string;
-    name: string;
-  }>;
+  deviceTypes: DeviceTypeResource[];
+  tenants: TenantResource[];
 }
 
 export default function DeviceImport(props: DeviceImportPageProps) {

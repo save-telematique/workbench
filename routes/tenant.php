@@ -26,16 +26,15 @@ Route::middleware([
 ])->group(function () {
     // Public tenant routes
     require __DIR__ . '/tenant/home.php';
-    require __DIR__ . '/auth.php';
+    require __DIR__ . '/shared/auth.php';
     
     // Authenticated tenant routes
     Route::middleware(['auth', 'verified'])->group(function () {
         require __DIR__ . '/tenant/dashboard.php';
-        
-        // Add more tenant-specific route files here as needed
-        // Example: require __DIR__ . '/tenant/vehicles.php';
+
+        require __DIR__ . '/shared/settings.php';
+        require __DIR__ . '/shared/vehicles.php';
     });
     
     // Other tenant routes
-    require __DIR__ . '/settings.php';
 });

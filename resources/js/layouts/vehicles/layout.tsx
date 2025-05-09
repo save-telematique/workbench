@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { useTranslation } from '@/utils/translation';
 import { Link } from '@inertiajs/react';
 import { Separator } from '@radix-ui/react-separator';
-import { Car, Settings } from 'lucide-react';
+import { Car, } from 'lucide-react';
 import { ReactNode } from 'react';
 
 interface VehiclesLayoutProps {
@@ -16,7 +16,6 @@ interface VehiclesLayoutProps {
 export default function VehiclesLayout({ children, showSidebar = false, vehicleId }: VehiclesLayoutProps) {
     const { __ } = useTranslation();
 
-    // When server-side rendering, we only render the layout on the client...
     if (typeof window === 'undefined') {
         return null;
     }

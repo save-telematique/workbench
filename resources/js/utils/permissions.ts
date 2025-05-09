@@ -61,7 +61,7 @@ export function useHasAnyPermission(permissions: string[]): boolean {
         return false;
     }
     
-    return permissions.some(permission => auth.user.permissions.includes(permission));
+    return permissions.some(permission => auth.user?.permissions.includes(permission));
 }
 
 /**

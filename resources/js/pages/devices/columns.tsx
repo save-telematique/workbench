@@ -1,32 +1,10 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "@/components/ui/badge";
 import { DataTableColumnHeader, DataTableRowActions } from "@/components/ui/data-table";
 import { useTranslation } from "@/utils/translation";
 import { Link } from "@inertiajs/react";
 import { LicensePlate } from "@/components/ui/license-plate";
 import { useStandardActions } from "@/utils/actions";
-
-interface Device {
-  id: string;
-  imei: string;
-  serial_number: string;
-  sim_number: string;
-  firmware_version?: string;
-  type: {
-    id: number;
-    name: string;
-    manufacturer: string;
-  };
-  vehicle?: {
-    id: string;
-    registration: string;
-  };
-  tenant?: {
-    id: string;
-    name: string;
-  };
-  deleted_at: string | null;
-}
+import { DeviceResource } from "@/types";
 
 export const useColumns = () => {
   const { __ } = useTranslation();
@@ -34,7 +12,7 @@ export const useColumns = () => {
     resourceName: "devices"
   });
 
-  const columns: ColumnDef<Device>[] = [
+  const columns: ColumnDef<DeviceResource>[] = [
     {
       accessorKey: "serial_number",
       header: ({ column }) => (
@@ -47,16 +25,11 @@ export const useColumns = () => {
         <div className="flex space-x-2">
           <span className="max-w-[500px] truncate font-medium">
             <Link
-              href={route("devices.show", row.original.id)}
+              href={route("devices.show", { device: row.original.id })}
             >
               {row.getValue("serial_number")}
             </Link>
           </span>
-          {row.original.deleted_at && (
-            <Badge variant="outline" className="text-destructive border-destructive">
-              {__("common.deleted")}
-            </Badge>
-          )}
         </div>
       ),
     },
@@ -70,6 +43,18 @@ export const useColumns = () => {
       ),
       cell: ({ row }) => (
         <div className="w-[80px]">{row.getValue("imei")}</div>
+      ),
+    },
+    {
+      accessorKey: "last_contact_at",
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={__("devices.fields.last_contact_at")}
+        />
+      ),
+      cell: ({ row }) => (
+        <div className="w-[80px]">{row.getValue("last_contact_at")}</div>
       ),
     },
     {
@@ -108,7 +93,7 @@ export const useColumns = () => {
             <LicensePlate 
               registration={row.original.vehicle.registration}
               size="md"
-              href={route("vehicles.show", row.original.vehicle.id)}
+              href={route("vehicles.show", { vehicle: row.original.vehicle.id })}
             />
           ) : (
             <span className="text-gray-400">{__("common.none")}</span>
@@ -126,7 +111,7 @@ export const useColumns = () => {
         <div className="w-[180px]">
           {row.original.tenant ? (
             <Link
-              href={route("tenants.show", row.original.tenant.id)}
+              href={route("tenants.show", { tenant: row.original.tenant.id })}
             >
               {row.original.tenant.name}
             </Link>

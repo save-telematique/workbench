@@ -32,19 +32,19 @@ export default function TenantUserEdit({ tenant, user }: TenantUserEditProps) {
         },
         {
             title: __('tenants.show.breadcrumb', { name: tenant.name }),
-            href: route('tenants.show', tenant.id),
+            href: route('tenants.show', { tenant: tenant.id }),
         },
         {
             title: __('tenant_users.list.breadcrumb'),
-            href: route('tenants.users.index', tenant.id),
+            href: route('tenants.users.index', { tenant: tenant.id }),
         },
         {
             title: __('tenant_users.show.breadcrumb', { name: user.name }),
-            href: route('tenants.users.show', [tenant.id, user.id]),
+            href: route('tenants.users.show', { tenant: tenant.id, user: user.id }),
         },
         {
             title: __('tenant_users.edit.breadcrumb'),
-            href: route('tenants.users.edit', [tenant.id, user.id]),
+            href: route('tenants.users.edit', { tenant: tenant.id, user: user.id }),
         },
     ];
 
@@ -61,7 +61,7 @@ export default function TenantUserEdit({ tenant, user }: TenantUserEditProps) {
                     
                     <div className="flex justify-end">
                         <Button variant="outline"  asChild>
-                            <Link href={route('tenants.users.show', [tenant.id, user.id])}>
+                            <Link href={route('tenants.users.show', { tenant: tenant.id, user: user.id })}>
                                 <ArrowLeft className="mr-2 h-4 w-4" />
                                 {__('common.back')}
                             </Link>
@@ -71,8 +71,8 @@ export default function TenantUserEdit({ tenant, user }: TenantUserEditProps) {
                     <UserForm
                         user={user}
                         translationNamespace="tenant_users"
-                        submitUrl={route('tenants.users.update', [tenant.id, user.id])}
-                        cancelUrl={route('tenants.users.show', [tenant.id, user.id])}
+                        submitUrl={route('users.update', { user: user.id })}
+                        cancelUrl={route('tenants.users.show', { tenant: tenant.id, user: user.id })}
                     />
                 </div>
             </TenantsLayout>

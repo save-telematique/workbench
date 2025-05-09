@@ -20,10 +20,19 @@ export interface DeviceTypeResource {
 export interface DeviceResource {
   id: string;
   serial_number: string;
-  model_name: string;
-  status: string;
-  last_seen_at: string | null;
+  imei: string;
+  sim_number: string;
+  firmware_version: string;
+  vehicle_id: string | null;
+  tenant_id: string;
+  last_contact_at: string | null;
+  
   type?: DeviceTypeResource;
+  vehicle?: VehicleResource;
+  tenant?: TenantResource;
+  
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 // Vehicle Resources

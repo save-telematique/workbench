@@ -18,7 +18,7 @@ class UpdateVehicleAction
         return $request->user()->can('update', $request->vehicle);
     }
 
-    public function rules(ActionRequest $request,): array
+    public function rules(ActionRequest $request): array
     {
         $rules = [
             'vin' => [
