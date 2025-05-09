@@ -27,48 +27,48 @@ export function AppSidebar() {
     const navItemsConfig: NavItemConfig[] = [
         {
             title: 'common.dashboard',
-            href: '/dashboard',
+            href: route('dashboard'),
             icon: LayoutGrid,
             access: 'shared'
         },
         {
             title: 'common.tenants', 
-            href: '/tenants',
+            href: route('tenants.index'),
             icon: Building2,
             hasPermission: usePermission('view_tenants'),
             access: 'central'
         },
         {
             title: 'users.list.breadcrumb',
-            href: '/users', 
+            href: route('users.index'), 
             icon: Users,
             hasPermission: usePermission('view_users'),
             access: 'shared'
         },
         {
             title: 'devices.title',
-            href: '/devices',
+            href: route('devices.index'),
             icon: Cpu,
             hasPermission: usePermission('view_devices'),
             access: 'central'
         },
         {
             title: 'vehicles.title',
-            href: '/vehicles',
+            href: route('vehicles.index'),
             icon: Car,
             hasPermission: usePermission('view_vehicles'),
             access: 'shared'
         },
         {
             title: 'drivers.title',
-            href: '/drivers',
+            href: route('drivers.index'),
             icon: UserCog,
             hasPermission: usePermission('view_drivers'),
             access: 'shared'
         },
         {
             title: 'common.global_settings',
-            href: '/global-settings',
+            href: route('global-settings.device-types.index'),
             icon: Settings,
             hasPermission: usePermission('view_global_settings'),
             access: 'central'
