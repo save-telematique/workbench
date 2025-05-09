@@ -11,6 +11,7 @@ alwaysApply: true
 *   **Styling:** Tailwind CSS 4
 *   **UI Components:** Shadcn UI (`npx shadcn-ui@latest add ...`)
 *   **Database:** PostgreSQL
+    *   TimescaleDB extension for time-series data. See `docs/timescaledb-best-practices.md` for guidelines.
 *   **Multi-Tenancy:** `stancl/tenancy` (mode **single database**)
 *   **Types d'Identifiants:**
     *   **UUIDs:** Pour toutes les entités liées aux tenants (vehicles, devices, etc.)

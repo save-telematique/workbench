@@ -1,0 +1,180 @@
+---
+description: 
+globs: *.php
+alwaysApply: false
+---
+# TimescaleDB Best Practices for Save Workbench
+
+TimescaleDB is a powerful open-source time-series database built on PostgreSQL. Integrating it into Save Workbench can significantly enhance performance for handling and analyzing time-stamped data, such as vehicle telemetry, device events, and other operational metrics. This document outlines best practices for using TimescaleDB within the Save Workbench project.
+
+## Core TimescaleDB Concepts
+
+### 1. Hypertables
+Hypertables are the cornerstone of TimescaleDB. They are PostgreSQL tables automatically partitioned by time and optionally other columns (e.g., `tenant_id`). This partitioning happens transparently in the background, significantly improving insert and query performance for time-series data.
+
+**Benefits:**
+*   Faster inserts: Data is written to smaller, more manageable partitions.
+*   Faster queries: Queries can often scan only relevant time partitions, drastically reducing the amount of data processed.
+*   Simplified data management: Automated partitioning and retention policies.
+
+### 2. Continuous Aggregates
+Continuous aggregates are essentially materialized views that are automatically and incrementally updated in the background. They allow you to pre-aggregate time-series data, making analytical queries on large datasets much faster.
+
+**Benefits:**
+*   Real-time analytics: Provides up-to-date aggregated data with low query latency.
+*   Reduced query load: Queries hit pre-aggregated data instead of raw, large tables.
+*   Efficient resource usage: Aggregation happens incrementally, not all at once.
+
+## Best Practices for Save Workbench
+
+### 1. Identifying Time-Series Data
+In Save Workbench, several entities can generate time-series data:
+*   **Vehicle Telemetry:** GPS positions, speed, fuel consumption, CO2 emissions, sensor readings (e.g., temperature, engine status) over time.
+*   **Device Events:** Connection status, error logs, operational metrics from IoT devices.
+*   **Usage Logs:** User interactions or system events that are tracked with timestamps.
+
+Any data that is primarily queried or analyzed based on its timestamp is a good candidate for storing in a hypertable.
+
+### 2. Using Hypertables
+
+#### a. Creating Hypertables
+When you have a table that will store time-series data (e.g., `vehicle_positions`, `device_readings`), convert it into a hypertable.
+
+**Example:** Suppose you have a `vehicle_telemetry` table:
+```sql
+CREATE TABLE vehicle_telemetry (
+    time TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    vehicle_id UUID NOT NULL,
+    tenant_id UUID NOT NULL, -- Crucial for multi-tenancy
+    latitude DOUBLE PRECISION,
+    longitude DOUBLE PRECISION,
+    speed INTEGER,
+    fuel_level REAL,
+    co2_emission REAL,
+    -- other sensor data
+    PRIMARY KEY (time, vehicle_id, tenant_id) -- Ensure a unique primary key
+);
+
+-- Convert to a hypertable, partitioned by time and tenant_id
+SELECT create_hypertable('vehicle_telemetry', by_range('time'), by_hash('tenant_id', 4));
+-- The '4' for by_hash is the number of partitions for tenant_id; adjust based on expected tenants.
+-- Alternatively, if queries are almost always scoped to a single tenant and then by time:
+-- SELECT create_hypertable('vehicle_telemetry', by_range('time'), partition_by_hash('tenant_id', 4), if_not_exists => TRUE);
+
+-- For data primarily queried by time across tenants (less common in strict multi-tenancy):
+-- SELECT create_hypertable('vehicle_telemetry', by_range('time'));
+```
+*   **Partitioning by Time:** Always partition by your primary time column (e.g., `time`, `created_at`).
+*   **Multi-tenancy (`tenant_id`):** For Save Workbench's single-database multi-tenancy, **it's highly recommended to include `tenant_id` as a partitioning key** (space partitioning). This helps keep tenant data physically grouped, improving query performance and data management when queries are tenant-specific. Use `by_hash` or `by_list` for `tenant_id` partitioning.
+*   **`create_hypertable` arguments:**
+    *   `by_range('your_time_column_name')`: Specifies the time dimension for partitioning.
+    *   `by_hash('your_dimension_column_name', number_of_partitions)`: Optional, for space partitioning (e.g., by `tenant_id` or `vehicle_id`). The number of partitions should be chosen carefully based on cardinality.
+    *   `chunk_time_interval`: (Optional) Controls the size of time intervals for each chunk. Defaults to 7 days. Adjust based on data volume and query patterns (e.g., `INTERVAL '1 day'` or `INTERVAL '1 month'`).
+*   Use `IF NOT EXISTS` to prevent errors if the script is run multiple times.
+
+#### b. Indexing Hypertables
+*   Indexes on hypertables work similarly to PostgreSQL, but TimescaleDB creates them on each chunk.
+*   **Default Index:** TimescaleDB automatically creates an index on the time column used for partitioning.
+*   **Custom Indexes:** Add indexes on columns frequently used in `WHERE` clauses, `JOIN` conditions, or `GROUP BY` clauses.
+    ```sql
+    -- Example for the vehicle_telemetry table
+    CREATE INDEX ON vehicle_telemetry (tenant_id, time DESC);
+    CREATE INDEX ON vehicle_telemetry (vehicle_id, time DESC);
+    -- If you often query specific telemetry data:
+    CREATE INDEX ON vehicle_telemetry (co2_emission) WHERE co2_emission IS NOT NULL;
+    ```
+*   For multi-tenant environments, composite indexes starting with `tenant_id` are often beneficial: `(tenant_id, other_column)`.
+
+### 3. Using Continuous Aggregates
+
+#### a. Creating Continuous Aggregates
+Identify common, resource-intensive analytical queries that can be pre-aggregated.
+
+**Example:** Daily average CO2 emissions per vehicle for a tenant.
+```sql
+CREATE MATERIALIZED VIEW daily_vehicle_co2_summary
+WITH (timescaledb.continuous) AS
+SELECT
+    tenant_id,
+    vehicle_id,
+    time_bucket('1 day', time) AS day,
+    AVG(co2_emission) AS avg_co2,
+    MAX(co2_emission) AS max_co2
+FROM
+    vehicle_telemetry
+GROUP BY
+    tenant_id, vehicle_id, day
+WITH NO DATA; -- Creates the view definition without populating it immediately.
+
+-- Add a policy to refresh the continuous aggregate
+SELECT add_continuous_aggregate_policy('daily_vehicle_co2_summary',
+    start_offset => INTERVAL '3 days', -- Start refreshing data from 3 days ago
+    end_offset => INTERVAL '1 hour',   -- Refresh up to 1 hour ago (allowing for data ingestion lag)
+    schedule_interval => INTERVAL '1 hour'); -- How often the policy runs to refresh
+```
+*   `time_bucket()`: A powerful TimescaleDB function to group data into arbitrary time intervals.
+*   **Refresh Policies:** Continuous aggregates need refresh policies to keep them up-to-date. Configure `start_offset`, `end_offset`, and `schedule_interval` according to your data ingestion patterns and freshness requirements.
+
+#### b. Querying Continuous Aggregates
+Query continuous aggregates like any other table or view. Queries will be significantly faster as they operate on pre-aggregated data.
+
+```sql
+-- Get yesterday's average CO2 for a specific vehicle and tenant
+SELECT avg_co2
+FROM daily_vehicle_co2_summary
+WHERE tenant_id = 'your_tenant_uuid'
+  AND vehicle_id = 'your_vehicle_uuid'
+  AND day = time_bucket('1 day', NOW() - INTERVAL '1 day');
+```
+
+### 4. Data Retention Policies
+Time-series data can grow very large. TimescaleDB allows you to set up policies to automatically drop or manage old data.
+
+```sql
+-- Drop raw telemetry data older than 1 year
+SELECT add_retention_policy('vehicle_telemetry', INTERVAL '1 year');
+
+-- For continuous aggregates, you might want to keep aggregated data longer
+-- Or, if the raw data is dropped, the aggregate still holds the summary.
+-- You can also set retention policies on the continuous aggregate itself:
+-- SELECT add_retention_policy('daily_vehicle_co2_summary', INTERVAL '5 years');
+```
+*   Define retention policies based on business requirements and storage constraints.
+*   Consider if raw data can be archived to cheaper storage before being dropped.
+
+### 5. Schema Design for Time-Series Data
+*   **Tall vs. Wide Format:** Prefer a "tall" table format for metrics (one row per metric per timestamp) rather than a "wide" format (many metric columns). This is generally more flexible for querying and aggregation.
+    *   *Good (Tall):* `(time, device_id, metric_name, metric_value)`
+    *   *Less Ideal (Wide):* `(time, device_id, temp, pressure, humidity)`
+    However, for related metrics often queried together (like latitude/longitude), keeping them in the same row is fine. `vehicle_telemetry` example above is a hybrid and acceptable.
+*   **Avoid NULLs in Time Column:** Ensure your time column is `NOT NULL`.
+*   **Use TIMESTAMPTZ:** Store timestamps with time zone information (`TIMESTAMPTZ`) to avoid ambiguity.
+
+### 6. Monitoring and Optimization
+*   Use TimescaleDB's built-in statistical views and functions to monitor hypertable and chunk sizes, compression ratios (if using native compression), and continuous aggregate refresh performance.
+*   Periodically review query performance using `EXPLAIN ANALYZE`.
+
+### 7. Integration with Laravel
+*   **Migrations:** Use raw SQL statements in Laravel migrations to create hypertables, continuous aggregates, and policies, as these are TimescaleDB-specific DDL commands not directly supported by Laravel's schema builder.
+    ```php
+    // In a Laravel migration
+    use Illuminate\Support\Facades\DB;
+
+    public function up()
+    {
+        DB::statement("CREATE TABLE vehicle_telemetry (...)"); // Your standard table creation
+        DB::statement("SELECT create_hypertable('vehicle_telemetry', by_range('time'), by_hash('tenant_id', 4));");
+        // ... add indexes, continuous aggregates, policies etc.
+    }
+
+    public function down()
+    {
+        // Drop policies, continuous aggregates first
+        DB::statement("DROP MATERIALIZED VIEW IF EXISTS daily_vehicle_co2_summary;");
+        DB::statement("DROP TABLE IF EXISTS vehicle_telemetry;"); // Dropping hypertable drops all its components
+    }
+    ```
+*   **Query Builder/Eloquent:** Standard Laravel Query Builder and Eloquent can be used to query hypertables and continuous aggregates as they appear like regular PostgreSQL tables. TimescaleDB functions like `time_bucket` can be used with `DB::raw()` or custom scopes.
+
+## Conclusion
+By leveraging hypertables for efficient time-series data storage and continuous aggregates for rapid analytics, Save Workbench can build a highly performant and scalable system for managing and deriving insights from its operational data. Remember to tailor these best practices to the specific needs and data patterns of your application, especially considering the multi-tenant architecture.

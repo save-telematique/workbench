@@ -2,9 +2,7 @@
 
 namespace App\Contracts;
 
-use App\Events\NewDeviceDataPoint; // Though the job will receive DeviceDataPoint directly
 use App\Models\Device;
-use App\Models\DeviceDataPoint;
 use App\Models\DeviceMessage;
 use App\Models\Vehicle;
 

@@ -1,3 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
 # Permissions in Save Workbench
 
 This document outlines how permissions are implemented throughout Save Workbench using Spatie Laravel Permission package, Laravel Policies, and frontend permission checks.
