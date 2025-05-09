@@ -16,8 +16,7 @@ class CreateVehicleAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user() 
-            && $request->user()->can('create', Vehicle::class);
+        return $request->user()->can('create', Vehicle::class);
     }
 
     public function rules(): array

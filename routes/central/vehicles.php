@@ -3,6 +3,8 @@
 use App\Actions\Vehicles\CreateVehicleAction;
 use App\Actions\Vehicles\DeleteVehicleAction;
 use App\Actions\Vehicles\UpdateVehicleAction;
+use App\Actions\Vehicles\RestoreVehicleAction;
+use App\Actions\Vehicles\ScanVehicleRegistrationAction;
 use App\Http\Controllers\Vehicles\VehicleController;
 use App\Http\Controllers\Vehicles\VehicleCsvImportController;
 use Illuminate\Support\Facades\Route;
@@ -23,7 +25,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/vehicles/import/store', [VehicleCsvImportController::class, 'store'])->name('vehicles.import.store');
     Route::post('/vehicles/import/validate-row', [VehicleCsvImportController::class, 'validateRow'])->name('vehicles.import.validate-row');
 
-    // Vehicle CRUD Routes
+    // Vehicle CRUD Routes (Display handled by Controller, CUD by Actions)
     Route::get('/vehicles', [VehicleController::class, 'index'])->name('vehicles.index');
     Route::get('/vehicles/create', [VehicleController::class, 'create'])->name('vehicles.create');
     Route::post('/vehicles', CreateVehicleAction::class)->name('vehicles.store');
@@ -31,7 +33,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/vehicles/{vehicle}/edit', [VehicleController::class, 'edit'])->name('vehicles.edit');
     Route::put('/vehicles/{vehicle}', UpdateVehicleAction::class)->name('vehicles.update');
     Route::delete('/vehicles/{vehicle}', DeleteVehicleAction::class)->name('vehicles.destroy');
+    Route::post('/vehicles/{vehicle}/restore', RestoreVehicleAction::class)->name('vehicles.restore')->withTrashed();
     
     // Vehicle Utility Routes
-    Route::post('/vehicles/scan-registration', [VehicleController::class, 'scanRegistration'])->name('vehicles.scan-registration');
+    Route::post('/vehicles/scan-registration', ScanVehicleRegistrationAction::class)->name('vehicles.scan-registration');
 }); 

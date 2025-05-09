@@ -5,7 +5,7 @@ import { useColumns } from "./columns";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, X, Filter, Plus, Car, Upload } from "lucide-react";
+import { Search, X, Filter, Plus, Upload } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -21,46 +21,18 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { usePermission } from "@/utils/permissions";
-import { type BreadcrumbItem } from "@/types";
-
-interface Vehicle {
-  id: string;
-  registration: string;
-  brand: string;
-  model: string;
-  color: string;
-  vin: string;
-  year: number;
-  tenant?: {
-    id: string;
-    name: string;
-  };
-  device?: {
-    id: string;
-    serial_number: string;
-  };
-  deleted_at: string | null;
-}
+import { type BreadcrumbItem, VehicleResource, TenantResource, ResourceCollection, VehicleBrandResource } from "@/types";
 
 interface VehiclesPageProps {
-  vehicles: {
-    data: Vehicle[];
-    links: Record<string, string>;
-    meta: {
-      current_page: number;
-      last_page: number;
-      per_page: number;
-      [key: string]: unknown;
-    };
-  };
+  vehicles: ResourceCollection<VehicleResource>;
   filters: {
     search?: string;
     tenant_id?: string;
     brand?: string;
     has_device?: string;
   };
-  brands: string[];
-  tenants: { id: string; name: string }[];
+  brands: VehicleBrandResource[];
+  tenants: TenantResource[];
 }
 
 export default function Index({ vehicles, filters, brands, tenants }: VehiclesPageProps) {
@@ -124,25 +96,6 @@ export default function Index({ vehicles, filters, brands, tenants }: VehiclesPa
 
       <VehiclesLayout>
         <div className="space-y-6">
-          {vehicles?.data.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center animate-in fade-in-50">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
-                <Car className="h-10 w-10 text-primary" />
-              </div>
-              <h3 className="mt-4 text-lg font-semibold">{__('vehicles.list.no_vehicles')}</h3>
-              <p className="mb-4 mt-2 text-sm text-muted-foreground">
-                {__('vehicles.list.get_started')}
-              </p>
-              {canCreateVehicles && (
-                <Button asChild size="default" className="h-9">
-                  <Link href={route('vehicles.create')}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    {__('vehicles.actions.create')}
-                  </Link>
-                </Button>
-              )}
-            </div>
-          ) : (
             <DataTable
               columns={columns}
               data={vehicles?.data || []}
@@ -243,8 +196,8 @@ export default function Index({ vehicles, filters, brands, tenants }: VehiclesPa
                             <SelectContent>
                               <SelectItem value="all">{__("common.all_brands")}</SelectItem>
                               {brands.map((brand) => (
-                                <SelectItem key={brand} value={brand}>
-                                  {brand}
+                                <SelectItem key={brand.id} value={brand.id.toString()}>
+                                  {brand.name}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -299,7 +252,6 @@ export default function Index({ vehicles, filters, brands, tenants }: VehiclesPa
                 </div>
               }
             />
-          )}
         </div>
       </VehiclesLayout>
     </AppLayout>

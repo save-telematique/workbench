@@ -58,3 +58,50 @@ alwaysApply: false
     *   Utiliser `string` pour les identifiants UUIDs (vehicles, devices, tenants...).
     *   Utiliser `number` pour les identifiants auto-incrémentés (brands, models...).
     *   Ne jamais utiliser `toString()` pour les conversions entre ID, maintenir le type approprié.
+
+
+## TypeScript Definitions for Laravel Resources
+
+Save Workbench includes TypeScript definitions for Laravel API Resources to provide type safety when working with data from the backend.
+
+### Available Resource Types
+
+- `TenantResource`
+- `DeviceResource` and `DeviceTypeResource`
+- `VehicleResource`, `VehicleModelResource`, `VehicleBrandResource`, and `VehicleTypeResource`
+- `ResourceCollection<T>` for paginated collections
+
+### Usage
+
+Import the resource types from the types directory:
+
+```typescript
+import { VehicleResource, ResourceCollection } from '@/types';
+
+// For a single resource
+interface PageProps {
+  vehicle: VehicleResource;
+}
+
+// For a paginated collection
+interface PageProps {
+  vehicles: ResourceCollection<VehicleResource>;
+}
+```
+
+### Utility Functions
+
+The application provides utility functions in `@/utils/resources` to work with Laravel Resources:
+
+```typescript
+import { getData, getPaginationMeta, getPaginationLinks } from '@/utils';
+
+// Get data from a resource or resource collection
+const vehicles = getData(props.vehicles);
+
+// Get pagination metadata from a collection
+const pagination = getPaginationMeta(props.vehicles);
+
+// Get pagination links from a collection
+const links = getPaginationLinks(props.vehicles);
+```

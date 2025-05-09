@@ -7,13 +7,18 @@ alwaysApply: false
 
 *   Utiliser Laravel 12 et ses conventions :
     *   **Models:** Eloquent (`app/Models`, `PascalCase`). Utiliser `HasFactory` et `SoftDeletes` si pertinent.
-    *   **Controllers:** (`app/Http/Controllers/{FeatureName}`, `PascalCase`). Pour le CRUD, utiliser les méthodes standard (index, create, store, show, edit, update, destroy).
-    *   **Form Requests:** (`app/Http/Requests/{FeatureName}`, `PascalCase`). Créer des requests distinctes pour `store` et `update` si les règles diffèrent.
-    *   **Policies:** (`app/Policies/{FeatureName}`, `PascalCase`) pour la gestion des autorisations.
-    *   **Services/Actions:** (`app/Services`, `app/Actions`, `PascalCase`) pour la logique métier complexe.
+    *   **Controllers:** (`app/Http/Controllers/{FeatureName}`, `PascalCase`). 
+        *   Primarily responsible for **displaying Inertia pages** (`index`, `create`, `show`, `edit`).
+        *   Their methods should fetch data and return `Inertia::render(...)`.
+        *   All data passed to Inertia views **MUST** be formatted using **API Resources** (e.g., `App\Http\Resources\YourResource`).
+        *   For CRUD, CUD operations (`store`, `update`, `destroy`) are typically delegated to Action classes.
+    *   **Form Requests:** (`app/Http/Requests/{FeatureName}`, `PascalCase`). Créer des requests distinctes pour `store` et `update` si les règles diffèrent. (Note: For Actions, validation is often handled within the Action itself using `rules()` and `getValidationMessages()` methods).
+    *   **Policies:** (`app/Policies/{FeatureName}`, `PascalCase`) pour la gestion des autorisations. Utilized by both controllers (for display methods) and Actions.
+    *   **Actions:** (`app/Actions/{FeatureName}`, `PascalCase`) pour la logique métier complexe, CUD operations, and specific business tasks. Actions handle their own authorization and validation. See `laravel-actions-best-practices.mdc`.
+    *   **Services:** (`app/Services`, `PascalCase`) for reusable, often more generic, business logic that might be used by multiple Actions or other parts of the application.
     *   **Seeders:** (`database/seeders`, `PascalCase`).
     *   Utiliser les commandes `artisan make:` pour générer ces classes.
-    *   Utiliser `to_route()` pour les redirections après action.
+    *   Utiliser `to_route()` pour les redirections après action (typically from an Action's `asController` method).
 *   **Migrations:** Créer des migrations atomiques et réversibles. Définir les champs et index avec précision. Gérer les relations via clés étrangères.
     *   **Types d'identifiants:**
         *   Utiliser `$table->uuid('id')->primary()` pour les entités liées à un tenant (vehicles, devices, etc.)

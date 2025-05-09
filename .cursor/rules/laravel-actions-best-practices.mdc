@@ -1,0 +1,193 @@
+---
+description: 
+globs: *.php
+alwaysApply: false
+---
+# Laravel Actions Best Practices
+
+This document outlines best practices for using the `lorisleiva/laravel-actions` package in Save Workbench. Laravel Actions encourage focusing on what your application *does* by encapsulating specific tasks into dedicated classes.
+
+## Core Principles
+
+1.  **One Class, One Task**: Each action class should be responsible for a single, well-defined task. This promotes clarity, reusability, and testability.
+2.  **Resolve from Container**: Actions must be resolvable from Laravel's service container. This allows for dependency injection via the constructor.
+3.  **Use `AsAction` Trait**: Employ the `Lorisleiva\Actions\Concerns\AsAction` trait (or extend `\Lorisleiva\Actions\Action`) to enable the multifaceted capabilities of an action.
+4.  **Primary Location for CUD Logic**: Actions are the primary location for Create, Update, Delete (CUD) operations and other specific business logic, keeping controllers lean and focused on display.
+
+## Naming Conventions
+
+1.  **Start with a Verb**: Action class names should be explicit and start with a verb, clearly describing the task they perform.
+    *   Example: `CreateVehicle`, `UpdateDriverLocation`, `SendWelcomeEmail`.
+2.  **Descriptive Naming**: Names should be descriptive enough to understand the action's purpose without needing to read its code.
+
+## Directory Structure
+
+1.  **Central `app/Actions` Folder**: Group all actions within a dedicated `app/Actions` directory at the root of the `app` folder.
+2.  **Group by Domain/Module**: Inside `app/Actions`, further organize actions into subdirectories based on the application domain or module they belong to.
+    *   Example:
+        ```
+        app/
+        ├── Actions/
+        │   ├── Authentication/
+        │   │   ├── LoginUser.php
+        │   │   ├── RegisterUser.php
+        │   │   └── SendPasswordResetEmail.php
+        │   ├── Vehicles/  // As seen in current project structure
+        │   │   ├── CreateVehicle.php
+        │   │   ├── UpdateVehicleDetails.php
+        │   │   └── AssignDriverToVehicle.php
+        │   ├── Users/
+        │   │   └── UpdateUserProfile.php
+        ```
+    *   This aligns with the project's current structure (e.g., `app/Actions/Vehicles`).
+
+## Implementation Guidelines
+
+1.  **`handle` Method**: The core business logic of the action resides in the `handle` method. This method receives necessary arguments (often validated data) to perform its task and should return data or results of the operation. It should not be concerned with HTTP responses directly.
+    ```php
+    namespace App\Actions\Vehicles;
+
+    use App\Models\Vehicle;
+    use App\Models\User;
+    use Lorisleiva\Actions\Concerns\AsAction;
+
+    class AssignDriverToVehicle
+    {
+        use AsAction;
+
+        // Dependencies injected via constructor if needed
+
+        public function handle(Vehicle $vehicle, User $driver): Vehicle // Example return type
+        {
+            // Logic to assign driver to vehicle
+            $vehicle->driver_id = $driver->id;
+            $vehicle->save();
+
+            // Potentially dispatch events
+            return $vehicle; // Return the modified model or relevant data
+        }
+    }
+    ```
+2.  **`asController` Method**: When an Action is invoked as a controller (via a route), the `asController` method orchestrates the action's execution in an HTTP context. It is responsible for:
+    *   Optionally receiving an `ActionRequest` or `Request`.
+    *   Calling the `handle` method (often with validated data: `$this->handle($request->validated())`).
+    *   Returning an appropriate HTTP response (e.g., `to_route(...)`, `response()->json(...)`, or `Inertia::render(...)` if the action itself is for display - though this is less common as controllers usually handle display).
+
+    ```php
+    // In an Action class, e.g., CreateVehicleAction.php
+    use Lorisleiva\Actions\ActionRequest;
+
+    public function asController(ActionRequest $request)
+    {
+        // Authorization and Validation are typically handled automatically by the trait
+        // if authorize() and rules() methods exist on the action.
+        $vehicle = $this->handle($request->validated());
+
+        return to_route('vehicles.show', $vehicle)
+            ->with('success', __('vehicles.created'));
+    }
+    ```
+
+3.  **Dependency Injection**: Inject dependencies through the constructor. This makes actions easier to test and more maintainable.
+    ```php
+    use Lorisleiva\Actions\Concerns\AsAction;
+    use App\Services\NotificationService;
+
+    class SendWelcomeEmail
+    {
+        use AsAction;
+
+        protected NotificationService $notificationService;
+
+        public function __construct(NotificationService $notificationService)
+        {
+            $this->notificationService = $notificationService;
+        }
+
+        public function handle(User $user)
+        {
+            $this->notificationService->sendWelcomeEmail($user);
+        }
+    }
+    ```
+
+4.  **Authorization**: Implement an `authorize` method to control access. This method receives an `ActionRequest` and any route-model bound parameters. Use `$request->user()->can(...)` for checks.
+    ```php
+    // In an Action class
+    use Lorisleiva\Actions\ActionRequest;
+    use App\Models\Vehicle; // Example model
+
+    public function authorize(ActionRequest $request, ?Vehicle $vehicle = null): bool // $vehicle is optional if not always present
+    {
+        if ($vehicle) {
+            return $request->user()->can('update', $vehicle); // Example for an update action
+        }
+        return $request->user()->can('create', Vehicle::class); // Example for a create action
+    }
+    ```
+    The `AsAction` trait will automatically call this method if it exists before `handle` or `asController`.
+
+5.  **Validation**: Define a `rules()` method for input validation. Custom messages can be provided via `getValidationMessages()` or `messages()`. The `ActionRequest` object (or `handle` method if type-hinted) can then receive validated data.
+    ```php
+    // In an Action class
+    use Lorisleiva\Actions\ActionRequest;
+    use Illuminate\Validation\Rule;
+
+    public function rules(): array
+    {
+        return [
+            'name' => 'required|string|max:255',
+            'email' => ['required', 'email', Rule::unique('users')],
+            // ... other rules
+        ];
+    }
+
+    public function getValidationMessages(): array
+    {
+        return [
+            'email.unique' => __('validation.custom.email_taken'),
+        ];
+    }
+    ```
+
+6.  **Running Actions in Different Contexts**:
+    *   **As Objects**: Directly instantiate and call `run()`:
+        ```php
+        $result = MyAction::run($param1, $param2);
+        ```
+    *   **As Controllers**: Define `asController` method and use in routes (this is the most common use case for HTTP interactions).
+    *   **As Jobs**: Define `asJob` method for background processing. (Can also use `MyAction::dispatch($params)` or `MyAction::dispatchIf($condition, $params)`).
+    *   **As Listeners**: Define `asListener` method for event handling.
+    *   **As Commands**: Define `asCommand` method and register in `Kernel.php`.
+    *   Refer to the official Laravel Actions documentation for detailed examples of each context.
+
+## Testing
+
+*   Actions are simple PHP classes, making them easy to unit test.
+*   Focus tests on the `handle` method's logic, providing necessary input directly.
+*   Use mocking for dependencies injected via the constructor.
+*   When testing actions that behave as controllers (i.e., they have an `asController` method and are hit via HTTP routes), use standard Laravel feature tests (e.g., `$this->post(route(...))`). The `actingAs` helper can be used for authentication.
+
+## When to Use Actions
+
+*   When a piece of logic needs to be reused in multiple places (e.g., a controller and a command).
+*   To encapsulate complex business logic into a single, testable unit.
+*   To simplify controllers by extracting tasks into separate action classes.
+*   When a task might need to be run synchronously (e.g., as a controller) or asynchronously (e.g., as a job).
+
+## Internationalization (i18n)
+
+*   If an action returns messages or interacts with user-facing text (e.g., when run as a controller and returning a response, or throwing exceptions with messages), ensure these texts use Laravel's translation helpers (`__('key')`).
+    ```php
+    use Illuminate\Support\Facades\Log;
+    // ...
+    public function handle(Vehicle $vehicle)
+    {
+        if (!$vehicle->isAvailable()) {
+            throw new \Exception(__('vehicles.errors.not_available', ['name' => $vehicle->name]));
+        }
+        // ...
+    }
+    ```
+
+By following these best practices, you can leverage Laravel Actions to build a more organized, maintainable, and testable application.

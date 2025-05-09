@@ -15,8 +15,7 @@ class UpdateVehicleAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()
-            && $request->user()->can('update', $request->vehicle);
+        return $request->user()->can('update', $request->vehicle);
     }
 
     public function rules(ActionRequest $request,): array

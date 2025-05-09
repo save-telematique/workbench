@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { type BreadcrumbItem } from "@/types";
+import { type BreadcrumbItem, VehicleResource } from "@/types";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { useTranslation } from "@/utils/translation";
 import { Button } from "@/components/ui/button";
@@ -20,42 +20,8 @@ import {
 } from "@/components/ui/dialog";
 import { usePermission } from "@/utils/permissions";
 
-
-
-interface DeviceType {
-  id: number;
-  name: string;
-  manufacturer: string;
-}
-
-interface Device {
-  id: string;
-  serial_number: string;
-  type?: DeviceType;
-}
-
-interface Tenant {
-  id: string;
-  name: string;
-}
-
-interface Vehicle {
-  id: string;
-  registration: string;
-  brand: string;
-  model: string;
-  vin: string;
-  created_at: string;
-  updated_at: string;
-  tenant_id?: string | null;
-  device_id?: string | null;
-  tenant?: Tenant | null;
-  device?: Device | null;
-  deleted_at: string | null;
-}
-
 interface VehicleShowProps {
-  vehicle: Vehicle;
+  vehicle: VehicleResource;
 }
 
 export default function Show({ vehicle }: VehicleShowProps) {
@@ -73,12 +39,12 @@ export default function Show({ vehicle }: VehicleShowProps) {
     },
     {
       title: vehicle.registration || __('vehicles.breadcrumbs.show'),
-      href: route('vehicles.show', vehicle.id),
+      href: route('vehicles.show', { vehicle: vehicle.id }),
     },
   ];
 
   function handleDelete() {
-    patch(route("vehicles.destroy", vehicle.id), {
+    patch(route("vehicles.destroy", { vehicle: vehicle.id }), {
       onSuccess: () => {
         setDeleteDialogOpen(false);
       },
@@ -86,7 +52,7 @@ export default function Show({ vehicle }: VehicleShowProps) {
   }
 
   function handleRestore() {
-    patch(route("vehicles.restore", vehicle.id));
+    patch(route("vehicles.restore", { vehicle: vehicle.id }));
   }
 
   return (
@@ -97,7 +63,7 @@ export default function Show({ vehicle }: VehicleShowProps) {
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
           <div>
             <h2 className="text-2xl font-bold tracking-tight">
-              {vehicle.registration} {vehicle.brand && vehicle.model ? `- ${vehicle.brand} ${vehicle.model}` : ''}
+              {vehicle.registration} {vehicle.vehicle_model && vehicle.vehicle_model.brand ? `${vehicle.vehicle_model.brand.name} - ${vehicle.vehicle_model.name}` : ''}
             </h2>
             {vehicle.deleted_at && (
               <Badge variant="outline" className="mt-2">
@@ -109,7 +75,7 @@ export default function Show({ vehicle }: VehicleShowProps) {
           <div className="flex gap-2">
             {!vehicle.deleted_at && canEditVehicles && (
               <Button asChild variant="outline">
-                <Link href={route("vehicles.edit", vehicle.id)}>
+                <Link href={route("vehicles.edit", { vehicle: vehicle.id })}>
                   <Pencil className="mr-2 h-4 w-4" />
                   {__("common.edit")}
                 </Link>
@@ -147,11 +113,11 @@ export default function Show({ vehicle }: VehicleShowProps) {
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">{__("vehicles.fields.brand")}</TableCell>
-                  <TableCell>{vehicle.brand || '-'}</TableCell>
+                  <TableCell>{vehicle.vehicle_model && vehicle.vehicle_model.brand ? vehicle.vehicle_model.brand.name : '-'}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">{__("vehicles.fields.model")}</TableCell>
-                  <TableCell>{vehicle.model || '-'}</TableCell>
+                  <TableCell>{vehicle.vehicle_model && vehicle.vehicle_model.name ? vehicle.vehicle_model.name : '-'}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">{__("vehicles.fields.vin")}</TableCell>
@@ -178,7 +144,7 @@ export default function Show({ vehicle }: VehicleShowProps) {
                   <TableCell>
                     {vehicle.tenant ? (
                       <Link 
-                        href={route("tenants.show", vehicle.tenant.id)}
+                        href={route("tenants.show", { tenant: vehicle.tenant.id })}
                         className="flex items-center hover:underline text-primary"
                       >
                         <Building className="mr-2 h-4 w-4" />
@@ -194,7 +160,7 @@ export default function Show({ vehicle }: VehicleShowProps) {
                   <TableCell>
                     {vehicle.device ? (
                       <Link 
-                        href={route("devices.show", vehicle.device.id)}
+                        href={route("devices.show", { device: vehicle.device.id })}
                         className="flex items-center hover:underline text-primary"
                       >
                         <Cpu className="mr-2 h-4 w-4" />

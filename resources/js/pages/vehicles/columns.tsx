@@ -5,29 +5,7 @@ import { useTranslation } from "@/utils/translation";
 import { Link } from "@inertiajs/react";
 import { LicensePlate } from "@/components/ui/license-plate";
 import { useStandardActions } from "@/utils/actions";
-
-interface Vehicle {
-  id: string;
-  registration: string;
-  brand: string;
-  model: string;
-  color: string;
-  vin: string;
-  year: number;
-  tenant?: {
-    id: string;
-    name: string;
-  };
-  device?: {
-    id: string;
-    serial_number: string;
-  };
-  type?: {
-    id: number;
-    name: string;
-  };
-  deleted_at: string | null;
-}
+import { VehicleResource } from "@/types";
 
 export const useColumns = () => {
   const { __ } = useTranslation();
@@ -35,7 +13,7 @@ export const useColumns = () => {
     resourceName: "vehicles"
   });
 
-  const columns: ColumnDef<Vehicle>[] = [
+  const columns: ColumnDef<VehicleResource>[] = [
     {
       accessorKey: "registration",
       header: "vehicles.fields.registration",
@@ -45,7 +23,7 @@ export const useColumns = () => {
         <div className="flex space-x-2">
           <span className="max-w-[500px] truncate font-medium">
             <Link
-              href={route("vehicles.show", row.original.id)}
+              href={route("vehicles.show", { vehicle: row.original.id })}
             >
               <LicensePlate 
                 registration={row.getValue("registration")}
@@ -71,7 +49,7 @@ export const useColumns = () => {
         <div className="w-[180px]">
           {row.original.tenant ? (
             <Link
-              href={route("tenants.show", row.original.tenant.id)}
+              href={route("tenants.show", { tenant: row.original.tenant.id })}
             >
               {row.original.tenant.name}
             </Link>
@@ -131,7 +109,7 @@ export const useColumns = () => {
         <div className="w-[180px]">
           {row.original.device ? (
             <Link
-              href={route("devices.show", row.original.device.id)}
+              href={route("devices.show", { device: row.original.device.id })}
             >
               {row.original.device.serial_number}
             </Link>

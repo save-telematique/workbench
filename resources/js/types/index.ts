@@ -1,6 +1,8 @@
 import { ComponentType } from "react";
 import { LucideProps } from "lucide-react";
 import type { Config as ZiggyConfig } from 'ziggy-js';
+// Export resource types
+export * from './resources';
 
 export type LucideIcon = ComponentType<LucideProps>;
 

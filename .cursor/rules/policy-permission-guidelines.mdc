@@ -16,6 +16,7 @@ This document outlines the best practices for handling authorization in Save Wor
 3. **Tenant Data Isolation**: Policies enforce that tenant users can only access data within their tenant.
 4. **Base Policy**: All policies extend the `BasePolicy` which provides standardized permission checks.
 5. **Gate Super Admin Override**: Super admins automatically pass all permission checks via a Gate::before rule.
+6. **Policies as Source of Truth**: Policies define *what* a user is allowed to do. They are the central point for authorization logic and are utilized by both display-focused Controllers (via `\$this->authorizeResource` or `\$this->authorize`) and by task-focused Actions (via `$request->user()->can()` within their `authorize` method).
 
 ## Permission Structure
 
@@ -54,22 +55,27 @@ Each model has a corresponding set of permissions (e.g., vehicles, users, device
    - Override methods only when different behavior is needed
 
 2. **Tenant-Aware Policies**:
-   - Always check `$user->tenant_id` matches the model's tenant_id in tenant-scoped policies
-   - Central users can typically access all resources regardless of tenant
+   - Always check `$user->tenant_id` matches the model's `tenant_id` in tenant-scoped policies for tenant users.
+   - Central users (non-tenant users) can typically access all resources regardless of tenant, subject to their roles and permissions.
 
 3. **Special Checks**:
-   - Implement special checks like preventing users from deleting themselves
-   - Consider resource relationships when determining access
+   - Implement special checks like preventing users from deleting themselves.
+   - Consider resource relationships when determining access.
 
-## Controller Usage
+## Controller Usage (for Display Logic)
 
-1. **Authorization Checks**:
-   - Use `$this->authorize('action', $model)` in controllers
-   - For resource controllers, implement `authorizeResource` in the constructor
+1. **Authorization Checks for Views**:
+   - Use `$this->authorizeResource(Model::class, 'parameter_name')` in the controller's constructor for standard `index`, `show`, `create`, `edit` view methods.
+   - For custom view methods in a controller requiring specific authorization, use `$this->authorize('policy_method', $model_or_class)`.
+   - Remember, CUD (Create, Update, Delete) operations themselves are handled by Action classes, which perform their own authorization.
 
-2. **Collection Authorization**:
-   - Use `Gate::allows` or policy classes directly for collection-level checks
-   - Consider implementing custom methods in policies for collection operations
+## Action Usage (for CUD and Business Logic)
+
+1. **Authorization within Actions**:
+   - Each Action class should define an `authorize(ActionRequest $request, ...)` method.
+   - Inside this method, use `$request->user()->can('policy_method', $model_or_class)` to check permissions against the relevant policy.
+   - The `AsAction` trait will automatically call this `authorize` method.
+   - Refer to `laravel-actions-best-practices.mdc` and `applying-permissions.mdc` for detailed examples.
 
 ## Testing Policies
 
@@ -83,16 +89,6 @@ Each model has a corresponding set of permissions (e.g., vehicles, users, device
 
 3. **Special Conditions**:
    - Test edge cases and special conditions explicitly
-
-## Blade Templates & Frontend
-
-1. **Authorization Directives**:
-   - Use `@can` and `@cannot` directives in Blade templates
-   - Pass authorization state to Inertia/React via shared data
-
-2. **React/Inertia**:
-   - Check permissions in React components using data from Inertia props
-   - Hide/show UI elements based on user permissions
 
 ## Security Considerations
 
@@ -108,9 +104,11 @@ Each model has a corresponding set of permissions (e.g., vehicles, users, device
 
 When adding a new resource:
 
-1. Create permissions in `PermissionSeeder.php` using the standard format
-2. Create a policy extending `BasePolicy` with resource-specific logic
-3. Register the policy in `AuthServiceProvider`
-4. Assign permissions to appropriate roles
-5. Write tests covering all policy methods
-6. Apply authorization checks in controllers and UI components
+1. Create permissions in `PermissionSeeder.php` using the standard format (e.g., `view_resource`, `create_resource`).
+2. Create a Policy class extending `BasePolicy` with resource-specific logic, implementing methods like `viewAny`, `view`, `create`, `update`, `delete`, `restore`, etc.
+3. Register the policy in `AuthServiceProvider`.
+4. Assign permissions to appropriate roles in `PermissionSeeder.php`.
+5. **Controllers (for display)**: If the controller has methods like `index`, `show`, `create`, `edit`, use `$this->authorizeResource()` or `$this->authorize()` to protect these views, leveraging the policy.
+6. **Actions (for CUD & tasks)**: For each action (e.g., `CreateResourceAction`, `UpdateResourceAction`), implement an `authorize()` method that uses `$request->user()->can(...)` to check against the corresponding policy method.
+7. Write tests covering all policy methods and ensuring actions/controllers correctly respect these policies.
+8. Use permission hooks in frontend components as needed (see `applying-permissions.mdc`).

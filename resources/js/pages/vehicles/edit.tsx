@@ -1,40 +1,18 @@
 import { Head } from "@inertiajs/react";
-import { type BreadcrumbItem } from "@/types";
+import { type BreadcrumbItem, VehicleResource, TenantResource, DeviceResource, VehicleBrandResource, VehicleModelResource, VehicleTypeResource } from "@/types";
 import { useTranslation } from "@/utils/translation";
 import AppLayout from '@/layouts/app-layout';
 import VehiclesLayout from "@/layouts/vehicles/layout";
 import HeadingSmall from '@/components/heading-small';
 import VehicleForm from "@/components/vehicles/vehicle-form";
 
-
-
-interface VehicleModel {
-  id: string;
-  name: string;
-  brand_id: string;
-  brand_name?: string;
-}
-
-interface Vehicle {
-  id: string;
-  registration: string;
-  brand: string;
-  model: string;
-  vin: string;
-  model_id?: string;
-  brand_id?: string;
-  vehicle_type_id?: string;
-  tenant_id: string | null;
-  device_id: string | null;
-}
-
 interface VehicleEditProps {
-  vehicle: Vehicle;
-  tenants: { id: string; name: string }[];
-  devices: { id: string; serial_number: string }[];
-  brands: { id: string; name: string }[];
-  models: VehicleModel[];
-  vehicleTypes: { id: string; name: string }[];
+  vehicle: VehicleResource;
+  tenants: TenantResource[];
+  devices: DeviceResource[];
+  brands: VehicleBrandResource[];
+  models: VehicleModelResource[];
+  vehicleTypes: VehicleTypeResource[];
 }
 
 export default function Edit({ vehicle, tenants, devices, brands, models, vehicleTypes }: VehicleEditProps) {
@@ -47,7 +25,7 @@ export default function Edit({ vehicle, tenants, devices, brands, models, vehicl
     },
     {
       title: __('vehicles.breadcrumbs.edit'),
-      href: route('vehicles.edit', vehicle.id),
+      href: route('vehicles.edit', { vehicle: vehicle.id }),
     },
   ];
 

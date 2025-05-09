@@ -13,8 +13,7 @@ class DeleteVehicleAction
 
     public function authorize(ActionRequest $request,): bool
     {
-        return $request->user() 
-            && $request->user()->can('delete', $request->vehicle);
+        return $request->user()->can('delete', $request->vehicle);
     }
 
     public function handle(Vehicle $vehicle): bool

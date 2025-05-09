@@ -17,6 +17,12 @@ use App\Services\ImageAnalysisService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Resources\Vehicles\VehicleResource;
+use App\Http\Resources\Tenants\TenantResource;
+use App\Http\Resources\Vehicles\VehicleBrandResource;
+use App\Http\Resources\Vehicles\VehicleModelResource;
+use App\Http\Resources\Vehicles\VehicleTypeResource;
+use App\Http\Resources\Devices\DeviceResource;
 
 class VehicleController extends Controller
 {
@@ -25,13 +31,10 @@ class VehicleController extends Controller
         $this->authorizeResource(Vehicle::class, 'vehicle');
     }
 
-    /**
-     * Display a listing of the vehicles.
-     */
     public function index(Request $request)
     {
         $query = Vehicle::query()
-            ->with(['tenant', 'device', 'device.type', 'model', 'model.vehicleBrand', 'type'])
+            ->with(['tenant', 'device.type', 'model.vehicleBrand', 'type'])
             ->when($request->filled('search'), function ($query) use ($request) {
                 $search = $request->input('search');
                 return $query->where(function ($q) use ($search) {
@@ -59,122 +62,66 @@ class VehicleController extends Controller
                     : $query->doesntHave('device');
             });
 
-        // Get unique brands for the filter
-        $brands = VehicleBrand::select('name')->distinct()->pluck('name')->toArray();
+        $brandsForFilter = VehicleBrand::all();
+        $tenantsForFilter = Tenant::all();
 
-        // Get all tenants for the filter
-        $tenants = Tenant::select(['id', 'name'])->get();
-
-        // Paginate vehicles and transform data
-        $vehicles = $query->paginate(10)->withQueryString()->through(function ($vehicle) {
-            return [
-                'id' => $vehicle->id,
-                'registration' => $vehicle->registration,
-                'brand' => $vehicle->model->vehicleBrand->name ?? null,
-                'model' => $vehicle->model->name ?? null,
-                'vin' => $vehicle->vin,
-                'type' => $vehicle->type ? [
-                    'id' => $vehicle->type->id,
-                    'name' => $vehicle->type->name,
-                ] : null,
-                'tenant' => $vehicle->tenant ? [
-                    'id' => $vehicle->tenant->id,
-                    'name' => $vehicle->tenant->name,
-                ] : null,
-                'device' => $vehicle->device ? [
-                    'id' => $vehicle->device->id,
-                    'serial_number' => $vehicle->device->serial_number,
-                ] : null,
-                'deleted_at' => $vehicle->deleted_at,
-            ];
-        });
+        $vehicles = $query->paginate(10)->withQueryString();
 
         return Inertia::render('vehicles/index', [
-            'vehicles' => $vehicles,
+            'vehicles' => VehicleResource::collection($vehicles),
             'filters' => $request->only(['search', 'tenant_id', 'brand', 'has_device']),
-            'brands' => $brands,
-            'tenants' => $tenants,
+            'brands' => VehicleBrandResource::collection($brandsForFilter),
+            'tenants' => TenantResource::collection($tenantsForFilter),
         ]);
     }
 
-    /**
-     * Show the form for creating a new vehicle.
-     */
+    public function show(Vehicle $vehicle)
+    {
+        $vehicle->load(['tenant', 'device.type', 'model.vehicleBrand', 'type']);
+
+        $tenantsForSelect = Tenant::select(['id', 'name'])->get();
+        $devicesForSelect = Device::where(function ($query) use ($vehicle) {
+            $query->whereNull('vehicle_id')
+                  ->orWhere('vehicle_id', $vehicle->id);
+        })
+            ->with('type')
+            ->get();
+        $brandsForSelect = VehicleBrand::select('id', 'name')->get();
+
+        return Inertia::render('vehicles/show', [
+            'vehicle' => new VehicleResource($vehicle),
+            'tenants' => TenantResource::collection($tenantsForSelect),
+            'devices' => $devicesForSelect->map(fn($device) => new DeviceResource($device)),
+            'brands' => VehicleBrandResource::collection($brandsForSelect),
+        ]);
+    }
+
     public function create()
     {
         $brands = VehicleBrand::select('id', 'name')->get();
-        $models = VehicleModel::with('vehicleBrand')->get()->map(function ($model) {
-            return [
-                'id' => $model->id,
-                'name' => $model->name,
-                'brand_id' => $model->vehicle_brand_id,
-                'brand_name' => $model->vehicleBrand->name,
-            ];
-        });
+        $models = VehicleModel::with('vehicleBrand')->get();
         $tenants = Tenant::select('id', 'name')->get();
-        $devices = Device::whereNull('vehicle_id')->with('type')->get()->map(function ($device) {
-            return [
-                'id' => $device->id,
-                'serial_number' => $device->serial_number,
-            ];
-        });
+        $devices = Device::whereNull('vehicle_id')->with('type')->get();
         $vehicleTypes = VehicleType::select('id', 'name')->get();
 
         return Inertia::render('vehicles/create', [
-            'brands' => $brands,
-            'models' => $models,
-            'tenants' => $tenants,
-            'devices' => $devices,
-            'vehicleTypes' => $vehicleTypes,
+            'brands' => VehicleBrandResource::collection($brands),
+            'models' => VehicleModelResource::collection($models),
+            'tenants' => TenantResource::collection($tenants),
+            'devices' => DeviceResource::collection($devices),
+            'vehicleTypes' => VehicleTypeResource::collection($vehicleTypes),
         ]);
     }
 
-    /**
-     * Store a newly created vehicle in storage.
-     */
-    public function store(StoreVehicleRequest $request)
+    public function edit(Vehicle $vehicle)
     {
-        $validatedData = $request->validated();
+        $vehicle->load(['model.vehicleBrand', 'type', 'tenant', 'device.type']);
 
-        // Handle nullable relationships
-        if ($validatedData['tenant_id'] === 'none') {
-            $validatedData['tenant_id'] = null;
-        }
+        $brands = VehicleBrand::select('id', 'name')->get();
+        $models = VehicleModel::with('vehicleBrand')->get();
+        $tenants = Tenant::select('id', 'name')->get();
+        $vehicleTypes = VehicleType::select('id', 'name')->get();
 
-        if ($validatedData['device_id'] === 'none') {
-            $validatedData['device_id'] = null;
-        }
-
-        // Get vehicle_model_id based on the selected model
-        if (!empty($validatedData['model_id'])) {
-            $validatedData['vehicle_model_id'] = $validatedData['model_id'];
-            unset($validatedData['model_id']);
-        }
-
-        // Remove brand field as it's not in the database
-        if (isset($validatedData['brand'])) {
-            unset($validatedData['brand']);
-        }
-
-        $vehicle = Vehicle::create($validatedData);
-
-        // Update device to reference this vehicle if assigned
-        if (!empty($validatedData['device_id']) && $validatedData['device_id'] !== 'none') {
-            Device::where('id', $validatedData['device_id'])->update(['vehicle_id' => $vehicle->id]);
-        }
-
-        return to_route('vehicles.index');
-    }
-
-    /**
-     * Display the specified vehicle.
-     */
-    public function show(Vehicle $vehicle)
-    {
-        $vehicle->load(['tenant', 'device', 'device.type', 'model', 'model.vehicleBrand', 'type']);
-
-        // Get all tenants and devices for the select dialogs
-        $tenants = Tenant::select(['id', 'name'])->get();
         $devices = Device::where(function ($query) use ($vehicle) {
             $query->whereNull('vehicle_id')
                 ->orWhere('vehicle_id', $vehicle->id);
@@ -182,243 +129,13 @@ class VehicleController extends Controller
             ->with('type')
             ->get();
 
-        // Get brands as objects with id and name
-        $brands = VehicleBrand::select('id', 'name')->get();
-
-        $vehicleData = [
-            'id' => $vehicle->id,
-            'registration' => $vehicle->registration,
-            'brand' => $vehicle->model->vehicleBrand->name ?? '',
-            'model' => $vehicle->model->name ?? '',
-            'country' => $vehicle->country,
-            'vin' => $vehicle->vin,
-            'tenant_id' => $vehicle->tenant_id,
-            'device_id' => $vehicle->device_id,
-            'type' => $vehicle->type ? [
-                'id' => $vehicle->type->id,
-                'name' => $vehicle->type->name,
-            ] : null,
-            'tenant' => $vehicle->tenant ? [
-                'id' => $vehicle->tenant->id,
-                'name' => $vehicle->tenant->name,
-            ] : null,
-            'device' => $vehicle->device ? [
-                'id' => $vehicle->device->id,
-                'serial_number' => $vehicle->device->serial_number,
-                'type' => $vehicle->device->type,
-            ] : null,
-            'created_at' => $vehicle->created_at,
-            'updated_at' => $vehicle->updated_at,
-            'deleted_at' => $vehicle->deleted_at,
-        ];
-
-        return Inertia::render('vehicles/show', [
-            'vehicle' => $vehicleData,
-            'tenants' => $tenants,
-            'devices' => $devices,
-            'brands' => $brands,
-        ]);
-    }
-
-    /**
-     * Show the form for editing the specified vehicle.
-     */
-    public function edit(Vehicle $vehicle)
-    {
-        $vehicle->load(['model', 'model.vehicleBrand', 'type']);
-
-        $brands = VehicleBrand::select('id', 'name')->get();
-        $models = VehicleModel::with('vehicleBrand')->get()->map(function ($model) {
-            return [
-                'id' => $model->id,
-                'name' => $model->name,
-                'brand_id' => $model->vehicle_brand_id,
-                'brand_name' => $model->vehicleBrand->name,
-            ];
-        });
-        $tenants = Tenant::select('id', 'name')->get();
-        $vehicleTypes = VehicleType::select('id', 'name')->get();
-
-        // Get available devices (not assigned to any vehicle or assigned to this vehicle)
-        $devices = Device::where(function ($query) use ($vehicle) {
-            $query->whereNull('vehicle_id')
-                ->orWhere('vehicle_id', $vehicle->id);
-        })
-            ->with('type')
-            ->get()
-            ->map(function ($device) {
-                return [
-                    'id' => $device->id,
-                    'serial_number' => $device->serial_number,
-                ];
-            });
-
-        $vehicleData = [
-            'id' => $vehicle->id,
-            'registration' => $vehicle->registration,
-            'model_id' => $vehicle->vehicle_model_id,
-            'brand_id' => $vehicle->model->vehicle_brand_id ?? null,
-            'vehicle_type_id' => $vehicle->vehicle_type_id,
-            'country' => $vehicle->country,
-            'vin' => $vehicle->vin,
-            'tenant_id' => $vehicle->tenant_id,
-            'device_id' => $vehicle->device_id,
-        ];
-
         return Inertia::render('vehicles/edit', [
-            'vehicle' => $vehicleData,
-            'brands' => $brands,
-            'models' => $models,
-            'tenants' => $tenants,
-            'devices' => $devices,
-            'vehicleTypes' => $vehicleTypes,
+            'vehicle' => new VehicleResource($vehicle),
+            'brands' => VehicleBrandResource::collection($brands),
+            'models' => VehicleModelResource::collection($models),
+            'tenants' => TenantResource::collection($tenants),
+            'devices' => DeviceResource::collection($devices),
+            'vehicleTypes' => VehicleTypeResource::collection($vehicleTypes),
         ]);
-    }
-
-    /**
-     * Update the specified vehicle in storage.
-     */
-    public function update(UpdateVehicleRequest $request, Vehicle $vehicle)
-    {
-        $validatedData = $request->validated();
-
-        // Handle nullable relationships
-        if (isset($validatedData['tenant_id']) && $validatedData['tenant_id'] === 'none') {
-            $validatedData['tenant_id'] = null;
-        }
-
-        // Handle device relationship
-        $oldDeviceId = $vehicle->device_id;
-        $newDeviceId = isset($validatedData['device_id']) ?
-            ($validatedData['device_id'] === 'none' ? null : $validatedData['device_id']) :
-            $oldDeviceId;
-
-        // Remove the old association
-        if ($oldDeviceId && $oldDeviceId !== $newDeviceId) {
-            Device::where('id', $oldDeviceId)->update(['vehicle_id' => null]);
-        }
-
-        // Create the new association
-        if ($newDeviceId) {
-            Device::where('id', $newDeviceId)->update(['vehicle_id' => $vehicle->id]);
-        }
-
-        // Update the vehicle
-        $vehicle->update($validatedData);
-
-        if ($request->wantsJson()) {
-            return response()->json(['message' => 'Vehicle updated successfully']);
-        }
-
-        // Determine where to redirect based on the route
-        $routeName = $request->route()->getName();
-        if ($routeName === 'vehicles.update') {
-            return to_route('vehicles.show', $vehicle);
-        }
-
-        return back();
-    }
-
-    /**
-     * Remove the specified vehicle from storage.
-     */
-    public function destroy(Vehicle $vehicle)
-    {
-        // Remove any device associations
-        if ($vehicle->device_id) {
-            Device::where('id', $vehicle->device_id)->update(['vehicle_id' => null]);
-        }
-
-        $vehicle->delete();
-
-        return to_route('vehicles.index');
-    }
-
-    /**
-     * Restore the specified soft-deleted vehicle.
-     */
-    public function restore($id)
-    {
-        Vehicle::withTrashed()->findOrFail($id)->restore();
-
-        return to_route('vehicles.index');
-    }
-
-    /**
-     * Scan vehicle registration document and extract vehicle information.
-     */
-    public function scanRegistration(Request $request, ImageAnalysisService $imageAnalysisService): JsonResponse
-    {
-        try {
-            // Validate the request with detailed error messages
-            $validated = $request->validate([
-                'file' => [
-                    'required',
-                    'file',
-                    'mimes:jpeg,png,jpg,webp,pdf',
-                    'max:10240', // 10MB limit
-                ],
-            ], [
-                'file.required' => __('vehicles.scan.error_no_image'),
-                'file.file' => __('vehicles.scan.error_invalid_format'),
-                'file.mimes' => __('vehicles.scan.error_invalid_format'),
-                'file.max' => __('vehicles.scan.error_file_too_large'),
-            ]);
-
-            // Use the unified image analysis service - it now handles PDF conversion internally
-            $result = $imageAnalysisService->analyze($request->file('file'), 'vehicle');
-            
-            if ($result['success'] && !empty($result['data'])) {
-                // Try to find matching brand and model in our database
-                $vehicleData = $result['data'];
-                $brandName = $vehicleData['brand'] ?? null;
-                $modelName = $vehicleData['model'] ?? null;
-                
-                if ($brandName) {
-                    // Find closest matching brand
-                    $matchingBrand = VehicleBrand::where('name', 'LIKE', "%{$brandName}%")
-                        ->orWhere(function($query) use ($brandName) {
-                            $query->whereRaw("LOWER(name) LIKE ?", ["%" . strtolower($brandName) . "%"]);
-                        })
-                        ->first();
-                    
-                    if ($matchingBrand) {
-                        $result['data']['brand_id'] = $matchingBrand->id;
-                        
-                        // If we have a model name and matching brand, try to find matching model
-                        if ($modelName) {
-                            $matchingModel = VehicleModel::where('vehicle_brand_id', $matchingBrand->id)
-                                ->where(function($query) use ($modelName) {
-                                    $query->where('name', 'LIKE', "%{$modelName}%")
-                                        ->orWhere(function($q) use ($modelName) {
-                                            $q->whereRaw("LOWER(name) LIKE ?", ["%" . strtolower($modelName) . "%"]);
-                                        });
-                                })
-                                ->first();
-                            
-                            if ($matchingModel) {
-                                $result['data']['model_id'] = $matchingModel->id;
-                            }
-                        }
-                    }
-                }
-            }
-            
-            return response()->json($result);
-            
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'error' => $e->errors()['file'][0] ?? __('vehicles.scan.error'),
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error in scanRegistration: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'error' => $e->getMessage(),
-            ]);
-        }
     }
 }

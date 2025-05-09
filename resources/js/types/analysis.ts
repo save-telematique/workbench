@@ -9,6 +9,8 @@ export interface VehicleAnalysisData {
   brand_id?: number;
   model_id?: number;
   first_registration_date?: string;
+  country?: string;
+  vehicle_type?: number;
   [key: string]: string | number | undefined; // Explicitly define allowed types
 }
 

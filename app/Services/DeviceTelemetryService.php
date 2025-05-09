@@ -204,7 +204,7 @@ class DeviceTelemetryService
                             ]);
                             return null;
                         }
-                        continue; // Move to next step after acquiring source
+                        continue 2; // Move to next step after acquiring source
 
                     case 'PRIORITY_PICK':
                         if (isset($step['sources']) && is_array($step['sources'])) {
@@ -226,7 +226,7 @@ class DeviceTelemetryService
                             ]);
                             return null;
                         }
-                        continue;
+                        continue 2;
                     case 'DECODE_HEX':
                         $currentValue = is_string($currentValue) ? hexdec($currentValue) : null;
                         break;

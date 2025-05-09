@@ -178,11 +178,15 @@ class ImageAnalysisService
                     3. Brand/Make of the vehicle
                     4. Model of the vehicle
                     5. First registration date (if available)
-                    
+                    6. Country of registration (if available)
+                    7. Vehicle type (if available)
+
                     Available brands in the system: ' . $brandOptions . '
                     
                     Available models by brand:
                     ' . $modelOptions . '
+
+                    Available vehicle types in the system: ' . DeviceType::all()->pluck('name')->implode(', ') . '
                     
                     IMPORTANT: For brand and model, you MUST ONLY return values from the lists provided above.
                     If the exact match is not found, find the closest match or return null.
@@ -193,7 +197,9 @@ class ImageAnalysisService
                         "vin": string,
                         "brand": string (MUST be from the list of available brands or null),
                         "model": string (MUST be from the list of available models for the matched brand or null),
-                        "first_registration_date": string (in ISO format or null)
+                        "first_registration_date": string (in ISO format or null),
+                        "country": string (in ISO 3166-1 alpha-2 format, e.g. "FR" for France, "BE" for Belgium),
+                        "vehicle_type": string (MUST be from the list of available vehicle types or null)
                     }
                     
                     If you cannot read or find a particular field, use null for that field.
@@ -209,7 +215,8 @@ class ImageAnalysisService
                             Focus on the registration number, VIN, brand/make, model, and first registration date.
                             Remember to ONLY use brands and models from the lists I provided.
                             Return the data in JSON format.
-                            If you cannot find a brand or model, try to find it by decoding the VIN or other information.'
+                            If you cannot find a brand or model, try to find it by decoding the VIN or other information.
+                            Also, make sure to return the vehicle type if it is visible.'
                         ],
                         [
                             'type' => 'image_url',

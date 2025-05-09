@@ -50,18 +50,6 @@ This automatically maps the following methods to policy actions:
 | update            | update        |
 | destroy           | delete        |
 
-### Non-Resource Controllers or Custom Actions
-
-For controllers that don't follow the resource pattern, or for custom actions, use the `authorize` method explicitly:
-
-```php
-public function customAction(ModelName $model)
-{
-    $this->authorize('custom_permission_name', $model);
-    
-    // Controller logic
-}
-```
 
 ### Nested Resources or Special Cases
 

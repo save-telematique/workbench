@@ -1,5 +1,5 @@
 import { Head } from "@inertiajs/react";
-import { type BreadcrumbItem } from "@/types";
+import { type BreadcrumbItem, VehicleResource, TenantResource, DeviceResource, VehicleBrandResource, VehicleModelResource, VehicleTypeResource } from "@/types";
 import { useTranslation } from "@/utils/translation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -8,34 +8,12 @@ import AppLayout from '@/layouts/app-layout';
 import HeadingSmall from '@/components/heading-small';
 import VehicleForm from "@/components/vehicles/vehicle-form";
 
-
-
-interface VehicleModel {
-  id: string;
-  name: string;
-  brand_id: string;
-  brand_name?: string;
-}
-
-interface Vehicle {
-  id?: string;
-  registration: string;
-  brand: string;
-  model: string;
-  vin: string;
-  model_id?: string;
-  brand_id?: string;
-  vehicle_type_id?: string;
-  tenant_id: string | null;
-  device_id: string | null;
-}
-
 interface VehicleCreateProps {
-  tenants: { id: string; name: string }[];
-  devices: { id: string; serial_number: string }[];
-  brands: { id: string; name: string }[];
-  models: VehicleModel[];
-  vehicleTypes: { id: string; name: string }[];
+  tenants: TenantResource[];
+  devices: DeviceResource[];
+  brands: VehicleBrandResource[];
+  models: VehicleModelResource[];
+  vehicleTypes: VehicleTypeResource[];
 }
 
 export default function Create({ tenants, devices, brands, models, vehicleTypes }: VehicleCreateProps) {
@@ -51,16 +29,6 @@ export default function Create({ tenants, devices, brands, models, vehicleTypes 
       href: route('vehicles.create'),
     },
   ];
-
-  const vehicle: Vehicle = {
-    registration: '',
-    brand: '',
-    model: '',
-    vin: '',
-    tenant_id: null,
-    device_id: null,
-  };
-
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title={__("vehicles.actions.create")} />
@@ -81,7 +49,7 @@ export default function Create({ tenants, devices, brands, models, vehicleTypes 
 
         <div className="mt-6">
           <VehicleForm
-            vehicle={vehicle}
+            vehicle={{}}
             tenants={tenants}
             devices={devices}
             isCreate={true}
