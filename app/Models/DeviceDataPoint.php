@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\HasHyperTable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class DeviceDataPoint extends Model
 {
-    use HasFactory;
+    use HasFactory, HasHyperTable;
 
     protected $primaryKey = null;
     public $incrementing = false;

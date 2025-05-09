@@ -21,9 +21,6 @@ return new class extends Migration
             $table->timestamptz('recorded_at');
         });
 
-        // Enable TimescaleDB extension if not already enabled
-        DB::statement('CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;');
-        // Convert the table to a hypertable
         DB::statement("SELECT create_hypertable('device_data_points', by_range('recorded_at'));");
 
         Schema::table('device_data_points', function (Blueprint $table) {
