@@ -4,6 +4,42 @@
  * NOTHING ELSE SHOULD BE ADDED HERE
  */
 
+// User Resources
+export interface UserResource {
+  id: number;
+  name: string;
+  email: string;
+  locale: string;
+  email_verified_at: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+  roles?: string[];
+  permissions?: string[];
+}
+
+// Driver Resources
+export interface DriverResource {
+  id: string;
+  surname: string;
+  firstname: string;
+  phone: string;
+  license_number: string;
+  card_issuing_country: string;
+  card_number: string;
+  birthdate: string | null;
+  card_issuing_date: string | null;
+  card_expiration_date: string | null;
+  tenant_id: string;
+  user_id: number | null;
+  
+  tenant?: TenantResource;
+  user?: UserResource;
+  
+  created_at: string | null;
+  updated_at: string | null;
+  deleted_at: string | null;
+}
+
 // Tenant Resources
 export interface TenantResource {
   id: string;
