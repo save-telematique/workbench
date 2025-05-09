@@ -1,38 +1,23 @@
-import { Head, useForm, Link } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { type BreadcrumbItem } from "@/types";
-import { FormEvent } from 'react';
 import { ArrowLeft } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import HeadingSmall from '@/components/heading-small';
-import InputError from '@/components/input-error';
 import { useTranslation } from '@/utils/translation';
+import VehicleModelForm from '@/components/global-settings/vehicle-model-form';
 
 import AppLayout from '@/layouts/app-layout';
 import GlobalSettingsLayout from '@/layouts/global-settings/layout';
-import { VehicleBrand } from '../vehicle-brands/columns';
+import { VehicleBrandResource } from "@/types/resources";
 
 
 interface Props {
-    vehicleBrands: VehicleBrand[];
+    vehicleBrands: VehicleBrandResource[];
 }
 
 export default function Create({ vehicleBrands }: Props) {
     const { __ } = useTranslation();
-    
-    const { data, setData, post, processing, errors, reset } = useForm({
-        name: '',
-        vehicle_brand_id: '',
-    });
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
@@ -44,13 +29,6 @@ export default function Create({ vehicleBrands }: Props) {
             href: route('global-settings.vehicle-models.create'),
         },
     ];
-
-    const submit = (e: FormEvent) => {
-        e.preventDefault();
-        post(route('global-settings.vehicle-models.store'), {
-            onSuccess: () => reset(),
-        });
-    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -71,48 +49,11 @@ export default function Create({ vehicleBrands }: Props) {
                         </Button>
                     </div>
                     
-                    <form onSubmit={submit} className="space-y-6">
-                        <div className="space-y-4">
-                            <div>
-                                <Label htmlFor="name">{__('common.name')}</Label>
-                                <Input
-                                    id="name"
-                                    type="text"
-                                    className="mt-1 block w-full"
-                                    value={data.name}
-                                    onChange={(e) => setData('name', e.target.value)}
-                                    required
-                                />
-                                <InputError message={errors.name} className="mt-2" />
-                            </div>
-
-                            <div>
-                                <Label htmlFor="vehicle_brand_id">{__('common.brand')}</Label>
-                                <Select
-                                    value={data.vehicle_brand_id}
-                                    onValueChange={(value) => setData('vehicle_brand_id', value)}
-                                >
-                                    <SelectTrigger id="vehicle_brand_id" className="mt-1 w-full">
-                                        <SelectValue placeholder={__('common.select_brand')} />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {vehicleBrands.map((brand) => (
-                                            <SelectItem key={brand.id} value={brand.id.toString()}>
-                                                {brand.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <InputError message={errors.vehicle_brand_id} className="mt-2" />
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-4">
-                            <Button disabled={processing}>
-                                {__('common.create')}
-                            </Button>
-                        </div>
-                    </form>
+                    <VehicleModelForm 
+                        model={{}}
+                        brands={vehicleBrands}
+                        isCreate={true}
+                    />
                 </div>
             </GlobalSettingsLayout>
         </AppLayout>

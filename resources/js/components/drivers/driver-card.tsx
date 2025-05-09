@@ -1,7 +1,7 @@
 import FormattedDate from '@/components/formatted-date';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/utils/translation';
-import { Card, CardContent } from './ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface DriverCardProps {
     firstname: string;
@@ -17,7 +17,7 @@ interface DriverCardProps {
 
 // Composant pour le drapeau européen
 const EUFlag = ({ countryCode }: { countryCode: string | null }) => (
-    <div className="relative flex h-14 w-full items-center justify-center rounded-sm border border-slate-300 bg-[#034ea2]">
+    <div className="relative flex overflow-hidden h-15 w-full items-center justify-center rounded-sm border border-slate-300 bg-[#034ea2]">
         <div className="absolute inset-0">
             <svg className="overflow-hidden" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
                 <rect width="36" height="22" fill="#034ea2" />
@@ -99,7 +99,7 @@ export function DriverCard({
                     <div className="flex flex-grow flex-col">
                         {/* En-tête avec le titre */}
                         <div className="mb-2 flex flex-col">
-                            <div className="text-xs font-semibold text-[#034ea2] uppercase">{__('drivers.card.title')}</div>
+                            <div className="text-sm font-bold text-[#034ea2] uppercase">{__('drivers.card.title')}</div>
                         </div>
 
                         {/* Informations en grille */}
@@ -107,19 +107,19 @@ export function DriverCard({
                             {/* Colonne gauche */}
                             <div className="space-y-1.5">
                                 <div>
-                                    <div className="text-xs text-slate-600">{__('drivers.card.surname')}:</div>
+                                    <div className="text-xs font-semibold">{__('drivers.card.surname')}:</div>
                                     <div className="text-sm font-semibold uppercase">{surname}</div>
                                 </div>
                                 <div>
-                                    <div className="text-xs text-slate-600">{__('drivers.card.firstname')}:</div>
+                                    <div className="text-xs font-semibold">{__('drivers.card.firstname')}:</div>
                                     <div className="text-sm">{firstname}</div>
                                 </div>
                                 <div>
-                                    <div className="text-xs text-slate-600">{__('drivers.card.birthdate')}:</div>
+                                    <div className="text-xs font-semibold">{__('drivers.card.birthdate')}:</div>
                                     <div className="text-sm">
                                         {birthdate ? (
                                             <>
-                                                <FormattedDate date={birthdate} format="D" />
+                                                <FormattedDate date={birthdate} format="DATE_MED" />
                                             </>
                                         ) : (
                                             '-'
@@ -131,11 +131,11 @@ export function DriverCard({
                             {/* Colonne droite */}
                             <div className="space-y-1.5">
                                 <div>
-                                    <div className="text-xs text-slate-600">{__('drivers.card.issuing_date')}:</div>
+                                    <div className="text-xs font-semibold">{__('drivers.card.issuing_date')}:</div>
                                     <div className="text-sm">
                                         {card_issuing_date ? (
                                             <>
-                                                <FormattedDate date={card_issuing_date} format="D" />
+                                                <FormattedDate date={card_issuing_date} format="DATE_MED" />
                                             </>
                                         ) : (
                                             '-'
@@ -143,11 +143,11 @@ export function DriverCard({
                                     </div>
                                 </div>
                                 <div>
-                                    <div className="text-xs text-slate-600">{__('drivers.card.expiration_date')}:</div>
+                                    <div className="text-xs font-semibold">{__('drivers.card.expiration_date')}:</div>
                                     <div className="text-sm">
                                         {card_expiration_date ? (
                                             <>
-                                                <FormattedDate date={card_expiration_date} format="D" />
+                                                <FormattedDate date={card_expiration_date} format="DATE_MED" />
                                             </>
                                         ) : (
                                             '-'
@@ -155,11 +155,11 @@ export function DriverCard({
                                     </div>
                                 </div>
                                 <div>
-                                    <div className="text-xs text-slate-600">{__('drivers.card.license_number')}:</div>
+                                    <div className="text-xs font-semibold">{__('drivers.card.license_number')}:</div>
                                     <div className="text-sm">{license_number || '-'}</div>
                                 </div>
                                 <div>
-                                    <div className="text-xs text-slate-600">{__('drivers.card.card_number')}:</div>
+                                    <div className="text-xs font-semibold">{__('drivers.card.card_number')}:</div>
                                     <div className="text-sm">{card_number || '-'}</div>
                                 </div>
                             </div>

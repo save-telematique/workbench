@@ -33,8 +33,8 @@ interface DeviceFormProps {
 // Define the form data type
 interface DeviceFormData {
   device_type_id: string;
-  tenant_id?: string | undefined | null;
-  vehicle_id?: string | undefined | null;
+  tenant_id?: string;
+  vehicle_id?: string;
   firmware_version: string;
   serial_number: string;
   sim_number: string;
@@ -56,8 +56,8 @@ export default function DeviceForm({
   // Initialize form with device data or defaults
   const { data, setData, processing, errors, recentlySuccessful, post, put } = useForm<DeviceFormData>({
     device_type_id: device.type?.id.toString() || "",
-    tenant_id: device.tenant_id,
-    vehicle_id: device.vehicle_id,
+    tenant_id: device.tenant_id || '',
+    vehicle_id: device.vehicle_id || '',
     firmware_version: device.firmware_version || "",
     serial_number: device.serial_number || "",
     sim_number: device.sim_number || "",
@@ -210,7 +210,6 @@ export default function DeviceForm({
               <SelectValue placeholder={__("devices.placeholders.tenant")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="none">{__("common.none")}</SelectItem>
               {tenants.map((tenant) => (
                 <SelectItem key={tenant.id} value={tenant.id}>
                   {tenant.name}
@@ -233,7 +232,6 @@ export default function DeviceForm({
               <SelectValue placeholder={__("devices.placeholders.vehicle")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="none">{__("common.none")}</SelectItem>
               {vehicles.map((vehicle) => (
                 <SelectItem key={vehicle.id} value={vehicle.id}>
                   {vehicle.registration}

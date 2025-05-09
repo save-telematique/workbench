@@ -10,6 +10,7 @@ export interface UserResource {
   name: string;
   email: string;
   locale: string;
+  tenant_id: string;
   email_verified_at: string | null;
   created_at: string | null;
   updated_at: string | null;

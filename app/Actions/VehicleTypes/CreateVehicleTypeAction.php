@@ -19,7 +19,6 @@ class CreateVehicleTypeAction
     {
         return [
             'name' => ['required', 'string', 'max:255', 'unique:vehicle_types,name'],
-            'description' => ['nullable', 'string'],
         ];
     }
 

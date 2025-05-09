@@ -1,46 +1,23 @@
-import { Head, useForm, Link } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { type BreadcrumbItem } from "@/types";
-import { FormEvent, useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import HeadingSmall from '@/components/heading-small';
-import InputError from '@/components/input-error';
 import { useTranslation } from '@/utils/translation';
+import VehicleModelForm from '@/components/global-settings/vehicle-model-form';
 
 import AppLayout from '@/layouts/app-layout';
 import GlobalSettingsLayout from '@/layouts/global-settings/layout';
-import { VehicleModel } from './columns';
-import { VehicleBrand } from '../vehicle-brands/columns';
-
+import { VehicleBrandResource, VehicleModelResource } from "@/types/resources";
 
 interface Props {
-    vehicleModel: VehicleModel;
-    vehicleBrands: VehicleBrand[];
+    vehicleModel: VehicleModelResource;
+    vehicleBrands: VehicleBrandResource[];
 }
 
 export default function Edit({ vehicleModel, vehicleBrands }: Props) {
     const { __ } = useTranslation();
-    
-    const { data, setData, patch, processing, errors } = useForm({
-        name: vehicleModel.name,
-        vehicle_brand_id: '',
-    });
-
-    useEffect(() => {
-        if (vehicleModel && vehicleModel.vehicle_brand_id) {
-            setData('vehicle_brand_id', vehicleModel.vehicle_brand_id.toString());
-        }
-    }, [vehicleModel]);
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
@@ -49,14 +26,9 @@ export default function Edit({ vehicleModel, vehicleBrands }: Props) {
         },
         {
             title: __('common.edit_vehicle_model'),
-            href: route('global-settings.vehicle-models.edit', vehicleModel.id),
+            href: route('global-settings.vehicle-models.edit', { vehicle_model: vehicleModel.id }),
         },
     ];
-
-    const submit = (e: FormEvent) => {
-        e.preventDefault();
-        patch(route('global-settings.vehicle-models.update', vehicleModel.id));
-    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -77,48 +49,11 @@ export default function Edit({ vehicleModel, vehicleBrands }: Props) {
                         </Button>
                     </div>
                     
-                    <form onSubmit={submit} className="space-y-6">
-                        <div className="space-y-4">
-                            <div>
-                                <Label htmlFor="name">{__('common.name')}</Label>
-                                <Input
-                                    id="name"
-                                    type="text"
-                                    className="mt-1 block w-full"
-                                    value={data.name}
-                                    onChange={(e) => setData('name', e.target.value)}
-                                    required
-                                />
-                                <InputError message={errors.name} className="mt-2" />
-                            </div>
-
-                            <div>
-                                <Label htmlFor="vehicle_brand_id">{__('common.brand')}</Label>
-                                <Select
-                                    value={data.vehicle_brand_id}
-                                    onValueChange={(value) => setData('vehicle_brand_id', value)}
-                                >
-                                    <SelectTrigger id="vehicle_brand_id" className="mt-1 w-full">
-                                        <SelectValue placeholder={__('common.select_brand')} />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {vehicleBrands.map((brand) => (
-                                            <SelectItem key={brand.id} value={brand.id.toString()}>
-                                                {brand.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <InputError message={errors.vehicle_brand_id} className="mt-2" />
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-4">
-                            <Button disabled={processing}>
-                                {__('common.save')}
-                            </Button>
-                        </div>
-                    </form>
+                    <VehicleModelForm 
+                        model={vehicleModel}
+                        brands={vehicleBrands}
+                        isCreate={false}
+                    />
                 </div>
             </GlobalSettingsLayout>
         </AppLayout>

@@ -1,31 +1,22 @@
-import { Head, useForm, Link } from '@inertiajs/react';
-import { FormEvent } from 'react';
+import { Head, Link } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import HeadingSmall from '@/components/heading-small';
-import InputError from '@/components/input-error';
 import { type BreadcrumbItem } from '@/types';
 import { useTranslation } from '@/utils/translation';
+import VehicleTypeForm from '@/components/global-settings/vehicle-type-form';
 
 import AppLayout from '@/layouts/app-layout';
 import GlobalSettingsLayout from '@/layouts/global-settings/layout';
+import { VehicleTypeResource } from '@/types/resources';
 
 interface Props {
-    vehicleType: {
-        id: number;
-        name: string;
-    };
+    vehicleType: VehicleTypeResource;
 }
 
 export default function Edit({ vehicleType }: Props) {
     const { __ } = useTranslation();
-    
-    const { data, setData, patch, processing, errors } = useForm({
-        name: vehicleType.name,
-    });
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
@@ -34,14 +25,9 @@ export default function Edit({ vehicleType }: Props) {
         },
         {
             title: __('common.edit_vehicle_type'),
-            href: route('global-settings.vehicle-types.edit', vehicleType.id),
+            href: route('global-settings.vehicle-types.edit', { vehicle_type: vehicleType.id }),
         },
     ];
-
-    const submit = (e: FormEvent) => {
-        e.preventDefault();
-        patch(route('global-settings.vehicle-types.update', vehicleType.id));
-    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -62,28 +48,10 @@ export default function Edit({ vehicleType }: Props) {
                         </Button>
                     </div>
                     
-                    <form onSubmit={submit} className="space-y-6">
-                        <div className="space-y-4">
-                            <div>
-                                <Label htmlFor="name">{__('common.name')}</Label>
-                                <Input
-                                    id="name"
-                                    type="text"
-                                    className="mt-1 block w-full"
-                                    value={data.name}
-                                    onChange={(e) => setData('name', e.target.value)}
-                                    required
-                                />
-                                <InputError message={errors.name} className="mt-2" />
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-4">
-                            <Button disabled={processing}>
-                                {__('common.save')}
-                            </Button>
-                        </div>
-                    </form>
+                    <VehicleTypeForm 
+                        type={vehicleType}
+                        isCreate={false}
+                    />
                 </div>
             </GlobalSettingsLayout>
         </AppLayout>

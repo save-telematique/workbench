@@ -1,5 +1,5 @@
 import { Head } from "@inertiajs/react";
-import { type BreadcrumbItem } from "@/types";
+import { type BreadcrumbItem, TenantResource, UserResource } from "@/types";
 import { useTranslation } from "@/utils/translation";
 import DriversLayout from "@/layouts/drivers/layout";
 import AppLayout from "@/layouts/app-layout";
@@ -9,8 +9,8 @@ import HeadingSmall from '@/components/heading-small';
 import DriverForm from "@/components/drivers/driver-form";
 
 interface CreateDriverProps {
-  tenants: { id: string; name: string }[];
-  users: { id: number; name: string; email: string; tenant_id?: string | null }[];
+  tenants: TenantResource[];
+  users: UserResource[];
 }
 
 export default function Create({ tenants, users }: CreateDriverProps) {
@@ -27,25 +27,9 @@ export default function Create({ tenants, users }: CreateDriverProps) {
     },
   ];
 
-  // Empty driver object for the form
-  const emptyDriver = {
-    id: '',
-    firstname: '',
-    surname: '',
-    phone: '',
-    license_number: '',
-    card_issuing_country: '',
-    card_number: '',
-    birthdate: '',
-    card_issuing_date: '',
-    card_expiration_date: '',
-    tenant_id: tenants.length > 0 ? tenants[0].id : '',
-    user_id: null,
-  };
-
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
-      <Head title={__("drivers.create.title")} />
+      <Head title={__("drivers.actions.create")} />
 
       <DriversLayout showSidebar={false}>
         <div className="flex items-center justify-between">
@@ -63,7 +47,7 @@ export default function Create({ tenants, users }: CreateDriverProps) {
 
         <div className="mt-6">
           <DriverForm 
-            driver={emptyDriver}
+            driver={{}}
             tenants={tenants}
             users={users}
             isCreate={true}

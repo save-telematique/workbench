@@ -14,7 +14,7 @@ import { DeleteDriverDialog } from "./dialogs/delete-dialog";
 import { RestoreDriverDialog } from "./dialogs/restore-dialog";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import FormattedDate from "@/components/formatted-date";
-import { DriverCard } from "@/components/driver-card";
+import { DriverCard } from "@/components/drivers/driver-card";
 
 
 
@@ -63,7 +63,7 @@ export default function Show({ driver }: ShowDriverProps) {
     },
     {
       title: `${driver.surname} ${driver.firstname}`,
-      href: route('drivers.show', driver.id),
+      href: route('drivers.show', { driver: driver.id }),
     },
   ];
 
@@ -85,7 +85,7 @@ export default function Show({ driver }: ShowDriverProps) {
           <div className="flex gap-2">
             {!driver.deleted_at && canEditDrivers && (
               <Button asChild variant="outline">
-                <Link href={route("drivers.edit", driver.id)}>
+                <Link href={route("drivers.edit", { driver: driver.id })}>
                   <PenBox className="mr-2 h-4 w-4" />
                   {__("common.edit")}
                 </Link>
@@ -183,7 +183,7 @@ export default function Show({ driver }: ShowDriverProps) {
                   <TableCell>
                     {driver.tenant ? (
                       <Link 
-                        href={route("tenants.show", driver.tenant.id)}
+                        href={route("tenants.show", { tenant: driver.tenant.id })}
                         className="flex items-center hover:underline text-primary"
                       >
                         <Building className="mr-2 h-4 w-4" />
@@ -199,7 +199,7 @@ export default function Show({ driver }: ShowDriverProps) {
                   <TableCell>
                     {driver.user ? (
                       <Link 
-                        href={route("users.show", driver.user.id)}
+                        href={route("users.show", { user: driver.user.id })}
                         className="flex items-center hover:underline text-primary"
                       >
                         <User className="mr-2 h-4 w-4" />

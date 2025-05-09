@@ -14,27 +14,27 @@ class VehicleStaticDataSeeder extends Seeder
      */
     public function run(): void
     {
-        VehicleType::updateOrCreate(['id' => 1], [
+        VehicleType::create([
             'name' => 'Tracteur',
         ]);
 
-        VehicleType::updateOrCreate(['id' => 2], [
+        VehicleType::create([
             'name' => 'Remorque',
         ]);
 
-        VehicleType::updateOrCreate(['id' => 3], [
+        VehicleType::create([
             'name' => 'Véhicule léger',
         ]);
 
-        $volvo = VehicleBrand::updateOrCreate(['id' => 1], [
+        $volvo = VehicleBrand::create([
             'name' => 'Volvo',
         ]);
 
-        $renault = VehicleBrand::updateOrCreate(['id' => 2], [
+        $renault = VehicleBrand::create([
             'name' => 'Renault',
         ]);
 
-        $daf = VehicleBrand::updateOrCreate(['id' => 3], [
+        $daf = VehicleBrand::create([
             'name' => 'DAF',
         ]);
 
