@@ -16,50 +16,40 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Device;
 use App\Models\Vehicle;
 use App\Enum\DeviceDataPointType;
+use App\Models\DeviceMessage;
 
 class UpdateDeviceDataJob implements ShouldQueue, DataPointHandlerJob
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected DeviceDataPoint $deviceDataPoint;
+    protected DeviceMessage $deviceMessage;
     protected Device $device;
-    // Vehicle property can be added if needed in the future, for now, it's passed but not stored if unused.
-    // protected ?Vehicle $vehicle; 
+    protected array $data;
 
     /**
      * Create a new job instance.
      *
-     * @param DeviceDataPoint $deviceDataPoint
+     * @param DeviceMessage $deviceMessage
      * @param Device $device
      * @param Vehicle|null $vehicle
      */
-    public function __construct(DeviceDataPoint $deviceDataPoint, Device $device, ?Vehicle $vehicle)
+    public function __construct(DeviceMessage $deviceMessage, Device $device, ?Vehicle $vehicle)
     {
-        $this->deviceDataPoint = $deviceDataPoint;
+        $this->deviceMessage = $deviceMessage;
         $this->device = $device;
+        $this->data = $deviceMessage->dataPoints->where('data_point_type_id', MessageFields::DEVICE_DATA->value)->first()->value;
     }
 
-    /**
-     * Get the data point type IDs that this job reacts to.
-     *
-     * @return array<int>
-     */
-    public static function getReactsToDataPointTypes(): array
-    {
-        return [MessageFields::DEVICE_DATA->value];
-    }
 
     /**
      * Execute the job.
      */
     public function handle(): void
     {
-        $data = $this->deviceDataPoint->data;
-
         $updateData = [];
         
-        if (isset($data['firmwareVersion']) && $this->device->firmware_version !== $data['firmwareVersion']) {
-            $updateData['firmware_version'] = $data['firmwareVersion'];
+        if (isset($this->data['firmwareVersion']) && $this->device->firmware_version !== $this->data['firmwareVersion']) {
+            $updateData['firmware_version'] = $this->data['firmwareVersion'];
         }
 
         if (!empty($updateData)) {

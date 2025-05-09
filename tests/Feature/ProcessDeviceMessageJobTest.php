@@ -1,7 +1,6 @@
 <?php
 
 use App\Enum\MessageFields;
-use App\Events\NewDeviceDataPoint;
 use App\Jobs\ProcessDeviceMessage;
 use App\Models\DataPointType;
 use App\Models\Device;
@@ -22,7 +21,6 @@ beforeEach(function () {
 });
 
 test('it processes a device message and creates data points with transformations', function () {
-    Event::fake([NewDeviceDataPoint::class]);
 
     // Arrange
     $device = Device::factory()->create();
@@ -93,10 +91,4 @@ test('it processes a device message and creates data points with transformations
         ->first();
     expect($unknownDataPoint)->toBeNull();
 
-    // Assert events were dispatched
-    Event::assertDispatched(NewDeviceDataPoint::class, 3); // Odometer, Ignition, GPS
-
-    Event::assertDispatched(NewDeviceDataPoint::class, fn (NewDeviceDataPoint $event) => $event->deviceDataPoint->id === $odometerDataPoint->id);
-    Event::assertDispatched(NewDeviceDataPoint::class, fn (NewDeviceDataPoint $event) => $event->deviceDataPoint->id === $ignitionDataPoint->id);
-    Event::assertDispatched(NewDeviceDataPoint::class, fn (NewDeviceDataPoint $event) => $event->deviceDataPoint->id === $gpsDataPoint->id);
-});
+   });

@@ -48,6 +48,11 @@ class DeviceMessage extends Model
         return $this->hasOne(VehicleLocation::class, 'device_message_id');
     }
 
+    public function dataPoints()
+    {
+        return $this->hasMany(DeviceDataPoint::class, 'device_message_id');
+    }
+
     public function process()
     {
         dispatch(new ProcessDeviceMessage($this));

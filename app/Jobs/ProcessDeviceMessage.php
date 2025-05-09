@@ -4,7 +4,7 @@ namespace App\Jobs;
 
 use App\Enum\DataPointDataType;
 use App\Enum\MessageFields;
-use App\Events\NewDeviceDataPoint;
+use App\Events\DeviceMessageProcessed;
 use App\Helpers\GeoHelper;
 use App\Models\DataPointType;
 use App\Models\DeviceDataPoint;
@@ -95,6 +95,7 @@ class ProcessDeviceMessage implements ShouldQueue
         );
 
         $insertDataPoints = [];
+
         try {
             foreach ($this->message->message['fields'] as $fieldKey => $rawValue) {
                 $dataPointTypeId = intval($fieldKey);
@@ -143,31 +144,38 @@ class ProcessDeviceMessage implements ShouldQueue
                     continue;
                 }
 
-                $insertDataPoints[] = DeviceDataPoint::create([
+                $insertDataPoints[] = [
                     'device_message_id' => $this->message->id,
                     'device_id' => $device->id,
                     'vehicle_id' => $vehicleId,
                     'data_point_type_id' => $dataPointType->id,
-                    'value' => $processedValue,
+                    'value' => json_encode($processedValue),
                     'recorded_at' => $recordedAt,
-                ]);
+                ];
             }
+
+            DB::transaction(function () use (&$insertDataPoints, $recordedAt, $device) {
+
+                DeviceDataPoint::insert($insertDataPoints);
+
+                $device->last_contact_at = $recordedAt;
+                $device->save();
+
+                $this->message->processed_at = now();
+                $this->message->save();
+            });
 
             if (!empty($insertDataPoints)) {
-                event(new NewDeviceDataPoint($insertDataPoints));
+                event(new DeviceMessageProcessed($this->message));
             }
-
-            $device->last_contact_at = $recordedAt;
-            $device->save();
-
-            $this->message->processed_at = now();
-            $this->message->save();
         } catch (Throwable $e) {
             Log::error('Error processing device message batch', [
                 'message_id' => $this->message->id,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
+
+            throw $e;
         }
     }
 }

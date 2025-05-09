@@ -28,7 +28,7 @@ services:
             - minio
             - mailpit
     pgsql:
-        image: 'postgres:17'
+        image: 'timescale/timescaledb-ha:pg17'
         ports:
             - '${FORWARD_DB_PORT:-5432}:5432'
         environment:
@@ -37,7 +37,8 @@ services:
             POSTGRES_USER: '${DB_USERNAME}'
             POSTGRES_PASSWORD: '${DB_PASSWORD:-secret}'
         volumes:
-            - 'sail-save-pgsql:/var/lib/postgresql/data'
+            - 'sail-save-timescaledb-ha:/home/postgres/pgdata/data'
+            - 'sail-save-timescaledb:/var/lib/postgresql/data'
             - './vendor/laravel/sail/database/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql'
         networks:
             - sail
@@ -119,7 +120,9 @@ networks:
     sail:
         driver: bridge
 volumes:
-    sail-save-pgsql:
+    sail-save-timescaledb-ha:
+        driver: local
+    sail-save-timescaledb:
         driver: local
     sail-redis:
         driver: local

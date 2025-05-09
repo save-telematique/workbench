@@ -4,7 +4,7 @@ namespace App\Jobs\DataPointHandlers;
 
 use App\Contracts\DataPointHandlerJob;
 use App\Enum\MessageFields;
-use App\Models\DeviceDataPoint;
+use App\Models\DeviceMessage;
 use App\Models\Device;
 use App\Models\Vehicle;
 use App\Enum\DeviceDataPointType;
@@ -19,32 +19,22 @@ class UpdateVehicleOdometerJob implements ShouldQueue, DataPointHandlerJob
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected DeviceDataPoint $deviceDataPoint;
-    // Device is passed to constructor but not explicitly used if vehicle is the primary focus.
-    // protected Device $device; 
+    protected DeviceMessage $deviceMessage;
     protected ?Vehicle $vehicle;
+    protected int $data;
 
     /**
      * Create a new job instance.
      *
-     * @param DeviceDataPoint $deviceDataPoint
+     * @param DeviceMessage $deviceMessage
      * @param Device $device
      * @param Vehicle|null $vehicle
      */
-    public function __construct(DeviceDataPoint $deviceDataPoint, Device $device, ?Vehicle $vehicle)
+    public function __construct(DeviceMessage $deviceMessage, Device $device, ?Vehicle $vehicle)
     {
-        $this->deviceDataPoint = $deviceDataPoint;
+        $this->deviceMessage = $deviceMessage;
         $this->vehicle = $vehicle;
-    }
-
-    /**
-     * Get the data point type IDs that this job reacts to.
-     *
-     * @return array<int>
-     */
-    public static function getReactsToDataPointTypes(): array
-    {
-        return [MessageFields::TOTAL_ODOMETER->value]; 
+        $this->data = intval($deviceMessage->dataPoints->where('data_point_type_id', MessageFields::TOTAL_ODOMETER->value)->first()->value);
     }
 
     /**
@@ -55,13 +45,11 @@ class UpdateVehicleOdometerJob implements ShouldQueue, DataPointHandlerJob
         if (!$this->vehicle) {
             return;
         }
-        $odometerValue = $this->deviceDataPoint->value; 
-
-        if (!is_numeric($odometerValue)) {
+        if (!is_numeric($this->data)) {
             return;
         }
 
-        $newOdometerInKm = $odometerValue / 1000;
+        $newOdometerInKm = $this->data / 1000;
 
         if ($newOdometerInKm < $this->vehicle->odometer) {
             return;

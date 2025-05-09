@@ -4,6 +4,8 @@ use App\Models\DeviceDataPoint;
 use App\Models\DeviceMessage;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
+
 use function Laravel\Prompts\progress;
 
 Artisan::command('device-messages:process', function () {
@@ -23,8 +25,9 @@ Artisan::command('device-messages:process', function () {
     }
 })->everyTenMinutes();
 
-Artisan::command('test', function () {
-    $deviceDataPoint = DeviceDataPoint::find("0196aff6-9dcc-7084-842d-44fcce767c85");
-
-    dd($deviceDataPoint->value);
+Artisan::command('fresh-db', function () {
+    DB::statement('DROP TABLE IF EXISTS device_data_points');
+    Artisan::call('migrate:fresh');
+    Artisan::call('db:seed');
 });
+

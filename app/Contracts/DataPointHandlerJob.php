@@ -3,17 +3,15 @@
 namespace App\Contracts;
 
 use App\Events\NewDeviceDataPoint; // Though the job will receive DeviceDataPoint directly
+use App\Models\Device;
 use App\Models\DeviceDataPoint;
+use App\Models\DeviceMessage;
+use App\Models\Vehicle;
 
 interface DataPointHandlerJob
 {
-    /**
-     * Get the data point type IDs that this job reacts to.
-     * Expected to return an array of integers (MessageFields enum values).
-     *
-     * @return array<int>
-     */
-    public static function getReactsToDataPointTypes(): array;
+   
+    public function __construct(DeviceMessage $deviceMessage, Device $device, ?Vehicle $vehicle);
 
     /**
      * Handle the incoming device data point.

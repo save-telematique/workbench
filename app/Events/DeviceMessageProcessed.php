@@ -3,6 +3,7 @@
 namespace App\Events;
 
 use App\Models\DeviceDataPoint;
+use App\Models\DeviceMessage;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -11,20 +12,20 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class NewDeviceDataPoint
+class DeviceMessageProcessed
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    /** @var \App\Models\DeviceDataPoint[] */
-    public array $deviceDataPoints;
+    /** @var \App\Models\DeviceMessage */
+    public DeviceMessage $deviceMessage;
 
     /**
      * Create a new event instance.
      * @param \App\Models\DeviceDataPoint[] $deviceDataPoints
      */
-    public function __construct(array $deviceDataPoints)
+    public function __construct(DeviceMessage $deviceMessage)
     {
-        $this->deviceDataPoints = $deviceDataPoints;
+        $this->deviceMessage = $deviceMessage;
     }
 
     /**

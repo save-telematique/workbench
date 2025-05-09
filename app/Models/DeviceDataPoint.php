@@ -10,7 +10,8 @@ class DeviceDataPoint extends Model
 {
     use HasFactory;
 
-    // Disable timestamps as they are not in the migration
+    protected $primaryKey = null;
+    public $incrementing = false;
     public $timestamps = false;
 
     protected $fillable = [
