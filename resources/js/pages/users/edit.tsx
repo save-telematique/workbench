@@ -1,20 +1,15 @@
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft } from 'lucide-react';
+import { Head } from '@inertiajs/react';
 
-import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import UsersLayout from '@/layouts/users/layout';
 import { useTranslation } from '@/utils/translation';
 import UserForm from '@/components/users/user-form';
+import UserPageLayout from '@/components/users/user-page-layout';
+import { UserResource } from '@/types/resources';
 
 interface UserEditProps {
-    user: {
-        id: string;
-        name: string;
-        email: string;
-        locale: string;
-    };
+    user: UserResource;
 }
 
 export default function UserEdit({ user }: UserEditProps) {
@@ -40,23 +35,20 @@ export default function UserEdit({ user }: UserEditProps) {
             <Head title={__('users.edit.title')} />
 
             <UsersLayout>
-                <div className="space-y-6">
-                    <div className="flex justify-end">
-                        <Button variant="outline"  asChild>
-                            <Link href={route('users.show', { user: user.id })}>
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                {__('common.back')}
-                            </Link>
-                        </Button>
-                    </div>
-                    
+                <UserPageLayout
+                    title={__('users.edit.heading', { name: user.name })}
+                    description={__('users.edit.description')}
+                    backUrl={route('users.show', { user: user.id })}
+                    backLabel={__('common.back')}
+                >
                     <UserForm
                         user={user}
                         translationNamespace="users"
                         submitUrl={route('users.update', { user: user.id })}
                         cancelUrl={route('users.show', { user: user.id })}
+                        isCreate={false}
                     />
-                </div>
+                </UserPageLayout>
             </UsersLayout>
         </AppLayout>
     );

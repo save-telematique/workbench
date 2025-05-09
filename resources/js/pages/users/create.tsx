@@ -1,12 +1,11 @@
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft } from 'lucide-react';
+import { Head } from '@inertiajs/react';
 
-import { Button } from '@/components/ui/button';
 import UserForm from '@/components/users/user-form';
 import AppLayout from '@/layouts/app-layout';
 import UsersLayout from '@/layouts/users/layout';
 import { useTranslation } from '@/utils/translation';
+import UserPageLayout from '@/components/users/user-page-layout';
 
 export default function UserCreate() {
     const { __ } = useTranslation();
@@ -27,18 +26,19 @@ export default function UserCreate() {
             <Head title={__('users.create.title')} />
 
             <UsersLayout>
-                <div className="space-y-6">
-                    <div className="flex justify-end">
-                        <Button variant="outline" asChild>
-                            <Link href={route('users.index')}>
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                {__('users.actions.back_to_list')}
-                            </Link>
-                        </Button>
-                    </div>
-
-                    <UserForm translationNamespace="users" submitUrl={route('users.store')} cancelUrl={route('users.index')} />
-                </div>
+                <UserPageLayout
+                    title={__('users.create.heading')}
+                    description={__('users.create.description')}
+                    backUrl={route('users.index')}
+                    backLabel={__('users.actions.back_to_list')}
+                >
+                    <UserForm 
+                        translationNamespace="users" 
+                        submitUrl={route('users.store')} 
+                        cancelUrl={route('users.index')}
+                        isCreate={true}
+                    />
+                </UserPageLayout>
             </UsersLayout>
         </AppLayout>
     );

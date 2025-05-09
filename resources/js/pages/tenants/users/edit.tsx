@@ -1,25 +1,16 @@
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/react';
-import { ArrowLeft } from 'lucide-react';
+import { Head } from '@inertiajs/react';
 
-import HeadingSmall from '@/components/heading-small';
-import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import TenantsLayout from '@/layouts/tenants/layout';
 import { useTranslation } from '@/utils/translation';
 import UserForm from '@/components/users/user-form';
+import UserPageLayout from '@/components/users/user-page-layout';
+import { TenantResource, UserResource } from '@/types/resources';
 
 interface TenantUserEditProps {
-    tenant: {
-        id: string;
-        name: string;
-    };
-    user: {
-        id: string;
-        name: string;
-        email: string;
-        locale: string;
-    };
+    tenant: TenantResource;
+    user: UserResource;
 }
 
 export default function TenantUserEdit({ tenant, user }: TenantUserEditProps) {
@@ -52,29 +43,21 @@ export default function TenantUserEdit({ tenant, user }: TenantUserEditProps) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={__('tenant_users.edit.title', { tenant: tenant.name })} />
 
-            <TenantsLayout showSidebar={true} tenantId={tenant.id} activeTab="users">
-                <div className="space-y-6">
-                    <HeadingSmall 
-                        title={__('tenant_users.edit.heading')} 
-                        description={__('tenant_users.edit.description')} 
-                    />
-                    
-                    <div className="flex justify-end">
-                        <Button variant="outline"  asChild>
-                            <Link href={route('tenants.users.show', { tenant: tenant.id, user: user.id })}>
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                {__('common.back')}
-                            </Link>
-                        </Button>
-                    </div>
-                    
+            <TenantsLayout showSidebar={true} tenantId={tenant.id}>
+                <UserPageLayout
+                    title={__('tenant_users.edit.heading', { name: user.name })}
+                    description={__('tenant_users.edit.description')}
+                    backUrl={route('tenants.users.show', { tenant: tenant.id, user: user.id })}
+                    backLabel={__('common.back')}
+                >
                     <UserForm
                         user={user}
                         translationNamespace="tenant_users"
                         submitUrl={route('users.update', { user: user.id })}
                         cancelUrl={route('tenants.users.show', { tenant: tenant.id, user: user.id })}
+                        isCreate={false}
                     />
-                </div>
+                </UserPageLayout>
             </TenantsLayout>
         </AppLayout>
     );
