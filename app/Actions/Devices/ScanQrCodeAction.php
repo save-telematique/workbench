@@ -15,6 +15,13 @@ class ScanQrCodeAction
 {
     use AsAction;
 
+    protected ImageAnalysisService $imageAnalysisService;
+
+    public function __construct(ImageAnalysisService $imageAnalysisService)
+    {
+        $this->imageAnalysisService = $imageAnalysisService;
+    }
+
     public function authorize(ActionRequest $request): bool
     {
         return $request->user()->can('create', Device::class);
@@ -42,11 +49,11 @@ class ScanQrCodeAction
         ];
     }
 
-    public function handle(UploadedFile $file, ImageAnalysisService $imageAnalysisService): array
+    public function handle(UploadedFile $file): array
     {
         try {
             // Use the image analysis service to extract data
-            $result = $imageAnalysisService->analyze($file, 'device');
+            $result = $this->imageAnalysisService->analyze($file, 'device');
 
             if ($result['success'] && !empty($result['data'])) {
                 // Find the device type ID based on the type name
