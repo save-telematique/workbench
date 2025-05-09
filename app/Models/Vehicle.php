@@ -21,7 +21,9 @@ class Vehicle extends Model
         'registration',
         'vin',
         'odometer',
-        'current_vehicle_location_id'
+        'current_vehicle_location_id',
+        'country',
+        'tenant_id'
     ];
 
     /**

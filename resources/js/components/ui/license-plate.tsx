@@ -3,7 +3,7 @@ import { Link } from "@inertiajs/react";
 import { cn } from "@/lib/utils";
 
 interface LicensePlateProps {
-  registration: string;
+  registration: string | null;
   href?: string;
   countryCode?: string;
   className?: string;
@@ -17,6 +17,7 @@ export function LicensePlate({
   className,
   size = "md",
 }: LicensePlateProps) {
+
   // Size-based styles
   const plateStyles = {
     sm: {
@@ -48,7 +49,8 @@ export function LicensePlate({
   const styles = plateStyles[size];
 
   // Format registration based on common patterns (optional)
-  const formatRegistration = (reg: string): string => {
+  const formatRegistration = (reg: string | null): string => {
+    if (!reg) return "XX-XXX-XX";
     // For French plates: AB-123-CD pattern
     if (countryCode === "F" && reg.length >= 7 && !reg.includes("-")) {
       return `${reg.slice(0, 2)}-${reg.slice(2, 5)}-${reg.slice(5, 7)}`;

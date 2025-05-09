@@ -2,12 +2,14 @@
 
 return [
     'title' => 'Conducteurs',
-    'description' => 'Gérez vos conducteurs ici',
+    'singular' => 'Conducteur',
+    'placeholder' => 'Sélectionner un conducteur',
     
     'breadcrumbs' => [
-        'index' => 'Conducteurs',
-        'create' => 'Créer un conducteur',
+        'drivers' => 'Conducteurs',
+        'create' => 'Nouveau conducteur',
         'edit' => 'Modifier le conducteur',
+        'show' => 'Détails du conducteur',
     ],
     
     'tabs' => [
@@ -29,17 +31,20 @@ return [
     ],
     
     'fields' => [
+        'id' => 'ID',
         'surname' => 'Nom',
         'firstname' => 'Prénom',
-        'phone' => 'Téléphone',
         'license_number' => 'Numéro de permis',
-        'card_issuing_country' => 'Pays d\'émission du permis',
-        'card_number' => 'Numéro de carte',
-        'birthdate' => 'Date de naissance',
+        'card_number' => 'Numéro de carte conducteur',
+        'card_issuing_country' => 'Pays d\'émission de la carte',
         'card_issuing_date' => 'Date d\'émission de la carte',
         'card_expiration_date' => 'Date d\'expiration de la carte',
-        'tenant' => 'Tenant',
-        'user' => 'Compte utilisateur',
+        'birthdate' => 'Date de naissance',
+        'phone' => 'Numéro de téléphone',
+        'user' => 'Utilisateur associé',
+        'tenant' => 'Client',
+        'created_at' => 'Créé le',
+        'updated_at' => 'Mis à jour le',
     ],
     
     'placeholders' => [
@@ -68,8 +73,19 @@ return [
     ],
     
     'actions' => [
-        'create' => 'Nouveau conducteur',
+        'create' => 'Créer un conducteur',
+        'edit' => 'Modifier le conducteur',
+        'delete' => 'Supprimer le conducteur',
+        'restore' => 'Restaurer le conducteur',
+        'scan_document' => 'Scanner un document',
         'import' => 'Importer des conducteurs',
+    ],
+    
+    'messages' => [
+        'created_successfully' => 'Conducteur créé avec succès.',
+        'updated_successfully' => 'Conducteur mis à jour avec succès.',
+        'deleted_successfully' => 'Conducteur supprimé avec succès.',
+        'restored_successfully' => 'Conducteur restauré avec succès.',
     ],
     
     'create' => [
@@ -108,20 +124,16 @@ return [
     ],
     
     'scan' => [
-        'upload_title' => 'Télécharger le document de permis',
-        'upload_description' => 'Téléchargez un permis ou une carte de conducteur pour extraire automatiquement les informations',
-        'select_image' => 'Sélectionner une image',
-        'change_image' => 'Changer l\'image',
-        'scanning' => 'Analyse du document...',
-        'scanning_hint' => 'Nous recherchons le nom, le numéro de permis et les dates',
-        'success' => 'Document analysé avec succès ! Les informations ont été appliquées au formulaire.',
-        'driver_license_document' => 'Document de permis de conduire',
-        'error' => 'Échec de l\'analyse du document',
-        'error_no_image' => 'Veuillez sélectionner une image à télécharger',
-        'error_invalid_format' => 'Format de fichier invalide. Veuillez télécharger un fichier JPG, PNG ou PDF',
-        'error_file_too_large' => 'Fichier trop volumineux. La taille maximale est de 10 Mo',
-        'error_reading_file' => 'Impossible de lire le fichier téléchargé',
-        'error_no_data_extracted' => 'Aucune information de conducteur n\'a pu être extraite de ce document',
+        'title' => 'Scanner un document conducteur',
+        'instruction' => 'Téléversez une photo du permis ou de la carte conducteur pour extraire les informations',
+        'error' => 'Une erreur est survenue lors du scan du document.',
+        'error_no_image' => 'Veuillez téléverser un fichier image.',
+        'error_invalid_format' => 'Le fichier doit être une image ou un PDF (JPEG, PNG, JPG, WEBP, PDF).',
+        'error_file_too_large' => 'La taille du fichier ne doit pas dépasser 10 Mo.',
+        'error_no_type' => 'Veuillez spécifier le type de document.',
+        'error_invalid_type' => 'Type de document invalide. Types autorisés : permis, carte.',
+        'scanning' => 'Scan du document en cours...',
+        'scan_success' => 'Document scanné avec succès.',
     ],
     
     'user_central' => 'Utilisateur central',
@@ -141,14 +153,15 @@ return [
     // Import
     'import' => [
         'title' => 'Importer des conducteurs',
-        'description' => 'Importer des données de conducteurs depuis un fichier CSV',
-        'upload_tab' => 'Télécharger le fichier',
-        'review_tab' => 'Vérifier les données',
-        'select_tenant_title' => 'Sélectionner un client',
-        'select_tenant_desc' => 'Choisissez le client auquel ces conducteurs seront importés',
-        'tenant_required' => 'Un client doit être sélectionné avant de procéder à l\'importation',
-        'success_message' => ':count conducteurs importés avec succès',
-        'confirm_title' => 'Confirmer l\'importation des conducteurs',
+        'description' => 'Téléversez un fichier CSV contenant des données de conducteurs',
+        'template_link' => 'Télécharger le modèle',
+        'drop_file' => 'Déposez votre fichier CSV ici ou cliquez pour parcourir',
+        'parsing' => 'Analyse du fichier...',
+        'parsed' => 'Fichier analysé. Prêt à importer.',
+        'importing' => 'Importation en cours...',
+        'imported' => 'Conducteurs importés avec succès.',
+        'error' => 'Erreur lors de l\'importation.',
+        'confirm_title' => 'Confirmer l\'importation',
         'confirm_description' => 'Vous êtes sur le point d\'importer :count conducteurs. Cette action ne peut pas être annulée. Voulez-vous continuer ?',
     ],
 ]; 

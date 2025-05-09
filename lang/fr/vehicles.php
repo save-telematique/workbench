@@ -172,4 +172,10 @@ return [
         'confirm_title' => 'Confirmer l\'importation des véhicules',
         'confirm_description' => 'Vous êtes sur le point d\'importer :count véhicules. Cette action ne peut pas être annulée. Voulez-vous continuer ?',
     ],
+    'messages' => [
+        'created_successfully' => 'Véhicule créé avec succès.',
+        'updated_successfully' => 'Véhicule mis à jour avec succès.',
+        'deleted_successfully' => 'Véhicule supprimé avec succès.',
+        'restored_successfully' => 'Véhicule restauré avec succès.',
+    ],
 ]; 

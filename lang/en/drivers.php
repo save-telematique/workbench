@@ -2,7 +2,8 @@
 
 return [
     'title' => 'Drivers',
-    'description' => 'Manage your drivers here',
+    'singular' => 'Driver',
+    'placeholder' => 'Select a driver',
     
     'breadcrumbs' => [
         'index' => 'Drivers',
@@ -29,17 +30,20 @@ return [
     ],
     
     'fields' => [
-        'surname' => 'Surname',
+        'id' => 'ID',
+        'surname' => 'Last Name',
         'firstname' => 'First Name',
-        'phone' => 'Phone',
         'license_number' => 'License Number',
-        'card_issuing_country' => 'License Issuing Country',
-        'card_number' => 'Card Number',
-        'birthdate' => 'Birth Date',
+        'card_number' => 'Driver Card Number',
+        'card_issuing_country' => 'Card Issuing Country',
         'card_issuing_date' => 'Card Issuing Date',
         'card_expiration_date' => 'Card Expiration Date',
+        'birthdate' => 'Date of Birth',
+        'phone' => 'Phone Number',
+        'user' => 'Associated User',
         'tenant' => 'Tenant',
-        'user' => 'User Account',
+        'created_at' => 'Created At',
+        'updated_at' => 'Updated At',
     ],
     
     'placeholders' => [
@@ -68,8 +72,11 @@ return [
     ],
     
     'actions' => [
-        'create' => 'New Driver',
-        'import' => 'Import Drivers',
+        'create' => 'Create Driver',
+        'edit' => 'Edit Driver',
+        'delete' => 'Delete Driver',
+        'restore' => 'Restore Driver',
+        'scan_document' => 'Scan Document',
     ],
     
     'create' => [
@@ -108,20 +115,16 @@ return [
     ],
     
     'scan' => [
-        'upload_title' => 'Upload License Document',
-        'upload_description' => 'Upload a driver\'s license or driver card to automatically extract information',
-        'select_image' => 'Select Image',
-        'change_image' => 'Change Image',
-        'scanning' => 'Analyzing document...',
-        'scanning_hint' => 'We\'re looking for name, license number, and dates',
-        'success' => 'Document analyzed successfully! Information has been applied to the form.',
-        'driver_license_document' => 'Driver\'s license document',
-        'error' => 'Failed to analyze the document',
-        'error_no_image' => 'Please select an image to upload',
-        'error_invalid_format' => 'Invalid file format. Please upload JPG, PNG, or PDF',
-        'error_file_too_large' => 'File is too large. Maximum size is 10MB',
-        'error_reading_file' => 'Could not read the uploaded file',
-        'error_no_data_extracted' => 'No driver information could be extracted from this document',
+        'title' => 'Scan Driver Document',
+        'instruction' => 'Upload a photo of the driver license or card to extract information',
+        'error' => 'An error occurred while scanning the document.',
+        'error_no_image' => 'Please upload an image file.',
+        'error_invalid_format' => 'The file must be an image or PDF (JPEG, PNG, JPG, WEBP, PDF).',
+        'error_file_too_large' => 'The file size must not exceed 10MB.',
+        'error_no_type' => 'Please specify document type.',
+        'error_invalid_type' => 'Invalid document type. Allowed types: license, card.',
+        'scanning' => 'Scanning document...',
+        'scan_success' => 'Document scanned successfully.',
     ],
     
     'user_central' => 'Central User',
@@ -159,5 +162,12 @@ return [
         'select_tenant_desc' => 'Select the tenant for which you want to import drivers.',
         'confirm_title' => 'Confirm Driver Import',
         'confirm_description' => 'You are about to import :count drivers. This action cannot be undone. Do you want to continue?',
+    ],
+    
+    'messages' => [
+        'created_successfully' => 'Driver created successfully.',
+        'updated_successfully' => 'Driver updated successfully.',
+        'deleted_successfully' => 'Driver deleted successfully.',
+        'restored_successfully' => 'Driver restored successfully.',
     ],
 ]; 

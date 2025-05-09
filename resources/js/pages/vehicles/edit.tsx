@@ -69,9 +69,6 @@ export default function Edit({ vehicle, tenants, devices, brands, models, vehicl
             brands={brands}
             models={models}
             vehicleTypes={vehicleTypes}
-            onSuccess={() => {
-              window.location.href = route('vehicles.show', vehicle.id);
-            }}
           />
         </div>
       </VehiclesLayout>

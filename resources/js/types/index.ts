@@ -52,12 +52,13 @@ export interface SharedData {
     flash: {
         success?: string;
         error?: string;
+        message?: string;
+        warning?: string;
         [key: string]: unknown;
     };
     ziggy: ZiggyConfig & { location: string };
     locale: string;
     name?: string;
-    quote?: { message: string; author: string };
     sidebarOpen: boolean;
     [key: string]: unknown;
 }

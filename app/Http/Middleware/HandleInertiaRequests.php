@@ -37,11 +37,8 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
-
         return array_merge(parent::share($request), [
             'name' => tenant() ? tenant()->name : config('app.name'),
-            'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
                 'user' => $request->user() ? [
                     ...$request->user()->toArray(),
@@ -52,6 +49,11 @@ class HandleInertiaRequests extends Middleware
             'ziggy' => fn (): array => [
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),
+            ],
+            'flash' => [
+                'success' => fn () => $request->session()->get('success'),
+                'error' => fn () => $request->session()->get('error'),
+                'message' => fn () => $request->session()->get('message'),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'translations' => $this->getTranslations(),
@@ -120,7 +122,7 @@ class HandleInertiaRequests extends Middleware
      * @param string $file
      * @return array
      */
-    protected function loadTranslations(string $locale, string $fallbackLocale, string $file): array
+    protected function loadTranslations(?string $locale, string $fallbackLocale, string $file): array
     {
         $translations = [];
         

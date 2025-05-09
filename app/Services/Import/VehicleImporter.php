@@ -205,9 +205,6 @@ class VehicleImporter implements ImporterInterface
             'vin' => ['vin number', 'chassis number', 'vehicle id'],
             'vehicle_model_id' => ['model', 'vehicle model', 'make and model', 'type de vehicule', 'modele'],
             'vehicle_type_id' => ['type', 'category', 'vehicle class', 'usage type', 'genre'],
-            'year' => ['mfg year', 'production year', 'annee'],
-            'color' => ['colour', 'couleur'],
-            'notes' => ['comment', 'description', 'remarques'],
         ];
     }
 

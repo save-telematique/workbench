@@ -88,9 +88,6 @@ export default function Create({ tenants, devices, brands, models, vehicleTypes 
             brands={brands}
             models={models}
             vehicleTypes={vehicleTypes}
-            onSuccess={(id) => {
-              window.location.href = route('vehicles.show', id);
-            }}
           />
         </div>
       </VehiclesLayout>

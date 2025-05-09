@@ -177,4 +177,10 @@ return [
         'confirm_title' => 'Confirm Vehicle Import',
         'confirm_description' => 'You are about to import :count vehicles. This action cannot be undone. Do you want to continue?',
     ],
+    'messages' => [
+        'created_successfully' => 'Vehicle created successfully.',
+        'updated_successfully' => 'Vehicle updated successfully.',
+        'deleted_successfully' => 'Vehicle deleted successfully.',
+        'restored_successfully' => 'Vehicle restored successfully.',
+    ],
 ]; 

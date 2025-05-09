@@ -55,6 +55,7 @@ interface Vehicle {
   vehicle_type_id?: number;
   tenant_id: string | null; // UUID
   device_id: string | null; // UUID
+  country?: string;
 }
 
 interface VehicleFormProps {
@@ -71,14 +72,46 @@ interface VehicleFormProps {
 // Define the form data type with index signature to satisfy FormDataType
 interface VehicleFormData {
   registration: string;
-  brand_id: number | null;
-  model_id: number | null;
+  brand_id?: number | null; // Not submitted, only used for UI filtering
+  vehicle_model_id: number | null;
   vehicle_type_id: number | null;
   vin: string;
-  tenant_id: string;
-  device_id: string;
+  tenant_id: string | null;
+  device_id: string | null;
+  country: string;
   [key: string]: string | number | null | undefined;
 }
+
+// European countries list
+const europeanCountries = [
+  { code: "AT", name: "Austria" },
+  { code: "BE", name: "Belgium" },
+  { code: "BG", name: "Bulgaria" },
+  { code: "HR", name: "Croatia" },
+  { code: "CY", name: "Cyprus" },
+  { code: "CZ", name: "Czech Republic" },
+  { code: "DK", name: "Denmark" },
+  { code: "EE", name: "Estonia" },
+  { code: "FI", name: "Finland" },
+  { code: "FR", name: "France" },
+  { code: "DE", name: "Germany" },
+  { code: "GR", name: "Greece" },
+  { code: "HU", name: "Hungary" },
+  { code: "IE", name: "Ireland" },
+  { code: "IT", name: "Italy" },
+  { code: "LV", name: "Latvia" },
+  { code: "LT", name: "Lithuania" },
+  { code: "LU", name: "Luxembourg" },
+  { code: "MT", name: "Malta" },
+  { code: "NL", name: "Netherlands" },
+  { code: "PL", name: "Poland" },
+  { code: "PT", name: "Portugal" },
+  { code: "RO", name: "Romania" },
+  { code: "SK", name: "Slovakia" },
+  { code: "SI", name: "Slovenia" },
+  { code: "ES", name: "Spain" },
+  { code: "SE", name: "Sweden" }
+];
 
 export default function VehicleForm({ 
   vehicle,
@@ -98,18 +131,20 @@ export default function VehicleForm({
   // State for tab navigation
   const [activeTab, setActiveTab] = useState("manual");
   
+  // Store brand_id separately for UI filtering
+  const [brandId, setBrandId] = useState<number | null>(vehicle.brand_id || null);
+  
   // Initialize form with default values - use null for empty numeric values
   const { data, setData, submit, processing, errors, recentlySuccessful } = useForm<VehicleFormData>({
     registration: vehicle.registration || '',
-    brand_id: vehicle.brand_id || null,
-    model_id: vehicle.model_id || null,
+    vehicle_model_id: vehicle.model_id || null,
     vehicle_type_id: vehicle.vehicle_type_id || null,
     vin: vehicle.vin || '',
-    tenant_id: 'none',
-    device_id: 'none',
+    tenant_id: vehicle.tenant_id || null,
+    device_id: '',
+    country: vehicle.country || '',
   });
 
-  // Initialisation des champs device_id et tenant_id après le montage du composant
   useEffect(() => {
     if (vehicle.tenant_id) {
       setData('tenant_id', vehicle.tenant_id);
@@ -144,6 +179,7 @@ export default function VehicleForm({
   useEffect(() => {
     if (!initialLoadDone && vehicle.brand_id) {
       loadModelsByBrand(vehicle.brand_id);
+      setBrandId(vehicle.brand_id);
     } else if (!initialLoadDone) {
       // Filtrer les modèles correspondant à la marque sélectionnée depuis les données initiales
       const filtered = models.filter(model => 
@@ -156,10 +192,10 @@ export default function VehicleForm({
 
   // Mise à jour des modèles lorsque la marque change
   useEffect(() => {
-    if (initialLoadDone && data.brand_id) {
-      loadModelsByBrand(data.brand_id);
+    if (initialLoadDone && brandId) {
+      loadModelsByBrand(brandId);
     }
-  }, [data.brand_id, initialLoadDone]);
+  }, [brandId, initialLoadDone]);
 
   // Handle analysis completion
   const handleAnalysisComplete = (analysisData: AnalysisData) => {
@@ -172,11 +208,11 @@ export default function VehicleForm({
 
     // If we got brand_id and model_id from the backend, use them
     if ('brand_id' in analysisData && analysisData.brand_id) {
-      updatedData.brand_id = analysisData.brand_id;  // Keep as number
+      setBrandId(analysisData.brand_id);
       
       // If we have a model_id, set it
       if ('model_id' in analysisData && analysisData.model_id) {
-        updatedData.model_id = analysisData.model_id;  // Keep as number
+        updatedData.vehicle_model_id = analysisData.model_id;  // Keep as number
       }
     }
 
@@ -201,12 +237,15 @@ export default function VehicleForm({
 
   function handleBrandChange(value: string) {
     // Parse string to number or null
-    const brandId = value ? parseInt(value, 10) : null;
+    const newBrandId = value ? parseInt(value, 10) : null;
     
+    // Update the brandId state for UI filtering
+    setBrandId(newBrandId);
+    
+    // Reset vehicle model when brand changes
     setData(prev => ({
       ...prev,
-      brand_id: brandId,
-      model_id: null, // Reset model when brand changes
+      vehicle_model_id: null,
     }));
   }
 
@@ -216,7 +255,7 @@ export default function VehicleForm({
     
     setData(prev => ({
       ...prev,
-      model_id: modelId,
+      vehicle_model_id: modelId,
     }));
   }
 
@@ -227,6 +266,13 @@ export default function VehicleForm({
     setData(prev => ({
       ...prev,
       vehicle_type_id: typeId,
+    }));
+  }
+
+  function handleCountryChange(value: string) {
+    setData(prev => ({
+      ...prev,
+      country: value,
     }));
   }
 
@@ -302,7 +348,7 @@ export default function VehicleForm({
                       {__("vehicles.fields.brand")} <span className="text-destructive">*</span>
                     </Label>
                     <Select
-                      value={data.brand_id?.toString() || ''}
+                      value={brandId?.toString() || ''}
                       onValueChange={handleBrandChange}
                     >
                       <SelectTrigger id="brand_id" className="mt-1">
@@ -345,15 +391,15 @@ export default function VehicleForm({
                 {/* Model section */}
                 <div className="grid gap-6 md:grid-cols-2">
                   <div>
-                    <Label htmlFor="model_id" className="text-sm font-medium">
+                    <Label htmlFor="vehicle_model_id" className="text-sm font-medium">
                       {__("vehicles.fields.model")} <span className="text-destructive">*</span>
                     </Label>
                     <Select
-                      value={data.model_id?.toString() || ''}
+                      value={data.vehicle_model_id?.toString() || ''}
                       onValueChange={handleModelChange}
-                      disabled={!data.brand_id || isLoadingModels}
+                      disabled={!brandId || isLoadingModels}
                     >
-                      <SelectTrigger id="model_id" className="mt-1">
+                      <SelectTrigger id="vehicle_model_id" className="mt-1">
                         <SelectValue placeholder={
                           isLoadingModels 
                             ? __("vehicles.loading_models") 
@@ -374,7 +420,29 @@ export default function VehicleForm({
                         )}
                       </SelectContent>
                     </Select>
-                    <FormError message={errors.model_id} />
+                    <FormError message={errors.vehicle_model_id} />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="country" className="text-sm font-medium">
+                      {__("vehicles.fields.country")} <span className="text-destructive">*</span>
+                    </Label>
+                    <Select
+                      value={data.country}
+                      onValueChange={handleCountryChange}
+                    >
+                      <SelectTrigger id="country" className="mt-1">
+                        <SelectValue placeholder={__("vehicles.placeholders.country")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {europeanCountries.map((country) => (
+                          <SelectItem key={`country-${country.code}`} value={country.code}>
+                            {country.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormError message={errors.country} />
                   </div>
                 </div>
 
@@ -383,7 +451,7 @@ export default function VehicleForm({
                 <div className="grid gap-6 md:grid-cols-2 pb-4">
                   <div className="space-y-2">
                     <Label htmlFor="tenant_id" className="text-sm font-medium">
-                      {__("vehicles.fields.tenant")}
+                      {__("vehicles.fields.tenant")} <span className="text-destructive">*</span>
                     </Label>
                     <Select
                       value={data.tenant_id}
@@ -499,7 +567,7 @@ export default function VehicleForm({
                     {__("vehicles.fields.brand")} <span className="text-destructive">*</span>
                   </Label>
                   <Select
-                    value={data.brand_id?.toString() || ''}
+                    value={brandId?.toString() || ''}
                     onValueChange={handleBrandChange}
                   >
                     <SelectTrigger id="brand_id" className="mt-1">
@@ -539,18 +607,18 @@ export default function VehicleForm({
                 </div>
               </div>
 
-              {/* Model section */}
+              {/* Model and Country section */}
               <div className="grid gap-6 md:grid-cols-2">
                 <div>
-                  <Label htmlFor="model_id" className="text-sm font-medium">
+                  <Label htmlFor="vehicle_model_id" className="text-sm font-medium">
                     {__("vehicles.fields.model")} <span className="text-destructive">*</span>
                   </Label>
                   <Select
-                    value={data.model_id?.toString() || ''}
+                    value={data.vehicle_model_id?.toString() || ''}
                     onValueChange={handleModelChange}
-                    disabled={!data.brand_id || isLoadingModels}
+                    disabled={!brandId || isLoadingModels}
                   >
-                    <SelectTrigger id="model_id" className="mt-1">
+                    <SelectTrigger id="vehicle_model_id" className="mt-1">
                       <SelectValue placeholder={
                         isLoadingModels 
                           ? __("vehicles.loading_models") 
@@ -571,7 +639,29 @@ export default function VehicleForm({
                       )}
                     </SelectContent>
                   </Select>
-                  <FormError message={errors.model_id} />
+                  <FormError message={errors.vehicle_model_id} />
+                </div>
+
+                <div>
+                  <Label htmlFor="country" className="text-sm font-medium">
+                    {__("vehicles.fields.country")} <span className="text-destructive">*</span>
+                  </Label>
+                  <Select
+                    value={data.country}
+                    onValueChange={handleCountryChange}
+                  >
+                    <SelectTrigger id="country" className="mt-1">
+                      <SelectValue placeholder={__("vehicles.placeholders.country")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {europeanCountries.map((country) => (
+                        <SelectItem key={`country-${country.code}`} value={country.code}>
+                          {country.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormError message={errors.country} />
                 </div>
               </div>
 
