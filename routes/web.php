@@ -30,28 +30,16 @@ foreach (config('tenancy.central_domains') as $domain) {
         Route::middleware(['auth', 'verified'])->group(function () {
             require __DIR__ . '/central/dashboard.php';
             require __DIR__ . '/central/devices.php';
-            require __DIR__ . '/central/drivers.php';
             require __DIR__ . '/central/tenants.php';
-            
-            require __DIR__ . '/global-settings.php';
+            require __DIR__ . '/central/global-settings.php';
+
             require __DIR__ . '/shared/settings.php';
             require __DIR__ . '/shared/vehicles.php';
+            require __DIR__ . '/shared/users.php';
+            require __DIR__ . '/shared/drivers.php';
 
             Route::get('/devices/{device}/datapoints', [DataPointController::class, 'index'])->name('devices.datapoints.index');
             Route::get('/api/devices/datapoints', [DataPointController::class, 'getDataPoints'])->name('api.devices.datapoints');
-
-            // Users display routes
-            Route::get('/users', [UserController::class, 'index'])->name('users.index');
-            Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
-            Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
-            Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
-            Route::get('/users/{user}/roles', [UserController::class, 'editRoles'])->name('users.roles.edit');
-            
-            // Users action routes
-            Route::post('/users', CreateUserAction::class)->name('users.store');
-            Route::put('/users/{user}', UpdateUserAction::class)->name('users.update');
-            Route::delete('/users/{user}', DeleteUserAction::class)->name('users.destroy');
-            Route::put('/users/{user}/roles', UpdateUserRolesAction::class)->name('users.roles.update');
         });
     });
 }

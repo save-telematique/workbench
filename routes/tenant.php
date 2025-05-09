@@ -34,6 +34,9 @@ Route::middleware([
 
         require __DIR__ . '/shared/settings.php';
         require __DIR__ . '/shared/vehicles.php';
+        require __DIR__ . '/shared/drivers.php';
+        require __DIR__ . '/shared/users.php';
+
     });
     
     // Other tenant routes

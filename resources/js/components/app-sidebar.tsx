@@ -43,7 +43,7 @@ export function AppSidebar() {
             href: '/users', 
             icon: Users,
             hasPermission: usePermission('view_users'),
-            access: 'central'
+            access: 'shared'
         },
         {
             title: 'devices.title',

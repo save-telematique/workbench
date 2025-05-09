@@ -2,6 +2,7 @@
 
 namespace App\Actions\Devices;
 
+use App\Models\Device;
 use App\Models\DeviceType;
 use App\Services\ImageAnalysisService;
 use Illuminate\Http\JsonResponse;
@@ -14,11 +15,9 @@ class ScanQrCodeAction
 {
     use AsAction;
 
-    protected ImageAnalysisService $imageAnalysisService;
-
-    public function __construct(ImageAnalysisService $imageAnalysisService)
+    public function authorize(ActionRequest $request): bool
     {
-        $this->imageAnalysisService = $imageAnalysisService;
+        return $request->user()->can('create', Device::class);
     }
 
     public function rules(): array
@@ -43,11 +42,11 @@ class ScanQrCodeAction
         ];
     }
 
-    public function handle(UploadedFile $file): array
+    public function handle(UploadedFile $file, ImageAnalysisService $imageAnalysisService): array
     {
         try {
             // Use the image analysis service to extract data
-            $result = $this->imageAnalysisService->analyze($file, 'device');
+            $result = $imageAnalysisService->analyze($file, 'device');
 
             if ($result['success'] && !empty($result['data'])) {
                 // Find the device type ID based on the type name

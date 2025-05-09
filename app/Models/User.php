@@ -9,10 +9,12 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Scout\Searchable;
 use Illuminate\Database\Eloquent\Builder;
 use Spatie\Permission\Traits\HasRoles;
+use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
+
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, Searchable, HasRoles;
+    use HasFactory, Notifiable, Searchable, HasRoles, BelongsToTenant;
 
     protected $with = ['tenant'];
 

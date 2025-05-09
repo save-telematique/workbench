@@ -24,7 +24,7 @@ class UserController extends Controller
      */
     public function index(): Response
     {
-        $users = User::whereNull('tenant_id')->get();
+        $users = User::where('tenant_id', tenant('id'))->get();
 
         return Inertia::render('users/index', [
             'users' => UserResource::collection($users),

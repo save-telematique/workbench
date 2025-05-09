@@ -17,9 +17,7 @@ class VehicleModelResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            // Add other relevant fields for VehicleModel if any
-            
-            'brand' => new VehicleBrandResource($this->whenLoaded('vehicleBrand')),
+            'vehicle_brand' => new VehicleBrandResource($this->whenLoaded('vehicleBrand')),
         ];
     }
 } 

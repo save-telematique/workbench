@@ -17,7 +17,6 @@ class VehicleBrandResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            // Add other relevant fields for VehicleBrand if any
         ];
     }
 } 
