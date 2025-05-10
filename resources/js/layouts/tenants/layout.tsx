@@ -25,7 +25,6 @@ export default function TenantsLayout({ children, showSidebar = false, tenant }:
 
     const sidebarNavItems: NavItem[] = [];
 
-    console.log(tenant);
     if (tenant) {
         sidebarNavItems.push(
             {

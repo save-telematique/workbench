@@ -33,7 +33,7 @@ export default function Edit({ vehicle, tenants, devices, brands, models, vehicl
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title={__("vehicles.actions.edit")} />
 
-      <VehiclesLayout vehicleId={vehicle.id}>
+      <VehiclesLayout vehicle={vehicle}>
         <div className="space-y-6">
           <HeadingSmall 
             title={__("vehicles.edit.heading", { registration: vehicle.registration || '' })}

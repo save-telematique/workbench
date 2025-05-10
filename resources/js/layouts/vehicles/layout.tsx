@@ -1,6 +1,7 @@
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { VehicleResource } from '@/types/resources';
 import { useTranslation } from '@/utils/translation';
 import { Link } from '@inertiajs/react';
 import { Separator } from '@radix-ui/react-separator';
@@ -10,10 +11,10 @@ import { ReactNode } from 'react';
 interface VehiclesLayoutProps {
     children: ReactNode;
     showSidebar?: boolean;
-    vehicleId?: string;
+    vehicle?: VehicleResource;
 }
 
-export default function VehiclesLayout({ children, showSidebar = false, vehicleId }: VehiclesLayoutProps) {
+export default function VehiclesLayout({ children, showSidebar = false, vehicle }: VehiclesLayoutProps) {
     const { __ } = useTranslation();
 
     if (typeof window === 'undefined') {
@@ -22,17 +23,20 @@ export default function VehiclesLayout({ children, showSidebar = false, vehicleI
 
     const currentPath = window.location.pathname;
     const sidebarNavItems = [
-        {
-            title: __('vehicles.sidebar.information'),
-            href: route('vehicles.index'),
-            icon: Car,
-        },
     ];
+    
+    if (vehicle) {
+        sidebarNavItems.push({
+            title: __('vehicles.sidebar.information'),
+            href: route('vehicles.show', { vehicle: vehicle.id }),
+            icon: Car,
+        });
+    }
 
     return (
         <div className="px-4 py-6">
             <Heading title={__('vehicles.list.heading')} description={__('vehicles.list.description')} />
-            {showSidebar && vehicleId ? (
+            {showSidebar && vehicle ? (
                 <div className="flex flex-col space-y-8 lg:flex-row lg:space-y-0 lg:space-x-6">
                     <aside className="w-full max-w-xl lg:w-48">
                         <nav className="flex flex-col space-y-1 space-x-0">

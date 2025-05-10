@@ -59,7 +59,7 @@ export default function Show({ vehicle }: VehicleShowProps) {
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title={__("vehicles.single") + ": " + vehicle.registration} />
 
-      <VehiclesLayout showSidebar={true} vehicleId={vehicle.id}>
+      <VehiclesLayout showSidebar={true} vehicle={vehicle}>
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
           <div>
             <h2 className="text-2xl font-bold tracking-tight">
