@@ -1,5 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
-import { type BreadcrumbItem } from "@/types";
+import { type BreadcrumbItem, DeviceTypeResource, ResourceCollection } from "@/types";
 import { Plus } from 'lucide-react';
 
 import HeadingSmall from '@/components/heading-small';
@@ -9,11 +9,11 @@ import { DataTable } from '@/components/ui/data-table/index';
 
 import AppLayout from '@/layouts/app-layout';
 import GlobalSettingsLayout from '@/layouts/global-settings/layout';
-import { DeviceType, useDeviceTypeColumns } from './columns';
+import { useDeviceTypeColumns } from './columns';
 
 
 interface Props {
-    deviceTypes: DeviceType[];
+    deviceTypes: ResourceCollection<DeviceTypeResource>;
 }
 
 export default function DeviceTypes({ deviceTypes }: Props) {
@@ -40,7 +40,7 @@ export default function DeviceTypes({ deviceTypes }: Props) {
                     
                     <DataTable 
                         columns={columns}
-                        data={deviceTypes}
+                        data={deviceTypes.data || []}
                         tableId="device-types-table"
                         config={{
                             pagination: true,

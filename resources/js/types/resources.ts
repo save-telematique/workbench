@@ -45,6 +45,11 @@ export interface DriverResource {
 export interface TenantResource {
   id: string;
   name: string;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  is_active: boolean;
+  svg_logo: string | null;
 }
 
 // Device Resources
@@ -53,6 +58,12 @@ export interface DeviceTypeResource {
   name: string;
   manufacturer: string;
 }
+
+export interface DomainResource {
+  id: number;
+  domain: string;
+}
+
 
 export interface DeviceResource {
   id: string;

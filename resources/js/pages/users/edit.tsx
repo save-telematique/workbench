@@ -34,7 +34,7 @@ export default function UserEdit({ user }: UserEditProps) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={__('users.edit.title')} />
 
-            <UsersLayout>
+            <UsersLayout user={user}>
                 <UserPageLayout
                     title={__('users.edit.heading', { name: user.name })}
                     description={__('users.edit.description')}

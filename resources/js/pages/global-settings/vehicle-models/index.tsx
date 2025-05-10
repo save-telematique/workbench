@@ -9,11 +9,12 @@ import { DataTable } from '@/components/ui/data-table/index';
 
 import AppLayout from '@/layouts/app-layout';
 import GlobalSettingsLayout from '@/layouts/global-settings/layout';
-import { VehicleModel, useVehicleModelColumns } from './columns';
+import { useVehicleModelColumns } from './columns';
+import { ResourceCollection, VehicleModelResource } from '@/types/resources';
 
 
 interface Props {
-    vehicleModels: VehicleModel[];
+    vehicleModels: ResourceCollection<VehicleModelResource>;
 }
 
 export default function VehicleModels({ vehicleModels }: Props) {
@@ -40,12 +41,12 @@ export default function VehicleModels({ vehicleModels }: Props) {
                     
                     <DataTable 
                         columns={columns}
-                        data={vehicleModels}
+                        data={vehicleModels.data || []}
                         tableId="vehicle-models-table"
                         config={{
                             pagination: true,
                             sorting: true,
-                            pageSize: 10
+                            pageSize: vehicleModels.meta?.per_page || 10
                         }}
                         actionBarRight={
                             <Button asChild size="default" className="h-9">

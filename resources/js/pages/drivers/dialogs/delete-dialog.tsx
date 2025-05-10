@@ -10,24 +10,19 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useTranslation } from "@/utils/translation";
 import { router } from "@inertiajs/react";
-
-interface Driver {
-  id: string;
-  surname: string;
-  firstname: string;
-}
+import { DriverResource } from "@/types";
 
 interface DeleteDriverDialogProps {
   open: boolean;
   onOpenChange: () => void;
-  driver: Driver;
+  driver: DriverResource;
 }
 
 export function DeleteDriverDialog({ open, onOpenChange, driver }: DeleteDriverDialogProps) {
   const { __ } = useTranslation();
   
   function handleDelete() {
-    router.delete(route("drivers.destroy", driver.id), {
+    router.delete(route("drivers.destroy", { driver: driver.id }), {
       onSuccess: () => {
         onOpenChange();
       }

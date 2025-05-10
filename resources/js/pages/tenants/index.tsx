@@ -1,6 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
-import { type BreadcrumbItem } from "@/types";
-import { Building2, Plus, Search } from 'lucide-react';
+import { TenantResource, ResourceCollection, type BreadcrumbItem } from "@/types";
+import { Plus, Search } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -8,13 +8,13 @@ import { DataTable } from '@/components/ui/data-table/index';
 import AppLayout from '@/layouts/app-layout';
 import TenantsLayout from '@/layouts/tenants/layout';
 import { useTranslation } from '@/utils/translation';
-import { type Tenant, useTenantsColumns } from './columns';
+import { useTenantsColumns } from './columns';
 import { usePermission } from '@/utils/permissions';
 import { Input } from '@/components/ui/input';
 
 
 interface TenantsIndexProps {
-    tenants: Tenant[];
+    tenants: ResourceCollection<TenantResource>;
 }
 
 export default function TenantsIndex({ tenants }: TenantsIndexProps) {
@@ -41,34 +41,15 @@ export default function TenantsIndex({ tenants }: TenantsIndexProps) {
 
             <TenantsLayout showSidebar={false}>
                 <div className="space-y-6">
-                    {tenants.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center animate-in fade-in-50">
-                            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
-                                <Building2 className="h-10 w-10 text-primary" />
-                            </div>
-                            <h3 className="mt-4 text-lg font-semibold">{__('tenants.list.no_tenants')}</h3>
-                            <p className="mb-4 mt-2 text-sm text-muted-foreground">{__('tenants.list.get_started')}</p>
-                            <div className="mt-6">
-                                {canCreateTenants && (
-                                    <Button asChild size="default" className="h-9">
-                                        <Link href={route('tenants.create')}>
-                                            <Plus className="mr-2 h-4 w-4" />
-                                            {__('tenants.list.create_tenant')}
-                                        </Link>
-                                    </Button>
-                                )}
-                            </div>
-                        </div>
-                    ) : (
                         <DataTable 
                             columns={columns} 
-                            data={tenants} 
+                            data={tenants.data || []} 
                             tableId="tenants-table"
                             config={{
                                 pagination: true,
                                 sorting: true,
-                                columnManagement: true,
-                                saveToPersistence: true
+                                filtering: true,
+                                pageSize: tenants.meta?.per_page || 10,
                             }}
                             noResultsMessage={__('tenants.list.no_tenants')}
                             actionBarLeft={
@@ -97,7 +78,6 @@ export default function TenantsIndex({ tenants }: TenantsIndexProps) {
                                 </div>
                             }
                         />
-                    )}
                 </div>
             </TenantsLayout>
         </AppLayout>

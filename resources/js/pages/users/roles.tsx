@@ -8,6 +8,7 @@ import AppLayout from '@/layouts/app-layout';
 import UsersLayout from '@/layouts/users/layout';
 import { useTranslation } from '@/utils/translation';
 import HeadingSmall from '@/components/heading-small';
+import { UserResource } from '@/types/resources';
 
 interface Role {
     id: number;
@@ -16,13 +17,7 @@ interface Role {
 }
 
 interface UserRolesProps {
-    user: {
-        id: string;
-        name: string;
-        email: string;
-        roles: string[];
-        isTenant: boolean;
-    };
+    user: UserResource;
     roles: Role[];
 }
 
@@ -44,17 +39,17 @@ export default function UserRoles({ user, roles }: UserRolesProps) {
         },
         {
             title: __('users.show.breadcrumb', { name: user.name }),
-            href: route('users.show', user.id),
+            href: route('users.show', { user: user.id }),
         },
         {
             title: __('users.roles.breadcrumb'),
-            href: route('users.roles.edit', user.id),
+            href: route('users.roles.edit', { user: user.id }),
         },
     ];
 
     const onSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        form.put(route('users.roles.update', user.id));
+        form.put(route('users.roles.update', { user: user.id }));
     };
 
     const toggleRole = (roleName: string) => {
@@ -70,7 +65,7 @@ export default function UserRoles({ user, roles }: UserRolesProps) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={__('users.roles.title', { name: user.name })} />
 
-            <UsersLayout showSidebar={true} userId={user.id}>
+            <UsersLayout showSidebar={true} user={user}>
                 <div className="space-y-6">
                     <HeadingSmall
                         title={__('users.roles.heading')}
@@ -80,14 +75,14 @@ export default function UserRoles({ user, roles }: UserRolesProps) {
                         <CardHeader>
                             <CardTitle>{__('users.roles.card_title')}</CardTitle>
                             <CardDescription>
-                                {user.isTenant 
+                                {user.tenant_id 
                                     ? __('users.roles.card_description_tenant') 
                                     : __('users.roles.card_description_central')}
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
                             <form onSubmit={onSubmit} className="space-y-6">
-                                {!user.isTenant && (
+                                {!user.tenant_id && (
                                     <div className="space-y-4">
                                         <h3 className="text-lg font-medium">{__('users.roles.central_roles')}</h3>
                                         {roles.map((role) => (
@@ -109,7 +104,7 @@ export default function UserRoles({ user, roles }: UserRolesProps) {
                                     </div>
                                 )}
                                 
-                                {user.isTenant && (
+                                {user.tenant_id && (
                                     <div className="space-y-4">
                                         <h3 className="text-lg font-medium">{__('users.roles.tenant_roles')}</h3>
                                         {roles.map((role) => (

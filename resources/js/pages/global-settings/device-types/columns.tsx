@@ -19,18 +19,9 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { usePermission } from "@/utils/permissions"
-
-// Type for our data structure
-export interface DeviceType {
-    id: number
-    name: string
-    manufacturer: string
-    created_at: string
-    updated_at: string
-}
-
+import { DeviceTypeResource } from "@/types/resources"
 // React component for columns
-export function useDeviceTypeColumns(): ColumnDef<DeviceType>[] {
+export function useDeviceTypeColumns(): ColumnDef<DeviceTypeResource>[] {
     const { __ } = useTranslation()
     const canEditDeviceTypes = usePermission('edit_device_types')
     const canDeleteDeviceTypes = usePermission('delete_device_types')
@@ -70,7 +61,7 @@ export function useDeviceTypeColumns(): ColumnDef<DeviceType>[] {
                                 size="icon" 
                                 asChild
                             >
-                                <Link href={route('global-settings.device-types.edit', deviceType.id)}>
+                                <Link href={route('global-settings.device-types.edit', { device_type: deviceType.id })}>
                                     <Pencil className="h-4 w-4" />
                                     <span className="sr-only">{__('common.edit')}</span>
                                 </Link>
@@ -89,7 +80,7 @@ export function useDeviceTypeColumns(): ColumnDef<DeviceType>[] {
                                     <AlertDialogHeader>
                                         <AlertDialogTitle>{__('common.delete_confirmation_title')}</AlertDialogTitle>
                                         <AlertDialogDescription>
-                                            {__('global_settings.device_types.delete_confirmation', { deviceType: deviceType.name })}
+                                            {__('global_settings.device_types.delete_confirmation', { device_type: deviceType.name })}
                                         </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
@@ -102,7 +93,7 @@ export function useDeviceTypeColumns(): ColumnDef<DeviceType>[] {
                                                     // Use Inertia to submit a DELETE request
                                                     const form = document.createElement('form');
                                                     form.method = 'POST';
-                                                    form.action = route('global-settings.device-types.destroy', deviceType.id);
+                                                    form.action = route('global-settings.device-types.destroy', { deviceType: deviceType.id });
                                                     
                                                     const methodInput = document.createElement('input');
                                                     methodInput.type = 'hidden';

@@ -20,7 +20,7 @@ class VehicleBrandController extends Controller
      */
     public function index(): Response
     {
-        $vehicleBrands = VehicleBrand::orderBy('name')->get();
+        $vehicleBrands = VehicleBrand::orderBy('name')->paginate(request()->get('perPage', 10));
 
         return Inertia::render('global-settings/vehicle-brands/index', [
             'vehicleBrands' => VehicleBrandResource::collection($vehicleBrands),

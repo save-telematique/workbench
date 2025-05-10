@@ -24,7 +24,7 @@ class UserController extends Controller
      */
     public function index(): Response
     {
-        $users = User::where('tenant_id', tenant('id'))->get();
+        $users = User::where('tenant_id', tenant('id'))->paginate(request()->get('perPage', 10));
 
         return Inertia::render('users/index', [
             'users' => UserResource::collection($users),
@@ -45,8 +45,7 @@ class UserController extends Controller
     public function show(User $user): Response
     {
         $user->load('roles');
-        $permissionCollection = $user->getAllPermissions();
-
+        
         return Inertia::render('users/show', [
             'user' => new UserResource($user),
         ]);

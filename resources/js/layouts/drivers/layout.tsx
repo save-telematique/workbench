@@ -3,17 +3,19 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/utils/translation';
 import { Link } from '@inertiajs/react';
-import { Separator } from '@radix-ui/react-separator';
-import { UserCog, Settings, FileText, Users } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import { UserCog } from 'lucide-react';
 import { ReactNode } from 'react';
+import { NavItem } from '@/types';
+import { DriverResource } from '@/types';
 
 interface DriversLayoutProps {
     children: ReactNode;
     showSidebar?: boolean;
-    driverId?: string;
+    driver?: DriverResource;
 }
 
-export default function DriversLayout({ children, showSidebar = false, driverId }: DriversLayoutProps) {
+export default function DriversLayout({ children, showSidebar = false, driver }: DriversLayoutProps) {
     const { __ } = useTranslation();
 
     // When server-side rendering, we only render the layout on the client...
@@ -24,15 +26,14 @@ export default function DriversLayout({ children, showSidebar = false, driverId 
     const currentPath = window.location.pathname;
     
     // Only include the driver-specific sidebar items if we have a driverId
-    const sidebarNavItems = [];
-    
+    const sidebarNavItems: NavItem[] = [];
     
     // Only add these items if we have a driverId
-    if (driverId) {
+    if (driver) {
         sidebarNavItems.push(
             {
                 title: __('drivers.sidebar.information'),
-                href: route('drivers.show', driverId),
+                href: route('drivers.show', { driver: driver.id }),
                 icon: UserCog,
             },
         );
@@ -54,7 +55,7 @@ export default function DriversLayout({ children, showSidebar = false, driverId 
                                         variant="ghost"
                                         asChild
                                         className={cn('w-full justify-start', {
-                                            'bg-muted': !item.disabled && item.href.endsWith(currentPath),
+                                            'bg-muted': item.href.endsWith(currentPath),
                                         })}
                                         disabled={item.disabled}
                                     >

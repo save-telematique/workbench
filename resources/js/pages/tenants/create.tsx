@@ -30,7 +30,17 @@ export default function TenantsCreate() {
         },
     ];
 
-    const { data, setData, post, processing, errors, recentlySuccessful } = useForm({
+    interface TenantForm {
+        name: string;
+        email: string;
+        phone: string;
+        address: string;
+        is_active: boolean;
+        svg_logo: string;
+        [key: string]: string | boolean;
+    }
+
+    const { data, setData, post, processing, errors, recentlySuccessful } = useForm<TenantForm>({
         name: '',
         email: '',
         phone: '',
@@ -147,7 +157,7 @@ export default function TenantsCreate() {
                                                 <Switch
                                                     id="is_active"
                                                     checked={data.is_active}
-                                                    onCheckedChange={(checked) => setData('is_active', checked)}
+                                                    onCheckedChange={(checked: boolean) => setData('is_active', checked)}
                                                 />
                                             </div>
                                         </div>

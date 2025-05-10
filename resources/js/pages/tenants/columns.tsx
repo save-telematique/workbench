@@ -3,23 +3,12 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { CheckCircle, XCircle } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { DataTableColumnHeader, DataTableRowActions } from "@/components/ui/data-table"
+import { DataTableRowActions } from "@/components/ui/data-table"
 import { useTranslation } from "@/utils/translation"
 import { useStandardActions } from "@/utils/actions"
+import { TenantResource } from "@/types"
 
-// Type pour définir la structure de nos données
-export interface Tenant {
-  id: string
-  name: string
-  email: string | null
-  phone: string | null
-  address: string | null
-  is_active: boolean
-  deleted_at: string | null
-}
-
-// Composant React pour les colonnes
-export function useTenantsColumns(): ColumnDef<Tenant>[] {
+export function useTenantsColumns(): ColumnDef<TenantResource>[] {
   const { __ } = useTranslation()
   const getStandardActions = useStandardActions({
     resourceName: "tenants"

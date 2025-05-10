@@ -23,7 +23,7 @@ class TenantController extends Controller
      */
     public function index(): Response
     {
-        $tenants = Tenant::all();
+        $tenants = Tenant::paginate(request()->get('per_page', 10));
         
         return Inertia::render('tenants/index', [
             'tenants' => TenantResource::collection($tenants),

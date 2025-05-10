@@ -15,38 +15,10 @@ import { RestoreDriverDialog } from "./dialogs/restore-dialog";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import FormattedDate from "@/components/formatted-date";
 import { DriverCard } from "@/components/drivers/driver-card";
-
-
-
-interface Driver {
-  id: string;
-  surname: string;
-  firstname: string;
-  phone: string;
-  license_number: string;
-  card_issuing_country: string;
-  card_number: string;
-  birthdate: string;
-  card_issuing_date: string;
-  card_expiration_date: string;
-  tenant_id: string;
-  user_id: string;
-  tenant?: {
-    id: string;
-    name: string;
-  };
-  user?: {
-    id: string;
-    name: string;
-    email: string;
-  };
-  created_at: string;
-  updated_at: string;
-  deleted_at: string | null;
-}
+import { DriverResource } from "@/types";
 
 interface ShowDriverProps {
-  driver: Driver;
+  driver: DriverResource;
 }
 
 export default function Show({ driver }: ShowDriverProps) {
@@ -71,7 +43,7 @@ export default function Show({ driver }: ShowDriverProps) {
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title={`${driver.surname} ${driver.firstname} - ${__("drivers.title")}`} />
 
-      <DriversLayout showSidebar={true} driverId={driver.id}>
+      <DriversLayout showSidebar={true} driver={driver}>
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
           <div>
             <h2 className="text-2xl font-bold tracking-tight">{driver.surname} {driver.firstname}</h2>

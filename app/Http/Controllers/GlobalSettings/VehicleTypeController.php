@@ -20,7 +20,7 @@ class VehicleTypeController extends Controller
      */
     public function index(): Response
     {
-        $vehicleTypes = VehicleType::orderBy('name')->get();
+        $vehicleTypes = VehicleType::orderBy('name')->paginate(request()->get('perPage', 10));
 
         return Inertia::render('global-settings/vehicle-types/index', [
             'vehicleTypes' => VehicleTypeResource::collection($vehicleTypes),

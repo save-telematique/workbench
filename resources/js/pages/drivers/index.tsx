@@ -5,7 +5,7 @@ import { useColumns } from "./columns";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, X, Filter, Plus, UserCog, Upload } from "lucide-react";
+import { Search, X, Filter, Plus, Upload } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -22,41 +22,15 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { usePermission } from "@/utils/permissions";
-import { type BreadcrumbItem } from "@/types";
-
-interface Driver {
-  id: string;
-  surname: string;
-  firstname: string;
-  phone: string;
-  license_number: string;
-  tenant?: {
-    id: string;
-    name: string;
-  };
-  user?: {
-    id: string;
-    name: string;
-  };
-  deleted_at: string | null;
-}
+import { DriverResource, ResourceCollection, type BreadcrumbItem, TenantResource } from "@/types";
 
 interface DriversPageProps {
-  drivers: {
-    data: Driver[];
-    links: Record<string, string>;
-    meta: {
-      current_page: number;
-      last_page: number;
-      per_page: number;
-      [key: string]: unknown;
-    };
-  };
+  drivers: ResourceCollection<DriverResource>;
   filters: {
     search?: string;
     tenant_id?: string;
   };
-  tenants: { id: string; name: string }[];
+  tenants: TenantResource[];
 }
 
 export default function Index({ drivers, filters, tenants }: DriversPageProps) {
@@ -113,26 +87,6 @@ export default function Index({ drivers, filters, tenants }: DriversPageProps) {
       <Head title={__("drivers.title")} />
 
       <DriversLayout showSidebar={false}>
-        <div className="space-y-6">
-          {!drivers?.data || drivers.data.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center animate-in fade-in-50">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
-                <UserCog className="h-10 w-10 text-primary" />
-              </div>
-              <h3 className="mt-4 text-lg font-semibold">{__('drivers.list.no_drivers')}</h3>
-              <p className="mb-4 mt-2 text-sm text-muted-foreground">
-                {__('drivers.list.get_started')}
-              </p>
-              {canCreateDrivers && (
-                <Button asChild size="default" className="h-9">
-                  <Link href={route('drivers.create')}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    {__('drivers.actions.create')}
-                  </Link>
-                </Button>
-              )}
-            </div>
-          ) : (
             <DataTable
               columns={columns}
               data={drivers?.data || []}
@@ -248,8 +202,6 @@ export default function Index({ drivers, filters, tenants }: DriversPageProps) {
                 </div>
               }
             />
-          )}
-        </div>
       </DriversLayout>
     </AppLayout>
   );

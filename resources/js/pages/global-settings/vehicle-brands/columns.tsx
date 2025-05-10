@@ -19,17 +19,9 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { VehicleBrandResource } from "@/types/resources"
 
-// Type for our data structure
-export interface VehicleBrand {
-    id: number
-    name: string
-    created_at: string
-    updated_at: string
-}
-
-// React component for columns
-export function useVehicleBrandColumns(): ColumnDef<VehicleBrand>[] {
+export function useVehicleBrandColumns(): ColumnDef<VehicleBrandResource>[] {
     const { __ } = useTranslation()
 
     return [
@@ -56,7 +48,7 @@ export function useVehicleBrandColumns(): ColumnDef<VehicleBrand>[] {
                             size="icon" 
                             asChild
                         >
-                            <Link href={route('global-settings.vehicle-brands.edit', vehicleBrand.id)}>
+                            <Link href={route('global-settings.vehicle-brands.edit', { vehicle_brand: vehicleBrand.id })}>
                                 <Pencil className="h-4 w-4" />
                                 <span className="sr-only">{__('common.edit')}</span>
                             </Link>
@@ -64,7 +56,7 @@ export function useVehicleBrandColumns(): ColumnDef<VehicleBrand>[] {
                         
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
-                                <Button variant="ghost" size="icon">
+                                <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-500 hover:bg-red-50">
                                     <Trash2 className="h-4 w-4" />
                                     <span className="sr-only">{__('common.delete')}</span>
                                 </Button>
@@ -88,7 +80,7 @@ export function useVehicleBrandColumns(): ColumnDef<VehicleBrand>[] {
                                                 // Use Inertia to submit a DELETE request
                                                 const form = document.createElement('form');
                                                 form.method = 'POST';
-                                                form.action = route('global-settings.vehicle-brands.destroy', vehicleBrand.id);
+                                                form.action = route('global-settings.vehicle-brands.destroy', { vehicle_brand: vehicleBrand.id });
                                                 
                                                 const methodInput = document.createElement('input');
                                                 methodInput.type = 'hidden';

@@ -19,20 +19,10 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
-import { VehicleBrand } from "../vehicle-brands/columns"
+import { VehicleModelResource } from "@/types/resources"
 
-// Type for our data structure
-export interface VehicleModel {
-    id: number
-    name: string
-    vehicle_brand_id: number
-    vehicle_brand: VehicleBrand
-    created_at: string
-    updated_at: string
-}
 
-// React component for columns
-export function useVehicleModelColumns(): ColumnDef<VehicleModel>[] {
+export function useVehicleModelColumns(): ColumnDef<VehicleModelResource>[] {
     const { __ } = useTranslation()
 
     return [
@@ -47,7 +37,7 @@ export function useVehicleModelColumns(): ColumnDef<VehicleModel>[] {
             cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
         },
         {
-            accessorFn: (row) => row.vehicle_brand?.name ?? "",
+            accessorFn: (row) => row.brand?.name ?? "",
             id: "vehicle_brand",
             header: ({ column }) => (
                 <DataTableColumnHeader 
@@ -56,10 +46,10 @@ export function useVehicleModelColumns(): ColumnDef<VehicleModel>[] {
                 />
             ),
             cell: ({ row }) => {
-                const brand = row.original.vehicle_brand
+                const brand = row.original.brand
                 return (
                     <div>
-                        <span>{brand.name}</span>
+                        <span>{brand?.name}</span>
                     </div>
                 )
             },
@@ -77,7 +67,7 @@ export function useVehicleModelColumns(): ColumnDef<VehicleModel>[] {
                             size="icon" 
                             asChild
                         >
-                            <Link href={route('global-settings.vehicle-models.edit', vehicleModel.id)}>
+                            <Link href={route('global-settings.vehicle-models.edit', { vehicle_model: vehicleModel.id })}>
                                 <Pencil className="h-4 w-4" />
                                 <span className="sr-only">{__('common.edit')}</span>
                             </Link>
@@ -85,7 +75,7 @@ export function useVehicleModelColumns(): ColumnDef<VehicleModel>[] {
                         
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
-                                <Button variant="ghost" size="icon">
+                                <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-500 hover:bg-red-50">
                                     <Trash2 className="h-4 w-4" />
                                     <span className="sr-only">{__('common.delete')}</span>
                                 </Button>
@@ -109,7 +99,7 @@ export function useVehicleModelColumns(): ColumnDef<VehicleModel>[] {
                                                 // Use Inertia to submit a DELETE request
                                                 const form = document.createElement('form');
                                                 form.method = 'POST';
-                                                form.action = route('global-settings.vehicle-models.destroy', vehicleModel.id);
+                                                form.action = route('global-settings.vehicle-models.destroy', { vehicle_model: vehicleModel.id });
                                                 
                                                 const methodInput = document.createElement('input');
                                                 methodInput.type = 'hidden';

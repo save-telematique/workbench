@@ -34,7 +34,7 @@ export default function Edit({ driver, tenants, users }: EditDriverProps) {
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title={__("drivers.actions.edit")} />
 
-      <DriversLayout showSidebar={true} driverId={driver.id}>
+      <DriversLayout showSidebar={true} driver={driver}>
         <div className="space-y-6">
           <HeadingSmall 
             title={__("drivers.edit.heading", { name: `${driver.firstname} ${driver.surname}` })}

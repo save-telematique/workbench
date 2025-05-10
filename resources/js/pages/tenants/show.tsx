@@ -19,17 +19,10 @@ import TenantsLayout from '@/layouts/tenants/layout';
 import SvgEditor from '@/components/svg-editor';
 import { useTranslation } from '@/utils/translation';
 import { Badge } from '@/components/ui/badge';
+import { TenantResource } from '@/types';
 
 interface TenantShowProps {
-    tenant: {
-        id: string;
-        name: string;
-        email: string | null;
-        phone: string | null;
-        address: string | null;
-        is_active: boolean;
-        svg_logo: string | null;
-    };
+    tenant: TenantResource;
 }
 
 export default function TenantsShow({ tenant }: TenantShowProps) {
@@ -52,14 +45,14 @@ export default function TenantsShow({ tenant }: TenantShowProps) {
         },
         {
             title: __('tenants.show.breadcrumb', { name: tenant.name }),
-            href: route('tenants.show', tenant.id),
+            href: route('tenants.show', { tenant: tenant.id }),
         },
     ];
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        patch(route('tenants.update', tenant.id), {
+        patch(route('tenants.update', { tenant: tenant.id }), {
             onSuccess: () => {
                 setTimeout(() => {
                     setIsEditing(false);
@@ -72,7 +65,7 @@ export default function TenantsShow({ tenant }: TenantShowProps) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={__('tenants.show.title', { name: tenant.name })} />
 
-            <TenantsLayout showSidebar={true} tenantId={tenant.id}>
+            <TenantsLayout showSidebar={true} tenant={tenant}>
                 <div className="space-y-6">
                     <HeadingSmall 
                         title={__('tenants.show.heading')}

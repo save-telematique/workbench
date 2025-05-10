@@ -20,7 +20,7 @@ class TenantDomainsController extends Controller
         
         return Inertia::render('tenants/domains', [
             'tenant' => new TenantResource($tenant),
-            'domains' => DomainResource::collection($tenant->domains),
+            'domains' => DomainResource::collection($tenant->domains()->paginate(request()->get('per_page', 10))),
             'app_url' => config('app.url'),
         ]);
     }

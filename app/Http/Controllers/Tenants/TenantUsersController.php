@@ -19,7 +19,7 @@ class TenantUsersController extends Controller
     {
         $this->authorize('view_tenant_users');
         
-        $users = $tenant->users()->get();
+        $users = $tenant->users()->paginate(request()->get('per_page', 10));
 
         return Inertia::render('tenants/users/index', [
             'tenant' => new TenantResource($tenant),
@@ -50,10 +50,15 @@ class TenantUsersController extends Controller
         if ($user->tenant_id !== $tenant->id) {
             abort(404);
         }
-        
+
+        $permissionCollection = $user->getPermissionsViaRoles();
+        $roleCollection = $user->getRoleNames();
+
         return Inertia::render('tenants/users/show', [
             'tenant' => new TenantResource($tenant),
             'user' => new UserResource($user),
+            'permissions' => $permissionCollection,
+            'roles' => $roleCollection,
         ]);
     }
 

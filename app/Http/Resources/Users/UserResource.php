@@ -30,7 +30,7 @@ class UserResource extends JsonResource
             $data['roles'] = $this->roles->pluck('name');
         }
 
-        if ($this->relationLoaded('permissions')) {
+        if ($this->relationLoaded('roles')) {
             $data['permissions'] = $this->getAllPermissions()->pluck('name');
         }
 

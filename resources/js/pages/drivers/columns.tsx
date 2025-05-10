@@ -1,28 +1,11 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useTranslation } from "@/utils/translation";
 import { Link } from "@inertiajs/react";
 import { Badge } from "@/components/ui/badge";
 import { DataTableRowActions } from "@/components/ui/data-table/data-table-row-actions";
 import { useStandardActions } from "@/utils/actions";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
-
-interface Driver {
-  id: string;
-  surname: string;
-  firstname: string;
-  phone: string;
-  license_number: string;
-  tenant?: {
-    id: string;
-    name: string;
-  };
-  user?: {
-    id: string;
-    name: string;
-  };
-  deleted_at: string | null;
-}
+import { DriverResource } from "@/types";
 
 export function useColumns() {
   const { __ } = useTranslation();
@@ -30,7 +13,7 @@ export function useColumns() {
     resourceName: "drivers"
   });
   
-  const columns: ColumnDef<Driver>[] = [
+  const columns: ColumnDef<DriverResource>[] = [
     {
       accessorKey: "surname",
       header: ({ column }) => (
@@ -46,7 +29,7 @@ export function useColumns() {
         return (
           <div>
             <Link
-              href={route("drivers.show", driver.id)}
+              href={route("drivers.show", { driver: driver.id })}
               className="font-medium hover:underline"
             >
               {name}

@@ -1,4 +1,4 @@
-import { type BreadcrumbItem } from '@/types';
+import { TenantResource, type BreadcrumbItem } from '@/types';
 import { Transition } from '@headlessui/react';
 import { Head, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
@@ -18,15 +18,7 @@ import SvgEditor from '@/components/svg-editor';
 import { useTranslation } from '@/utils/translation';
 
 interface TenantEditProps {
-    tenant: {
-        id: string;
-        name: string;
-        email: string | null;
-        phone: string | null;
-        address: string | null;
-        is_active: boolean;
-        svg_logo: string | null;
-    };
+    tenant: TenantResource;
 }
 
 interface TenantForm {
@@ -36,6 +28,7 @@ interface TenantForm {
     address: string;
     is_active: boolean;
     svg_logo: string;
+    [key: string]: string | boolean;
 }
 
 export default function TenantsEdit({ tenant }: TenantEditProps) {
@@ -48,12 +41,12 @@ export default function TenantsEdit({ tenant }: TenantEditProps) {
         },
         {
             title: __('tenants.edit.breadcrumb', { name: tenant.name }),
-            href: route('tenants.edit', tenant.id),
+            href: route('tenants.edit', { tenant: tenant.id }),
         },
     ];
 
     const { data, setData, patch, errors, processing, recentlySuccessful } = useForm<TenantForm>({
-        name: tenant.name,
+        name: tenant.name || '',
         email: tenant.email || '',
         phone: tenant.phone || '',
         address: tenant.address || '',
@@ -64,14 +57,14 @@ export default function TenantsEdit({ tenant }: TenantEditProps) {
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
 
-        patch(route('tenants.update', tenant.id));
+        patch(route('tenants.update', { tenant: tenant.id }));
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={__('tenants.edit.title', { name: tenant.name })} />
 
-            <TenantsLayout>
+            <TenantsLayout showSidebar={true} tenant={tenant}>
                 <div className="space-y-6">
                     <HeadingSmall 
                         title={__('tenants.edit.heading', { name: tenant.name })}

@@ -20,7 +20,7 @@ class DeviceTypeController extends Controller
      */
     public function index(): Response
     {
-        $deviceTypes = DeviceType::orderBy('name')->get();
+        $deviceTypes = DeviceType::orderBy('name')->paginate(request()->get('perPage', 10));
 
         return Inertia::render('global-settings/device-types/index', [
             'deviceTypes' => DeviceTypeResource::collection($deviceTypes),

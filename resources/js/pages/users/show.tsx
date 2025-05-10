@@ -1,9 +1,10 @@
+import { UserResource, type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { type BreadcrumbItem } from "@/types";
 import { ArrowLeft, CheckCircle, Pencil, Shield, UserRound, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
 import FormattedDate from '@/components/formatted-date';
+import HeadingSmall from '@/components/heading-small';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,21 +15,9 @@ import AppLayout from '@/layouts/app-layout';
 import UsersLayout from '@/layouts/users/layout';
 import { usePermission } from '@/utils/permissions';
 import { useTranslation } from '@/utils/translation';
-import HeadingSmall from '@/components/heading-small';
-
 
 interface UserShowProps {
-    user: {
-        id: number;
-        name: string;
-        email: string;
-        locale: string;
-        email_verified_at: string | null;
-        created_at: string;
-        updated_at: string;
-        roles: string[];
-        permissions: string[];
-    };
+    user: UserResource;
 }
 
 export default function UserShow({ user }: UserShowProps) {
@@ -44,29 +33,26 @@ export default function UserShow({ user }: UserShowProps) {
         },
         {
             title: __('users.show.breadcrumb', { name: user.name }),
-            href: route('users.show', user.id),
+            href: route('users.show', { user: user.id }),
         },
     ];
 
     const handleDelete = () => {
-        router.delete(route('users.destroy', user.id));
+        router.delete(route('users.destroy', { user: user.id }));
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={__('users.show.title', { name: user.name })} />
 
-            <UsersLayout showSidebar={true} userId={user.id}>
+            <UsersLayout showSidebar={true} user={user}>
                 <div className="space-y-6">
-                    <HeadingSmall
-                        title={__('users.show.heading')}
-                        description={__('users.show.description')}
-                    />
-                    
+                    <HeadingSmall title={__('users.show.heading')} description={__('users.show.description')} />
+
                     <div className="flex justify-end space-x-2">
                         {canEditUsers && (
                             <Button asChild>
-                                <Link href={route('users.edit', user.id)}>
+                                <Link href={route('users.edit', { user: user.id })}>
                                     <Pencil className="mr-2 h-4 w-4" />
                                     {__('users.actions.edit')}
                                 </Link>
@@ -171,7 +157,7 @@ export default function UserShow({ user }: UserShowProps) {
                                         {__('users.fields.roles')}
                                     </h3>
                                     <div className="flex flex-wrap gap-2">
-                                        {user.roles.length > 0 ? (
+                                        {user.roles && user.roles.length > 0 ? (
                                             user.roles.map((role) => (
                                                 <Badge key={role} variant="secondary">
                                                     {role}
@@ -189,7 +175,7 @@ export default function UserShow({ user }: UserShowProps) {
                                         {__('users.fields.permissions')}
                                     </h3>
                                     <div className="flex flex-wrap gap-2">
-                                        {user.permissions.length > 0 ? (
+                                        {user.permissions && user.permissions.length > 0 ? (
                                             user.permissions.map((permission) => (
                                                 <Badge key={permission} variant="outline" className="border-blue-200 bg-blue-50 text-blue-700">
                                                     {permission}

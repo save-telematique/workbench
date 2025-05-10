@@ -38,7 +38,7 @@ export default function TenantUserCreate({ tenant }: TenantUserCreateProps) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={__('tenant_users.create.title', { tenant: tenant.name })} />
 
-            <TenantsLayout showSidebar={true} tenantId={tenant.id}>
+            <TenantsLayout showSidebar={true} tenant={tenant}>
                 <UserPageLayout
                     title={__('tenant_users.create.heading')}
                     description={__('tenant_users.create.description')}

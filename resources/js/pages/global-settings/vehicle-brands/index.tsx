@@ -1,5 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
-import { type BreadcrumbItem } from "@/types";
+import { ResourceCollection, VehicleBrandResource, type BreadcrumbItem } from "@/types";
 import { Plus } from 'lucide-react';
 
 import HeadingSmall from '@/components/heading-small';
@@ -9,11 +9,11 @@ import { DataTable } from '@/components/ui/data-table/index';
 
 import AppLayout from '@/layouts/app-layout';
 import GlobalSettingsLayout from '@/layouts/global-settings/layout';
-import { VehicleBrand, useVehicleBrandColumns } from './columns';
+import { useVehicleBrandColumns } from './columns';
 
 
 interface Props {
-    vehicleBrands: VehicleBrand[];
+    vehicleBrands: ResourceCollection<VehicleBrandResource>;
 }
 
 export default function VehicleBrands({ vehicleBrands }: Props) {
@@ -40,12 +40,12 @@ export default function VehicleBrands({ vehicleBrands }: Props) {
                     
                     <DataTable 
                         columns={columns}
-                        data={vehicleBrands}
+                        data={vehicleBrands.data || []}
                         tableId="vehicle-brands-table"
                         config={{
                             pagination: true,
                             sorting: true,
-                            pageSize: 10
+                            pageSize: vehicleBrands.meta?.per_page || 10
                         }}
                         actionBarRight={
                             <Button asChild size="default" className="h-9">

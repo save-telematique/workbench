@@ -43,7 +43,7 @@ export default function TenantUserEdit({ tenant, user }: TenantUserEditProps) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={__('tenant_users.edit.title', { tenant: tenant.name })} />
 
-            <TenantsLayout showSidebar={true} tenantId={tenant.id}>
+            <TenantsLayout showSidebar={true} tenant={tenant}>
                 <UserPageLayout
                     title={__('tenant_users.edit.heading', { name: user.name })}
                     description={__('tenant_users.edit.description')}

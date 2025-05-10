@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { type BreadcrumbItem } from '@/types';
+import { TenantResource, UserResource, type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { ArrowLeft, Pencil, Mail, Calendar, Globe, Trash, Clock, CheckCircle, XCircle } from 'lucide-react';
 
@@ -24,19 +24,8 @@ import { Badge } from '@/components/ui/badge';
 import { usePermission } from '@/utils/permissions';
 
 interface TenantUserShowProps {
-    tenant: {
-        id: string;
-        name: string;
-    };
-    user: {
-        id: string;
-        name: string;
-        email: string;
-        locale: string;
-        email_verified_at: string | null;
-        created_at: string;
-        updated_at: string;
-    };
+    tenant: TenantResource;
+    user: UserResource;
 }
 
 export default function TenantUserShow({ tenant, user }: TenantUserShowProps) {
@@ -52,27 +41,27 @@ export default function TenantUserShow({ tenant, user }: TenantUserShowProps) {
         },
         {
             title: __('tenants.show.breadcrumb', { name: tenant.name }),
-            href: route('tenants.show', tenant.id),
+            href: route('tenants.show', { tenant: tenant.id }),
         },
         {
             title: __('tenant_users.list.breadcrumb'),
-            href: route('tenants.users.index', tenant.id),
+            href: route('tenants.users.index', { tenant: tenant.id }),
         },
         {
             title: __('tenant_users.show.breadcrumb', { name: user.name }),
-            href: route('tenants.users.show', [tenant.id, user.id]),
+            href: route('tenants.users.show', { tenant: tenant.id, user: user.id }),
         },
     ];
 
     const handleDelete = () => {
-        router.delete(route('tenants.users.destroy', [tenant.id, user.id]));
+        router.delete(route('tenants.users.destroy', { tenant: tenant.id, user: user.id }));
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={__('tenant_users.show.title', { name: user.name, tenant: tenant.name })} />
 
-            <TenantsLayout showSidebar={true} tenantId={tenant.id} activeTab="users">
+            <TenantsLayout showSidebar={true} tenant={tenant}>
                 <div className="space-y-6">
                     <HeadingSmall 
                         title={__('tenant_users.show.heading')} 
@@ -82,14 +71,14 @@ export default function TenantUserShow({ tenant, user }: TenantUserShowProps) {
                     <div className="flex justify-end space-x-2">
                         {canEditTenantUsers && (
                             <Button asChild>
-                                <Link href={route('tenants.users.edit', [tenant.id, user.id])}>
+                                <Link href={route('tenants.users.edit', { tenant: tenant.id, user: user.id })}>
                                     <Pencil className="mr-2 h-4 w-4" />
                                     {__('tenant_users.actions.edit')}
                                 </Link>
                             </Button>
                         )}
                         <Button variant="outline" asChild>
-                            <Link href={route('tenants.users.index', tenant.id)}>
+                            <Link href={route('tenants.users.index', { tenant: tenant.id })}>
                                 <ArrowLeft className="mr-2 h-4 w-4" />
                                 {__('tenant_users.actions.back_to_list')}
                             </Link>

@@ -24,7 +24,7 @@ class VehicleModelController extends Controller
     {
         $vehicleModels = VehicleModel::with(['vehicleBrand'])
             ->orderBy('name')
-            ->get();
+            ->paginate(request()->get('perPage', 10));
 
         return Inertia::render('global-settings/vehicle-models/index', [
             'vehicleModels' => VehicleModelResource::collection($vehicleModels),

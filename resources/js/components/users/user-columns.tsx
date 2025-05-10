@@ -6,16 +6,7 @@ import FormattedDate from '@/components/formatted-date';
 import { Badge } from '@/components/ui/badge';
 import { DataTableRowActions } from '@/components/ui/data-table';
 import { useStandardActions } from '@/utils/actions';
-
-export interface User {
-    id: string;
-    name: string;
-    email: string;
-    email_verified_at: string | null;
-    created_at: string;
-    updated_at: string;
-}
-
+import { UserResource } from '@/types';
 export interface UseUserColumnsParams {
     tenantId?: string;
     translationNamespace: 'users' | 'tenant_users';
@@ -24,7 +15,7 @@ export interface UseUserColumnsParams {
 export function useUserColumns({
     translationNamespace,
     tenantId,
-}: UseUserColumnsParams): ColumnDef<User>[] {
+}: UseUserColumnsParams): ColumnDef<UserResource>[] {
     const { __ } = useTranslation();
     const getStandardActions = useStandardActions({
         resourceName: "users",

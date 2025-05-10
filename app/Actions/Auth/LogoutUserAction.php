@@ -29,6 +29,6 @@ class LogoutUserAction
     {
         $this->handle($request);
         
-        return redirect('/');
+        return redirect()->route('login');
     }
 } 

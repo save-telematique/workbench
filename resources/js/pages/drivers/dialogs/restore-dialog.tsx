@@ -10,24 +10,19 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useTranslation } from "@/utils/translation";
 import { router } from "@inertiajs/react";
-
-interface Driver {
-  id: string;
-  surname: string;
-  firstname: string;
-}
+import { DriverResource } from "@/types";
 
 interface RestoreDriverDialogProps {
   open: boolean;
   onOpenChange: () => void;
-  driver: Driver;
+  driver: DriverResource;
 }
 
 export function RestoreDriverDialog({ open, onOpenChange, driver }: RestoreDriverDialogProps) {
   const { __ } = useTranslation();
   
   function handleRestore() {
-    router.put(route("drivers.restore", driver.id), {}, {
+    router.put(route("drivers.restore", { driver: driver.id }), {}, {
       onSuccess: () => {
         onOpenChange();
       }
