@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { type BreadcrumbItem } from "@/types";
+import { DataPointResource, DataPointTypeResource, DeviceResource, type BreadcrumbItem } from "@/types";
 import { Head } from "@inertiajs/react";
 import AppLayout from "@/layouts/app-layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -35,7 +35,6 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { type Device } from "@/pages/devices/show";
 import {
   ChartContainer,
   ChartLegend,
@@ -54,32 +53,9 @@ import {
 } from "recharts";
 import { Checkbox } from "@/components/ui/checkbox";
 
-interface DataPointType {
-  id: number;
-  name: string;
-  description: string | null;
-  category: string;
-  type: string;
-  unit: string | null;
-  icon?: string;
-}
-
-interface DataPoint {
-  id: string;
-  device_id: string;
-  data_point_type_id: number;
-  value: unknown;
-  recorded_at: string;
-}
-
-interface AggregatedData {
-  value: number;
-  recorded_at: string;
-}
-
 interface DataPointExplorerPageProps extends PageProps {
-  device: Device;
-  dataPointTypes: DataPointType[];
+  device: DeviceResource;
+  dataPointTypes: DataPointTypeResource[];
   latestReadings?: Record<number, unknown>;
 }
 
@@ -123,15 +99,15 @@ export default function DeviceDataPoints({ device, dataPointTypes, latestReading
   const dateFnsLocale = dateFnsLocales[appLocaleString.substring(0, 2)] || enUS;
 
   // States
-  const [selectedDataPointType, setSelectedDataPointType] = useState<DataPointType | null>(null);
+  const [selectedDataPointType, setSelectedDataPointType] = useState<DataPointTypeResource | null>(null);
   const [timeRange, setTimeRange] = useState<TimeRange>(TimeRange.HOUR_6);
   const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.TABLE); // Default to TABLE view
   const [aggregationType, setAggregationType] = useState<AggregationType>(AggregationType.NONE);
   const [startDate, setStartDate] = useState<Date>(() => subHours(new Date(), 6));
   const [endDate, setEndDate] = useState<Date>(() => new Date());
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [dataPoints, setDataPoints] = useState<DataPoint[]>([]);
-  const [aggregatedData, setAggregatedData] = useState<AggregatedData[]>([]);
+  const [dataPoints, setDataPoints] = useState<DataPointResource[]>([]);
+  const [aggregatedData, setAggregatedData] = useState<DataPointResource[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [showOnlyWithData, setShowOnlyWithData] = useState<boolean>(false);
   
@@ -151,7 +127,7 @@ export default function DeviceDataPoints({ device, dataPointTypes, latestReading
     },
     {
       title: __("devices.breadcrumbs.show"),
-      href: route("devices.show", device.id),
+      href: route("devices.show", { device: device.id }),
     },
     {
       title: __("devices.datapoints.title"),
@@ -235,7 +211,7 @@ export default function DeviceDataPoints({ device, dataPointTypes, latestReading
                                 (data && data.data && Array.isArray(data.data)) ? data.data : [];
           
           if (dataPointsArray.length > 0) {
-            setDataPoints(dataPointsArray.sort((a: DataPoint, b: DataPoint) => {
+            setDataPoints(dataPointsArray.sort((a: DataPointResource, b: DataPointResource) => {
               return new Date(b.recorded_at).getTime() - new Date(a.recorded_at).getTime();
             }));
           } else {
@@ -321,7 +297,7 @@ export default function DeviceDataPoints({ device, dataPointTypes, latestReading
     }
   }, [startDate, endDate, selectedDataPointType]);
 
-  const handleDataPointTypeSelect = (dataPointType: DataPointType) => {
+  const handleDataPointTypeSelect = (dataPointType: DataPointTypeResource) => {
     setSelectedDataPointType(dataPointType);
     
     // Check if the selected data type can be charted
@@ -708,8 +684,8 @@ export default function DeviceDataPoints({ device, dataPointTypes, latestReading
               </TableRow>
             ))
           ) : (
-            dataPoints.map((point) => (
-              <TableRow key={point.id}>
+            dataPoints.map((point, index) => (
+              <TableRow key={`${point.recorded_at}-${index}`}>
                 <TableCell>{formatTimestamp(point.recorded_at)}</TableCell>
                 <TableCell>
                   {typeof point.value === "object" ? (

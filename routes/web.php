@@ -4,7 +4,6 @@ use App\Actions\Users\CreateUserAction;
 use App\Actions\Users\DeleteUserAction;
 use App\Actions\Users\UpdateUserAction;
 use App\Actions\Users\UpdateUserRolesAction;
-use App\Http\Controllers\Devices\DataPointController;
 use App\Http\Controllers\Users\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -30,6 +29,7 @@ foreach (config('tenancy.central_domains') as $domain) {
         Route::middleware(['auth', 'verified'])->group(function () {
             require __DIR__ . '/central/dashboard.php';
             require __DIR__ . '/central/devices.php';
+            require __DIR__ . '/central/device-datapoints.php';
             require __DIR__ . '/central/tenants.php';
             require __DIR__ . '/central/global-settings.php';
 
@@ -37,9 +37,6 @@ foreach (config('tenancy.central_domains') as $domain) {
             require __DIR__ . '/shared/vehicles.php';
             require __DIR__ . '/shared/users.php';
             require __DIR__ . '/shared/drivers.php';
-
-            Route::get('/devices/{device}/datapoints', [DataPointController::class, 'index'])->name('devices.datapoints.index');
-            Route::get('/api/devices/datapoints', [DataPointController::class, 'getDataPoints'])->name('api.devices.datapoints');
         });
     });
 }

@@ -1,6 +1,7 @@
 /**
  * Type definitions for Laravel API Resources
  * These types match the structure of resources in app/Http/Resources/
+ * Update by analyzing the resources in @r
  * NOTHING ELSE SHOULD BE ADDED HERE
  */
 
@@ -81,6 +82,21 @@ export interface DeviceResource {
   
   created_at: string | null;
   updated_at: string | null;
+}
+
+// Data Point Resources
+export interface DataPointTypeResource {
+  id: number;
+  name: string;
+  category: string;
+  type: string;
+  unit: string;
+  description: string;
+}
+
+export interface DataPointResource {
+  value: number;
+  recorded_at: string;
 }
 
 // Vehicle Resources
