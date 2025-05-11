@@ -5,6 +5,7 @@ import { Link } from "@inertiajs/react";
 import { LicensePlate } from "@/components/ui/license-plate";
 import { useStandardActions } from "@/utils/actions";
 import { DeviceResource } from "@/types";
+import { formatDate } from "@/utils";
 
 export const useColumns = () => {
   const { __ } = useTranslation();
@@ -42,7 +43,7 @@ export const useColumns = () => {
         />
       ),
       cell: ({ row }) => (
-        <div className="w-[80px]">{row.getValue("imei")}</div>
+        <div>{row.getValue("imei")}</div>
       ),
     },
     {
@@ -54,7 +55,7 @@ export const useColumns = () => {
         />
       ),
       cell: ({ row }) => (
-        <div className="w-[80px]">{row.getValue("last_contact_at")}</div>
+        <div>{formatDate(row.original.last_contact_at, "RELATIVE")}</div>
       ),
     },
     {

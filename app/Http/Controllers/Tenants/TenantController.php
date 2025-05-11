@@ -23,7 +23,10 @@ class TenantController extends Controller
      */
     public function index(): Response
     {
-        $tenants = Tenant::paginate(request()->get('per_page', 10));
+        $tenants = Tenant::search(request()->get('search', ''))
+            ->orderBy(request()->get('sort', 'created_at'), request()->get('direction', 'desc'))
+            ->paginate(request()->get('per_page', 10))
+            ->withQueryString();
         
         return Inertia::render('tenants/index', [
             'tenants' => TenantResource::collection($tenants),

@@ -163,13 +163,13 @@ class GlobalSearchAction
                 $query->where('tenant_id', $user->tenant_id);
             })
             ->take($limit)
-            ->get(['id', 'name', 'license_number']);
+            ->get(['id', 'name', 'card_number']);
             
         return $drivers->map(function ($driver) {
             return [
                 'id' => $driver->id,
                 'title' => $driver->firstname . ' ' . $driver->surname,
-                'description' => $driver->license_number ? 'License: ' . $driver->license_number : '',
+                'description' => $driver->card_number,
                 'resource_type' => 'driver',
                 'url' => route('drivers.show', $driver->id),
                 'icon' => 'user-cog'

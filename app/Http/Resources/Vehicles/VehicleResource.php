@@ -33,6 +33,7 @@ class VehicleResource extends JsonResource
             'device' => $this->whenLoaded('device', fn() => $this->device ? new DeviceResource($this->device) : null),
             'current_driver' => $this->whenLoaded('currentDriver', fn() => $this->currentDriver ? new DriverResource($this->currentDriver) : null),
             'current_working_session' => $this->whenLoaded('currentWorkingSession', fn() => $this->currentWorkingSession ? new WorkingSessionResource($this->currentWorkingSession) : null),
+            'current_location' => $this->whenLoaded('currentLocation', fn() => $this->currentLocation ? new VehicleLocationResource($this->currentLocation) : null),
             'working_sessions' => $this->whenLoaded('workingSessions', fn() => WorkingSessionResource::collection($this->workingSessions)),
             'activity_changes' => $this->whenLoaded('activityChanges', fn() => ActivityChangeResource::collection($this->activityChanges)),
 

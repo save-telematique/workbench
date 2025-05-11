@@ -12,6 +12,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import { Filter, Plus, Search, Upload, X } from 'lucide-react';
 import { useState } from 'react';
 import { useColumns } from './columns';
+import FleetMap from '@/components/maps/fleet-map';
 
 interface VehiclesPageProps {
     vehicles: ResourceCollection<VehicleResource>;
@@ -75,6 +76,9 @@ export default function Index({ vehicles, filters, brands, tenants }: VehiclesPa
             <Head title={__('vehicles.title')} />
 
             <VehiclesLayout>
+                {/* Fleet map */}
+                <FleetMap title="vehicles.fleet_map.title" className="mb-6" />
+
                 <DataTable
                     columns={columns}
                     data={vehicles?.data || []}

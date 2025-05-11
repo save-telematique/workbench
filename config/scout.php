@@ -419,7 +419,7 @@ return [
                     'default_sorting_field' => 'created_at',
                 ],
                 'search-parameters' => [
-                    'query_by' => 'firstname,surname,full_name,license_number,card_number,phone,tenant_name',
+                    'query_by' => 'firstname,surname,full_name,card_number,license_number,phone,tenant_name',
                 ],
             ],
         ],

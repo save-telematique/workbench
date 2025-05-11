@@ -117,6 +117,20 @@ export interface VehicleModelResource {
   vehicle_brand?: VehicleBrandResource;
 }
 
+export interface VehicleLocationResource {
+  id: string;
+  latitude: number;
+  longitude: number;
+  speed: number;
+  heading: number;
+  ignition: boolean;
+  moving: boolean;
+  altitude: number;
+  address?: string;
+  address_details?: Record<string, unknown>;
+  recorded_at: string;
+}
+
 export interface VehicleResource {
   id: string;
   registration: string;
@@ -131,6 +145,7 @@ export interface VehicleResource {
   device?: DeviceResource;
   current_driver?: DriverResource;
   current_working_session?: WorkingSessionResource;
+  current_location?: VehicleLocationResource;
   working_sessions?: WorkingSessionResource[];
   activity_changes?: ActivityChangeResource[];
   

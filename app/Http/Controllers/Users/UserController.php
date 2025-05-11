@@ -24,7 +24,11 @@ class UserController extends Controller
      */
     public function index(): Response
     {
-        $users = User::where('tenant_id', tenant('id'))->paginate(request()->get('perPage', 10));
+        $users = User::search(request()->get('search', ''))
+            ->query(fn ($query) => $query->where('tenant_id', tenant('id')))
+            ->orderBy(request()->get('sort', 'created_at'), request()->get('direction', 'desc'))
+            ->paginate(request()->get('perPage', 10))
+            ->withQueryString();
 
         return Inertia::render('users/index', [
             'users' => UserResource::collection($users),

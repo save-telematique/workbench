@@ -33,34 +33,21 @@ class VehicleController extends Controller
 
     public function index(Request $request)
     {
-        $query = Vehicle::query()
-            ->with(['tenant', 'device.type', 'model.vehicleBrand', 'type'])
-            ->when($request->filled('search'), function ($query) use ($request) {
-                $search = $request->input('search');
-                return $query->where(function ($q) use ($search) {
-                    $q->where('registration', 'like', "%{$search}%")
-                        ->orWhereHas('model.vehicleBrand', function ($q) use ($search) {
-                            $q->where('name', 'like', "%{$search}%");
-                        })
-                        ->orWhereHas('model', function ($q) use ($search) {
-                            $q->where('name', 'like', "%{$search}%");
-                        })
-                        ->orWhere('vin', 'like', "%{$search}%");
-                });
-            })
+        $query = Vehicle::search($request->input('search') ?? '')
             ->when($request->filled('tenant_id') && $request->input('tenant_id') !== 'all', function ($query) use ($request) {
                 return $query->where('tenant_id', $request->input('tenant_id'));
             })
             ->when($request->filled('brand') && $request->input('brand') !== 'all', function ($query) use ($request) {
-                return $query->whereHas('model.vehicleBrand', function ($q) use ($request) {
-                    $q->where('name', $request->input('brand'));
-                });
+                return $query->where('brand_name', $request->input('brand'));
+
             })
             ->when($request->filled('has_device') && $request->input('has_device') !== 'all', function ($query) use ($request) {
                 return $request->input('has_device') === 'yes'
-                    ? $query->whereHas('device')
-                    : $query->doesntHave('device');
+                    ? $query->query(fn ($q) => $q->whereHas('device'))
+                    : $query->query(fn ($q) => $q->doesntHave('device'));
             });
+
+        $query->query(fn ($q) => $q->with(['tenant', 'device.type', 'model.vehicleBrand', 'type']));
 
         $brandsForFilter = VehicleBrand::all();
         $tenantsForFilter = Tenant::all();

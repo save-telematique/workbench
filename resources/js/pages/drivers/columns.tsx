@@ -44,6 +44,16 @@ export function useColumns() {
       }
     },
     {
+      accessorKey: "card_number",
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={__("drivers.fields.card_number")}
+        />
+      ),
+      cell: ({ row }) => row.original.card_number || "-"
+    }, 
+    {
       accessorKey: "phone",
       header: ({ column }) => (
         <DataTableColumnHeader
@@ -52,16 +62,6 @@ export function useColumns() {
         />
       ),
       cell: ({ row }) => row.original.phone || "-"
-    },
-    {
-      accessorKey: "license_number",
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title={__("drivers.fields.license_number")}
-        />
-      ),
-      cell: ({ row }) => row.original.license_number || "-"
     },
     {
       accessorFn: (row) => row.tenant?.name ?? "",

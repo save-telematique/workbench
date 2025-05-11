@@ -40,7 +40,6 @@ class DeviceController extends Controller
             ->paginate($request->input('perPage', 10))
             ->withQueryString();
 
-
         $deviceTypes = DeviceType::all();
         $tenants = Tenant::all();
         $vehicles = Vehicle::all();

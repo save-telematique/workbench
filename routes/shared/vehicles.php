@@ -2,6 +2,7 @@
 
 use App\Actions\Vehicles\CreateVehicleAction;
 use App\Actions\Vehicles\DeleteVehicleAction;
+use App\Actions\Vehicles\GetVehiclesWithLocationsAction;
 use App\Actions\Vehicles\UpdateVehicleAction;
 use App\Actions\Vehicles\RestoreVehicleAction;
 use App\Actions\Vehicles\ScanVehicleRegistrationAction;
@@ -19,6 +20,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/vehicles/locations', GetVehiclesWithLocationsAction::class)->name('vehicles.locations');
+    
     Route::get('/vehicles/import', [VehicleCsvImportController::class, 'create'])->name('vehicles.import');
     Route::post('/vehicles/import/upload', [VehicleCsvImportController::class, 'upload'])->name('vehicles.import.upload');
     Route::post('/vehicles/import/store', [VehicleCsvImportController::class, 'store'])->name('vehicles.import.store');

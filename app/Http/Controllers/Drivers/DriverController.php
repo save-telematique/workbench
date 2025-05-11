@@ -24,19 +24,13 @@ class DriverController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Driver::query()
-            ->with(['tenant', 'user'])
-            ->when($request->filled('search'), function ($query) use ($request) {
-                $search = $request->input('search');
-                return $query->where(function ($q) use ($search) {
-                    $q->where('surname', 'like', "%{$search}%")
-                      ->orWhere('firstname', 'like', "%{$search}%")
-                      ->orWhere('license_number', 'like', "%{$search}%")
-                      ->orWhere('phone', 'like', "%{$search}%");
-                });
-            })
+        $query = Driver::search($request->input('search', '') ?? '')
+            ->query(fn ($query) => $query->with(['tenant', 'user']))
             ->when($request->filled('tenant_id') && $request->input('tenant_id') !== 'all', function ($query) use ($request) {
-                return $query->where('tenant_id', $request->input('tenant_id'));
+                $query->where('tenant_id', $request->input('tenant_id'));
+            })
+            ->when($request->filled('user_id') && $request->input('user_id') !== 'all', function ($query) use ($request) {
+                return $query->where('user_id', $request->input('user_id'));
             });
 
         // Get all tenants for the filter
