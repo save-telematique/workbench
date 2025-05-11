@@ -113,7 +113,7 @@ export interface VehicleTypeResource {
 export interface VehicleModelResource {
   id: number;
   name: string;
-  brand?: VehicleBrandResource;
+  vehicle_brand?: VehicleBrandResource;
 }
 
 export interface VehicleResource {

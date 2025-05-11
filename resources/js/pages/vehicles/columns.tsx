@@ -65,7 +65,7 @@ export const useColumns = () => {
       enableSorting: true,
       enableHiding: true,
       cell: ({ row }) => (
-        <div className="w-[100px]">{row.getValue("brand")}</div>
+        <div className="w-[100px]">{row.original.vehicle_model?.vehicle_brand?.name}</div>
       ),
     },
     {
@@ -74,7 +74,7 @@ export const useColumns = () => {
       enableSorting: true,
       enableHiding: true,
       cell: ({ row }) => (
-        <div className="w-[120px]">{row.getValue("model")}</div>
+        <div className="w-[120px]">{row.original.vehicle_model?.name}</div>
       ),
     },
     {

@@ -63,7 +63,7 @@ export default function Show({ vehicle }: VehicleShowProps) {
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
           <div>
             <h2 className="text-2xl font-bold tracking-tight">
-              {vehicle.registration} {vehicle.vehicle_model && vehicle.vehicle_model.brand ? `${vehicle.vehicle_model.brand.name} - ${vehicle.vehicle_model.name}` : ''}
+              {vehicle.registration} {vehicle.vehicle_model && vehicle.vehicle_model.vehicle_brand ? `${vehicle.vehicle_model.vehicle_brand.name} - ${vehicle.vehicle_model.name}` : ''}
             </h2>
             {vehicle.deleted_at && (
               <Badge variant="outline" className="mt-2">
@@ -113,7 +113,7 @@ export default function Show({ vehicle }: VehicleShowProps) {
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">{__("vehicles.fields.brand")}</TableCell>
-                  <TableCell>{vehicle.vehicle_model && vehicle.vehicle_model.brand ? vehicle.vehicle_model.brand.name : '-'}</TableCell>
+                  <TableCell>{vehicle.vehicle_model && vehicle.vehicle_model.vehicle_brand ? vehicle.vehicle_model.vehicle_brand.name : '-'}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">{__("vehicles.fields.model")}</TableCell>
