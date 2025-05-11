@@ -62,13 +62,15 @@ class User extends Authenticatable
      */
     public function toSearchableArray()
     {
-        return array_merge($this->toArray(), [
+        $array = [
             'id' => (string) $this->id,
-            'name' => $this->name,
-            'email' => $this->email,
-            'tenant_name' => $this->tenant?->name ?? '',
-            'created_at' => $this->created_at?->timestamp,
-        ]);
+            'name' => (string) $this->name,
+            'email' => (string) $this->email,
+            'tenant_name' => (string) $this->tenant?->name,
+            'created_at' => $this->created_at ? (int) $this->created_at->timestamp : null,
+        ];
+
+        return $array;
     }
 
     /**

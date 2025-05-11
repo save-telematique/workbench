@@ -310,5 +310,12 @@ return [
     'step' => 'Étape',
     'next' => 'Suivant',
     'previous' => 'Précédent',
+
+    // Command Palette
+    'search_command_placeholder' => 'Rechercher ou utiliser les raccourcis...',
+    'searching' => 'Recherche en cours...',
+    'no_results_found' => 'Aucun résultat trouvé',
+    'navigation' => 'Navigation',
+    'view_all_results' => 'Voir tous les :count résultats',
 ];
  

@@ -6,6 +6,7 @@ use App\Traits\HasHyperTable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
 
 class DeviceDataPoint extends Model
 {
@@ -59,5 +60,37 @@ class DeviceDataPoint extends Model
     public function deviceMessage()
     {
         return $this->belongsTo(DeviceMessage::class);
+    }
+
+
+    /**
+     * Modify the query used to retrieve models when making all models searchable.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    protected function makeAllSearchableUsing(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->with(['device', 'vehicle', 'dataPointType']);
+    }
+
+    /**
+     * Get the scout key for the model.
+     *
+     * @return mixed
+     */
+    public function getScoutKey()
+    {
+        return md5($this->device_id . $this->recorded_at->timestamp . $this->data_point_type_id);
+    }
+
+    /**
+     * Get the key name used to index the model.
+     * 
+     * @return mixed
+     */
+    public function getScoutKeyName()
+    {
+        return 'id';
     }
 }

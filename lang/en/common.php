@@ -311,4 +311,11 @@ return [
     'fields' => [
         'mandatory' => 'Required fields',
     ],
+    
+    // Command Palette
+    'search_command_placeholder' => 'Search or use shortcuts...',
+    'searching' => 'Searching...',
+    'no_results_found' => 'No results found',
+    'navigation' => 'Navigation',
+    'view_all_results' => 'View all :count results',
 ]; 

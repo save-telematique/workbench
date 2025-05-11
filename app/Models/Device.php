@@ -75,24 +75,31 @@ class Device extends Model
         );
     }
 
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array
+     */
     public function toSearchableArray()
     {
-        return [
+        $array = [
             'id' => (string) $this->id,
             'tenant_id' => (string) $this->tenant_id,
             'imei' => (string) $this->imei,
             'sim_number' => (string) $this->sim_number,
             'serial_number' => (string) $this->serial_number,
-            'type_name' => (string) ($this->type?->name ?? ''),
-            'type_manufacturer' => (string) ($this->type?->manufacturer ?? ''),
-            'tenant_name' => (string) ($this->tenant?->name ?? ''),
-            'vehicle_id' => (string) ($this->vehicle?->id ?? ''),
-            'vehicle_registration' => (string) ($this->vehicle?->registration ?? ''),
-            'vehicle_model' => (string) ($this->vehicle?->model?->name ?? ''),
-            'vehicle_brand' => (string) ($this->vehicle?->model?->vehicleBrand?->name ?? ''),
-            'created_at' => $this->created_at->timestamp,
+            'type_name' => (string) $this->type?->name,
+            'type_manufacturer' => (string) $this->type?->manufacturer,
+            'tenant_name' => (string) $this->tenant?->name,
+            'vehicle_id' => (string) $this->vehicle_id,
+            'vehicle_registration' => (string) $this->vehicle?->registration,
+            'vehicle_model' => (string) $this->vehicle?->model?->name,
+            'vehicle_brand' => (string) $this->vehicle?->model?->vehicleBrand?->name,
+            'created_at' => $this->created_at ? (int) $this->created_at->timestamp : null,
             '__soft_deleted' => (bool) $this->trashed(),
         ];
+
+        return $array;
     }
 
     protected function makeAllSearchableUsing(Builder $query): Builder

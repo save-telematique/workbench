@@ -44,33 +44,35 @@ class Tenant extends BaseTenant implements TenantWithDatabase
      */
     public function toSearchableArray()
     {
-        return array_merge($this->toArray(), [
+        $array = [
             'id' => (string) $this->id,
             'name' => (string) $this->name,
             'email' => (string) $this->email,
             'address' => (string) $this->address,
             'phone' => (string) $this->phone,
             'is_active' => (bool) $this->is_active,
-            'created_at' => $this->created_at->timestamp,
+            'created_at' => $this->created_at ? (int) $this->created_at->timestamp : null,
             '__soft_deleted' => (bool) $this->trashed(),
-        ]);
+        ];
+
+        return $array;
     }
 
     public static function getCustomColumns(): array
-{
-    return [
-        'id',
-        'name',
-        'email',
-        'address',
-        'phone',
-        'is_active',
-        'svg_logo',
-        'deleted_at',
-        'created_at',
-        'updated_at',
-    ];
-}
+    {
+        return [
+            'id',
+            'name',
+            'email',
+            'address',
+            'phone',
+            'is_active',
+            'svg_logo',
+            'deleted_at',
+            'created_at',
+            'updated_at',
+        ];
+    }
 
     public function users()
     {

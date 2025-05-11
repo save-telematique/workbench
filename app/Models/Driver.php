@@ -9,10 +9,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
+use Laravel\Scout\Searchable;
 
 class Driver extends Model
 {
-    use HasFactory, BelongsToTenant, HasUuids, SoftDeletes;
+    use HasFactory, BelongsToTenant, HasUuids, SoftDeletes, Searchable;
 
     protected $fillable = [
         'surname',
@@ -39,4 +40,38 @@ class Driver extends Model
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array
+     */
+    public function toSearchableArray()
+    {
+        $array = [
+            'id' => (string) $this->id,
+            'tenant_id' => (string) $this->tenant_id,
+            'firstname' => (string) $this->firstname,
+            'surname' => (string) $this->surname,
+            'full_name' => (string) ($this->firstname . ' ' . $this->surname),
+            'phone' => (string) $this->phone,
+            'license_number' => (string) $this->license_number,
+            'card_number' => (string) $this->card_number,
+            'tenant_name' => (string) $this->tenant?->name,
+            'created_at' => $this->created_at ? (int) $this->created_at->timestamp : null,
+            '__soft_deleted' => (bool) $this->trashed(),
+        ];
+
+        return $array;
+    }
+
+    /**
+     * Modify the query used to retrieve models when making all models searchable.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    protected function makeAllSearchableUsing(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->with(['tenant', 'user']);
+    }
 }

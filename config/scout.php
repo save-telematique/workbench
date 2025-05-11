@@ -368,6 +368,60 @@ return [
                     'query_by' => 'name,email,address,phone',
                 ],
             ],
+            \App\Models\Driver::class => [
+                'collection-schema' => [
+                    'fields' => [
+                        [
+                            'name' => 'id',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'tenant_id',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'firstname',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'surname',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'full_name',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'phone',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'license_number',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'card_number',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'tenant_name',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'created_at',
+                            'type' => 'int64',
+                        ],
+                        [
+                            'name' => '__soft_deleted',
+                            'type' => 'bool',
+                        ],
+                    ],
+                    'default_sorting_field' => 'created_at',
+                ],
+                'search-parameters' => [
+                    'query_by' => 'firstname,surname,full_name,license_number,card_number,phone,tenant_name',
+                ],
+            ],
         ],
     ],
 

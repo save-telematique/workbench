@@ -33,19 +33,20 @@ class Vehicle extends Model
      */
     public function toSearchableArray()
     {
-        return array_merge($this->toArray(), [
+        $array = [
             'id' => (string) $this->id,
             'tenant_id' => (string) $this->tenant_id,
             'registration' => (string) $this->registration,
             'vin' => (string) $this->vin,
-            'imei' => (string) ($this->imei ?? ''),
-            'model_name' => (string) ($this->model?->name ?? ''),
-            'brand_name' => (string) ($this->model?->vehicleBrand?->name ?? ''),
-            'type_name' => (string) ($this->type?->name ?? ''),
-            'tenant_name' => (string) ($this->tenant?->name ?? ''),
-            'created_at' => $this->created_at?->timestamp,
+            'model_name' => (string) $this->model?->name,
+            'brand_name' => (string) $this->model?->vehicleBrand?->name,
+            'type_name' => (string) $this->type?->name,
+            'tenant_name' => (string) $this->tenant?->name,
+            'created_at' => $this->created_at ? (int) $this->created_at->timestamp : null,
             '__soft_deleted' => (bool) $this->trashed(),
-        ]);
+        ];
+
+        return $array;
     }
 
     /**

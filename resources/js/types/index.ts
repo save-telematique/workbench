@@ -18,6 +18,7 @@ export interface NavItem {
   disabled?: boolean;
   external?: boolean;
   label?: string;
+  shortcut?: string;
 }
 
 export interface Tenant {
