@@ -105,6 +105,10 @@ return [
     'are_you_sure' => 'Êtes-vous sûr?',
     'confirm_delete' => 'Confirmer la suppression',
     'operation_cannot_be_undone' => 'Cette opération ne peut pas être annulée.',
+    'no_data_available' => 'Aucune donnée disponible',
+    'ongoing' => 'En cours',
+    'unknown_activity' => 'Activité inconnue',
+    'unknown_date' => 'Date inconnue',
     
     // Status
     'status' => 'Statut',
@@ -317,5 +321,25 @@ return [
     'no_results_found' => 'Aucun résultat trouvé',
     'navigation' => 'Navigation',
     'view_all_results' => 'Voir tous les :count résultats',
+    'hours' => 'heures',
+    'unknown' => 'Inconnu',
+    'unknown_activity' => 'Activité inconnue',
+    'unknown_date' => 'Date inconnue',
+    'ongoing' => 'En cours',
+    'no_data_available' => 'Aucune donnée disponible',
+    'active_filters' => ':count filtre(s) actif(s)',
+    'views' => [
+        'table' => 'Tableau',
+        'timeline' => 'Chronologie',
+        'chart' => 'Graphique',
+    ],
+    'occurrences' => 'occurrences',
+    'apply' => 'Appliquer',
+    'reset' => 'Réinitialiser',
+    'select_date' => 'Sélectionner une date',
+    'filters' => [
+        'start_date' => 'Date de début',
+        'end_date' => 'Date de fin',
+    ],
 ];
  

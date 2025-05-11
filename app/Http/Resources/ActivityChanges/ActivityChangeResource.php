@@ -21,18 +21,22 @@ class ActivityChangeResource extends JsonResource
             'id' => $this->id,
             'working_day_id' => $this->working_day_id,
             'vehicle_id' => $this->vehicle_id,
-            'recorded_at' => $this->recorded_at ? $this->recorded_at->toISOString() : null,
+            'recorded_at' => $this->recorded_at,
             'activity_id' => $this->activity_id,
             'type' => $this->type,
             
-            // Related resources
-            'working_day' => $this->whenLoaded('workingDay', fn() => new WorkingDayResource($this->workingDay)),
-            'vehicle' => $this->whenLoaded('vehicle', fn() => new VehicleResource($this->vehicle)),
-            'activity' => $this->whenLoaded('activity', fn() => new ActivityResource($this->activity)),
-            
-            // Timestamps
-            'created_at' => $this->created_at ? $this->created_at->toISOString() : null,
-            'updated_at' => $this->updated_at ? $this->updated_at->toISOString() : null,
+            'working_day' => $this->when($this->relationLoaded('workingDay'), function () {
+                return new WorkingDayResource($this->workingDay);
+            }),
+            'vehicle' => $this->when($this->relationLoaded('vehicle'), function () {
+                return new VehicleResource($this->vehicle);
+            }),
+            'activity' => $this->when($this->relationLoaded('activity'), function () {
+                return new ActivityResource($this->activity);
+            }),
+
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ];
     }
 } 

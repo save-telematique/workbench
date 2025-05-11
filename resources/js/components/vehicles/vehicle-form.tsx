@@ -107,7 +107,7 @@ export default function VehicleForm({
   const [activeTab, setActiveTab] = useState("manual");
   
   // Store brand_id separately for UI filtering
-  const [brandId, setBrandId] = useState<number | null>(vehicle.vehicle_model?.brand?.id || null);
+  const [brandId, setBrandId] = useState<number | null>(vehicle.vehicle_model?.vehicle_brand?.id || null);
   
   // Initialize form with default values - use null for empty numeric values
   const { data, setData, submit, processing, errors, recentlySuccessful } = useForm<VehicleFormData>({
@@ -149,14 +149,14 @@ export default function VehicleForm({
       const modelId = vehicle.vehicle_model?.id;
       if (modelId) {
         const model = models.find(m => m.id === modelId);
-        if (model?.brand?.id) {
-          setBrandId(model.brand.id);
+        if (model?.vehicle_brand?.id) {
+          setBrandId(model.vehicle_brand.id);
         }
       }
       
       // Filter models based on brandId (if any)
       const filtered = models.filter(model => 
-        model.brand?.id === brandId
+        model.vehicle_brand?.id === brandId
       );
       setFilteredModels(filtered);
       setInitialLoadDone(true);

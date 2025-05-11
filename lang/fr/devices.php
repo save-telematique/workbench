@@ -25,7 +25,7 @@ return [
         'firmware' => 'Version du Firmware',
         'owner' => 'Propriétaire',
         'status' => 'Statut',
-        'last_contact' => 'Dernier Contact',
+        'last_contact_at' => 'Dernier Contact',
     ],
     
     // Actions

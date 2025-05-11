@@ -7,6 +7,7 @@ use App\Actions\Vehicles\UpdateVehicleAction;
 use App\Actions\Vehicles\RestoreVehicleAction;
 use App\Actions\Vehicles\ScanVehicleRegistrationAction;
 use App\Http\Controllers\Vehicles\VehicleController;
+use App\Http\Controllers\Vehicles\VehicleActivitiesController;
 use App\Http\Controllers\Vehicles\VehicleCsvImportController;
 use Illuminate\Support\Facades\Route;
 
@@ -34,6 +35,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/vehicles/{vehicle}', [VehicleController::class, 'show'])->name('vehicles.show');
     Route::get('/vehicles/{vehicle}/edit', [VehicleController::class, 'edit'])->name('vehicles.edit');
+    Route::get('/vehicles/{vehicle}/activities', [VehicleActivitiesController::class, 'index'])->name('vehicles.activities');
 
     Route::put('/vehicles/{vehicle}', UpdateVehicleAction::class)->name('vehicles.update');
     Route::delete('/vehicles/{vehicle}', DeleteVehicleAction::class)->name('vehicles.destroy');

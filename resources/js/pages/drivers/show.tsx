@@ -79,16 +79,7 @@ export default function Show({ driver }: ShowDriverProps) {
         </div>
 
         <div className="mb-6 max-w-lg ml-0">
-          <DriverCard
-            firstname={driver.firstname}
-            surname={driver.surname}
-            birthdate={driver.birthdate}
-            license_number={driver.license_number}
-            card_issuing_country={driver.card_issuing_country}
-            card_number={driver.card_number}
-            card_issuing_date={driver.card_issuing_date}
-            card_expiration_date={driver.card_expiration_date}
-          />
+          <DriverCard driver={driver} />
         </div>
 
         <Card>

@@ -104,6 +104,10 @@ return [
     'are_you_sure' => 'Are you sure?',
     'confirm_delete' => 'Confirm Delete',
     'operation_cannot_be_undone' => 'This operation cannot be undone.',
+    'no_data_available' => 'No data available',
+    'ongoing' => 'Ongoing',
+    'unknown_activity' => 'Unknown activity',
+    'unknown_date' => 'Unknown date',
     
     // Status
     'status' => 'Status',
@@ -318,4 +322,24 @@ return [
     'no_results_found' => 'No results found',
     'navigation' => 'Navigation',
     'view_all_results' => 'View all :count results',
+    'hours' => 'hours',
+    'unknown' => 'Unknown',
+    'unknown_activity' => 'Unknown Activity',
+    'unknown_date' => 'Unknown Date',
+    'ongoing' => 'Ongoing',
+    'no_data_available' => 'No data available',
+    'active_filters' => ':count active filter(s)',
+    'views' => [
+        'table' => 'Table',
+        'timeline' => 'Timeline',
+        'chart' => 'Chart',
+    ],
+    'occurrences' => 'occurrences',
+    'apply' => 'Apply',
+    'reset' => 'Reset',
+    'select_date' => 'Select a date',
+    'filters' => [
+        'start_date' => 'Start Date',
+        'end_date' => 'End Date',
+    ],
 ]; 

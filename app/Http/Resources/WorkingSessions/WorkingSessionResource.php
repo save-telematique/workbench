@@ -22,8 +22,8 @@ class WorkingSessionResource extends JsonResource
             'id' => $this->id,
             'working_day_id' => $this->working_day_id,
             'vehicle_id' => $this->vehicle_id,
-            'started_at' => $this->started_at ? $this->started_at->toISOString() : null,
-            'ended_at' => $this->ended_at ? $this->ended_at->toISOString() : null,
+            'started_at' => $this->started_at,
+            'ended_at' => $this->ended_at,
             'activity_id' => $this->activity_id,
             'type' => $this->type,
             'driving_time' => $this->driving_time,
@@ -33,17 +33,23 @@ class WorkingSessionResource extends JsonResource
             'remaining_weekly_driving_time' => $this->remaining_weekly_driving_time,
             'weekly_driving_time' => $this->weekly_driving_time,
             'weekly_exceedeed_driving_limit' => $this->weekly_exceedeed_driving_limit,
-            'duration' => $this->when(isset($this->duration), fn() => $this->duration),
+            'duration' => $this->duration,
             
-            // Related resources
-            'working_day' => $this->whenLoaded('workingDay', fn() => new WorkingDayResource($this->workingDay)),
-            'vehicle' => $this->whenLoaded('vehicle', fn() => new VehicleResource($this->vehicle)),
-            'activity' => $this->whenLoaded('activity', fn() => new ActivityResource($this->activity)),
-            'driver' => $this->whenLoaded('driver', fn() => new DriverResource($this->driver)),
+            'working_day' => $this->when($this->relationLoaded('workingDay'), function () {
+                return new WorkingDayResource($this->workingDay);
+            }),
+            'vehicle' => $this->when($this->relationLoaded('vehicle'), function () {
+                return new VehicleResource($this->vehicle);
+            }),
+            'activity' => $this->when($this->relationLoaded('activity'), function () {
+                return new ActivityResource($this->activity);
+            }),
+            'driver' => $this->when($this->relationLoaded('driver'), function () {
+                return new DriverResource($this->driver);
+            }),
             
-            // Timestamps
-            'created_at' => $this->created_at ? $this->created_at->toISOString() : null,
-            'updated_at' => $this->updated_at ? $this->updated_at->toISOString() : null,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ];
     }
 } 

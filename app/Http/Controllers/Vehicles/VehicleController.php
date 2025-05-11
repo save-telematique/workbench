@@ -64,7 +64,7 @@ class VehicleController extends Controller
 
     public function show(Vehicle $vehicle)
     {
-        $vehicle->load(['tenant', 'device.type', 'model.vehicleBrand', 'type']);
+        $vehicle->load(['tenant', 'device.type', 'model.vehicleBrand', 'type', 'currentDriver', 'currentWorkingSession', 'currentLocation']);
 
         $tenantsForSelect = Tenant::select(['id', 'name'])->get();
         $devicesForSelect = Device::where(function ($query) use ($vehicle) {

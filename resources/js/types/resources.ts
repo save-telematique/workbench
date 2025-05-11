@@ -47,11 +47,15 @@ export interface DriverResource {
 export interface TenantResource {
   id: string;
   name: string;
-  email: string | null;
-  phone: string | null;
-  address: string | null;
   is_active: boolean;
-  svg_logo: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+  
+  // Only available when accessing from central app
+  email?: string | null;
+  phone?: string | null;
+  address?: string | null;
+  svg_logo?: string | null;
 }
 
 // Device Resources
@@ -159,6 +163,7 @@ export interface ActivityResource {
   id: number;
   name: string;
   parent_id: number | null;
+  color: string;
   
   parent?: ActivityResource;
   childrens?: ActivityResource[];

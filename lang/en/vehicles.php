@@ -118,6 +118,8 @@ return [
     'sidebar' => [
         'information' => 'Vehicles',
         'settings' => 'Settings',
+        'activities' => 'Activities',
+        'driver' => 'Driver',
     ],
     'dialogs' => [
         'tenant_assignment' => [
@@ -224,5 +226,47 @@ return [
         'available' => 'Available',
         'break' => 'Break',
         'unknown' => 'Unknown',
+    ],
+    'activities' => [
+        'title' => 'Activities',
+        'title_with_vehicle' => 'Activities - {registration}',
+        'breadcrumb' => 'Activities',
+        'daily_timeline' => 'Daily Timeline',
+        'duration' => 'Duration',
+        'driving_time' => 'Driving Time',
+        'day_change' => 'Day Change',
+        'gap' => 'Inactivity Period',
+        'show_gaps' => 'Show gaps',
+        'filters' => [
+            'filter' => 'Filter',
+            'date_range' => 'Date Range',
+            'driver' => 'Driver',
+            'activity' => 'Activity',
+            'all_drivers' => 'All Drivers',
+            'all_activities' => 'All Activities',
+            'minimum_duration' => 'Min. duration',
+            'minutes' => 'minutes',
+        ],
+        'tabs' => [
+            'working_sessions' => 'Working Sessions',
+            'activity_changes' => 'Activity Changes',
+        ],
+        'stats' => [
+            'total_driving_time' => 'Total Driving Time',
+            'total_working_time' => 'Total Working Time',
+            'time_summary' => 'Time summary',
+            'current_driver' => 'Current Driver',
+            'active_driver' => 'Active driver for this vehicle',
+            'current_activity' => 'Current Activity',
+            'in_hours' => 'In hours',
+            'working' => 'Working',
+            'rest' => 'Rest',
+            'activity_summary' => 'Activity Summary',
+            'total' => 'Total',
+        ],
+        'charts' => [
+            'time_distribution' => 'Time Distribution',
+            'activity_distribution' => 'Activity Distribution',
+        ],
     ],
 ]; 

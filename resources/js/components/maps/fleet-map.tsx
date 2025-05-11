@@ -860,11 +860,11 @@ export default function FleetMap({
                         anchor="bottom"
                         onClose={() => setSelectedVehicle(null)}
                         closeOnClick={false}
-                        className="z-20"
+
+                        className="z-20 p-0 -translate-y-2 translate-x-3.5"
                         maxWidth="300px"
-                        closeButton={false}
                     >
-                        <div className="p-3 max-w-xs relative">
+                        <div className="p-3 max-w-xs relative bg-background rounded-md">
                             {/* Custom close button */}
                             <button 
                                 className="absolute -top-1 -right-1 w-6 h-6 bg-background rounded-full border border-border flex items-center justify-center shadow-sm hover:bg-muted transition-colors z-50"

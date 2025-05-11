@@ -25,13 +25,15 @@ class WorkingDayResource extends JsonResource
             'next_break_time' => $this->next_break_time,
             'remaining_driving_time' => $this->remaining_driving_time,
             
-            // Related resources
-            'driver' => $this->whenLoaded('driver', fn() => new DriverResource($this->driver)),
-            'working_sessions' => $this->whenLoaded('workingSessions', fn() => WorkingSessionResource::collection($this->workingSessions)),
+            'driver' => $this->when($this->relationLoaded('driver'), function () {
+                return new DriverResource($this->driver);
+            }),
+            'working_sessions' => $this->when($this->relationLoaded('workingSessions'), function () {
+                return WorkingSessionResource::collection($this->workingSessions);
+            }),
             
-            // Timestamps
-            'created_at' => $this->created_at ? $this->created_at->toISOString() : null,
-            'updated_at' => $this->updated_at ? $this->updated_at->toISOString() : null,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ];
     }
 } 

@@ -2,16 +2,10 @@ import FormattedDate from '@/components/formatted-date';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/utils/translation';
 import { Card, CardContent } from '@/components/ui/card';
+import { DriverResource } from '@/types/resources';
 
 interface DriverCardProps {
-    firstname: string;
-    surname: string;
-    birthdate: string | null;
-    license_number: string | null;
-    card_issuing_country: string | null;
-    card_number: string | null;
-    card_issuing_date: string | null;
-    card_expiration_date: string | null;
+    driver: DriverResource;
     className?: string;
 }
 
@@ -43,18 +37,11 @@ const EUFlag = ({ countryCode }: { countryCode: string | null }) => (
 );
 
 export function DriverCard({
-    firstname,
-    surname,
-    birthdate,
-    license_number,
-    card_issuing_country,
-    card_number,
-    card_issuing_date,
-    card_expiration_date,
+    driver,
     className,
 }: DriverCardProps) {
     const { __ } = useTranslation();
-    const countryCode = card_issuing_country;
+    const countryCode = driver.card_issuing_country;
 
     return (
         <Card className={cn('relative max-w-md py-4 select-none', className)}>
@@ -108,18 +95,18 @@ export function DriverCard({
                             <div className="space-y-1.5">
                                 <div>
                                     <div className="text-xs font-semibold">{__('drivers.card.surname')}:</div>
-                                    <div className="text-sm font-semibold uppercase">{surname}</div>
+                                    <div className="text-sm font-semibold uppercase">{driver.surname}</div>
                                 </div>
                                 <div>
                                     <div className="text-xs font-semibold">{__('drivers.card.firstname')}:</div>
-                                    <div className="text-sm">{firstname}</div>
+                                    <div className="text-sm">{driver.firstname}</div>
                                 </div>
                                 <div>
                                     <div className="text-xs font-semibold">{__('drivers.card.birthdate')}:</div>
                                     <div className="text-sm">
-                                        {birthdate ? (
+                                        {driver.birthdate ? (
                                             <>
-                                                <FormattedDate date={birthdate} format="DATE_MED" />
+                                                <FormattedDate date={driver.birthdate} format="DATE_MED" />
                                             </>
                                         ) : (
                                             '-'
@@ -133,9 +120,9 @@ export function DriverCard({
                                 <div>
                                     <div className="text-xs font-semibold">{__('drivers.card.issuing_date')}:</div>
                                     <div className="text-sm">
-                                        {card_issuing_date ? (
+                                        {driver.card_issuing_date ? (
                                             <>
-                                                <FormattedDate date={card_issuing_date} format="DATE_MED" />
+                                                <FormattedDate date={driver.card_issuing_date} format="DATE_MED" />
                                             </>
                                         ) : (
                                             '-'
@@ -145,9 +132,9 @@ export function DriverCard({
                                 <div>
                                     <div className="text-xs font-semibold">{__('drivers.card.expiration_date')}:</div>
                                     <div className="text-sm">
-                                        {card_expiration_date ? (
+                                        {driver.card_expiration_date ? (
                                             <>
-                                                <FormattedDate date={card_expiration_date} format="DATE_MED" />
+                                                <FormattedDate date={driver.card_expiration_date} format="DATE_MED" />
                                             </>
                                         ) : (
                                             '-'
@@ -156,11 +143,11 @@ export function DriverCard({
                                 </div>
                                 <div>
                                     <div className="text-xs font-semibold">{__('drivers.card.license_number')}:</div>
-                                    <div className="text-sm">{license_number || '-'}</div>
+                                    <div className="text-sm">{driver.license_number || '-'}</div>
                                 </div>
                                 <div>
                                     <div className="text-xs font-semibold">{__('drivers.card.card_number')}:</div>
-                                    <div className="text-sm">{card_number || '-'}</div>
+                                    <div className="text-sm">{driver.card_number || '-'}</div>
                                 </div>
                             </div>
                         </div>

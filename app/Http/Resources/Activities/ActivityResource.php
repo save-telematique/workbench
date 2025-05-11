@@ -18,14 +18,15 @@ class ActivityResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'parent_id' => $this->parent_id,
-            
-            // Related resources
-            'parent' => $this->whenLoaded('parent', fn() => new ActivityResource($this->parent)),
-            'childrens' => $this->whenLoaded('childrens', fn() => ActivityResource::collection($this->childrens)),
-            
-            // Timestamps
-            'created_at' => $this->created_at ? $this->created_at->toISOString() : null,
-            'updated_at' => $this->updated_at ? $this->updated_at->toISOString() : null,
+            'color' => $this->color,
+            'parent' => $this->when($this->relationLoaded('parent'), function () {
+                return new ActivityResource($this->parent);
+            }),
+            'childrens' => $this->when($this->relationLoaded('childrens'), function () {
+                return ActivityResource::collection($this->childrens);
+            }),
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ];
     }
 } 
