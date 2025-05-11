@@ -22,6 +22,8 @@ class Vehicle extends Model
         'vin',
         'odometer',
         'current_vehicle_location_id',
+        'current_driver_id',
+        'current_working_session_id',
         'country',
         'tenant_id'
     ];
@@ -93,5 +95,26 @@ class Vehicle extends Model
     public function currentLocation()
     {
         return $this->belongsTo(VehicleLocation::class, 'current_vehicle_location_id');
+    }
+
+
+    public function workingSessions()
+    {
+        return $this->hasMany(WorkingSession::class)->orderBy('started_at', 'asc');
+    }
+
+    public function currentWorkingSession()
+    {
+        return $this->belongsTo(WorkingSession::class, 'current_working_session_id');
+    }
+
+    public function currentDriver()
+    {
+        return $this->belongsTo(Driver::class, 'current_driver_id');
+    }
+
+    public function activityChanges()
+    {
+        return $this->hasMany(ActivityChange::class);
     }
 }

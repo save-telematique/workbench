@@ -36,6 +36,7 @@ export interface DriverResource {
   
   tenant?: TenantResource;
   user?: UserResource;
+  working_days?: WorkingDayResource[];
   
   created_at: string | null;
   updated_at: string | null;
@@ -128,10 +129,88 @@ export interface VehicleResource {
   type?: VehicleTypeResource;
   tenant?: TenantResource;
   device?: DeviceResource;
+  current_driver?: DriverResource;
+  current_working_session?: WorkingSessionResource;
+  working_sessions?: WorkingSessionResource[];
+  activity_changes?: ActivityChangeResource[];
   
   created_at: string | null;
   updated_at: string | null;
   deleted_at: string | null;
+}
+
+// Activity Resources
+export interface ActivityResource {
+  id: number;
+  name: string;
+  parent_id: number | null;
+  
+  parent?: ActivityResource;
+  childrens?: ActivityResource[];
+  
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+// Working Day Resources
+export interface WorkingDayResource {
+  id: number;
+  driver_id: string;
+  date: string;
+  driving_time: number;
+  break_needed_in: number;
+  next_break_time: number;
+  remaining_driving_time: number;
+  
+  driver?: DriverResource;
+  working_sessions?: WorkingSessionResource[];
+  
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+// Working Session Resources
+export interface WorkingSessionResource {
+  id: number;
+  working_day_id: number;
+  vehicle_id: string;
+  started_at: string | null;
+  ended_at: string | null;
+  activity_id: number;
+  type: string;
+  driving_time: number;
+  break_needed_in: number;
+  next_break_duration: number;
+  remaining_driving_time: number;
+  remaining_weekly_driving_time: number;
+  weekly_driving_time: number;
+  weekly_exceedeed_driving_limit: boolean;
+  duration?: number;
+  
+  working_day?: WorkingDayResource;
+  vehicle?: VehicleResource;
+  activity?: ActivityResource;
+  driver?: DriverResource;
+  
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+// Activity Change Resources
+export interface ActivityChangeResource {
+  id: number;
+  working_day_id: number;
+  vehicle_id: string;
+  recorded_at: string | null;
+  activity_id: number;
+  type: string;
+  
+  working_day?: WorkingDayResource;
+  vehicle?: VehicleResource;
+  activity?: ActivityResource;
+  
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 // Generic Resource Collection type

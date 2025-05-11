@@ -74,4 +74,9 @@ class Driver extends Model
     {
         return $query->with(['tenant', 'user']);
     }
+
+    public function workingDays(): HasMany
+    {
+        return $this->hasMany(WorkingDay::class);
+    }
 }

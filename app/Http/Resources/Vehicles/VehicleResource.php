@@ -2,8 +2,11 @@
 
 namespace App\Http\Resources\Vehicles;
 
+use App\Http\Resources\ActivityChanges\ActivityChangeResource;
 use App\Http\Resources\Devices\DeviceResource;
+use App\Http\Resources\Drivers\DriverResource;
 use App\Http\Resources\Tenants\TenantResource;
+use App\Http\Resources\WorkingSessions\WorkingSessionResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -28,6 +31,10 @@ class VehicleResource extends JsonResource
             'type' => $this->whenLoaded('type', fn() => $this->type ? new VehicleTypeResource($this->type) : null),
             'tenant' => $this->whenLoaded('tenant', fn() => $this->tenant ? new TenantResource($this->tenant) : null),
             'device' => $this->whenLoaded('device', fn() => $this->device ? new DeviceResource($this->device) : null),
+            'current_driver' => $this->whenLoaded('currentDriver', fn() => $this->currentDriver ? new DriverResource($this->currentDriver) : null),
+            'current_working_session' => $this->whenLoaded('currentWorkingSession', fn() => $this->currentWorkingSession ? new WorkingSessionResource($this->currentWorkingSession) : null),
+            'working_sessions' => $this->whenLoaded('workingSessions', fn() => WorkingSessionResource::collection($this->workingSessions)),
+            'activity_changes' => $this->whenLoaded('activityChanges', fn() => ActivityChangeResource::collection($this->activityChanges)),
 
             'created_at' => $this->created_at ? $this->created_at->toISOString() : null,
             'updated_at' => $this->updated_at ? $this->updated_at->toISOString() : null,

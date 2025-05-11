@@ -53,6 +53,7 @@ class DatabaseSeeder extends Seeder
         $centralUser->assignRole('central_user');
         
         $this->call([
+            ActivitiesSeeder::class,
             VehicleStaticDataSeeder::class,
             DeviceStaticDataSeeder::class,
             DataPointTypeSeeder::class, // This is the one we are focusing on

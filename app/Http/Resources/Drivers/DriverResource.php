@@ -4,6 +4,7 @@ namespace App\Http\Resources\Drivers;
 
 use App\Http\Resources\Tenants\TenantResource;
 use App\Http\Resources\Users\UserResource;
+use App\Http\Resources\WorkingDays\WorkingDayResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -31,6 +32,7 @@ class DriverResource extends JsonResource
             'user_id' => $this->user_id,
             'tenant' => $this->whenLoaded('tenant', fn() => new TenantResource($this->tenant)),
             'user' => $this->whenLoaded('user', fn() => new UserResource($this->user)),
+            'working_days' => $this->whenLoaded('workingDays', fn() => WorkingDayResource::collection($this->workingDays)),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'deleted_at' => $this->deleted_at,
