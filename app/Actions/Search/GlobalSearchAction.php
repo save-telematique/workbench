@@ -112,7 +112,7 @@ class GlobalSearchAction
             
             return [
                 'id' => $vehicle->id,
-                'title' => $vehicle->name ?: $vehicle->registration,
+                'title' => $vehicle->registration ?: $vehicle->vin,
                 'description' => $description,
                 'resource_type' => 'vehicle',
                 'url' => route('vehicles.show', $vehicle->id),
@@ -135,10 +135,10 @@ class GlobalSearchAction
             ->get(['id', 'name', 'serial_number', 'device_type_id'])
             ->load(['type:id,name']);
             
-        return $devices->map(function ($device) {
+        return $devices->map(function (Device $device) {
             return [
                 'id' => $device->id,
-                'title' => $device->name,
+                'title' => $device->imei,
                 'description' => $device->serial_number . ($device->type ? ' - ' . $device->type->name : ''),
                 'resource_type' => 'device',
                 'url' => route('devices.show', $device->id),
@@ -168,7 +168,7 @@ class GlobalSearchAction
         return $drivers->map(function ($driver) {
             return [
                 'id' => $driver->id,
-                'title' => $driver->name,
+                'title' => $driver->firstname . ' ' . $driver->surname,
                 'description' => $driver->license_number ? 'License: ' . $driver->license_number : '',
                 'resource_type' => 'driver',
                 'url' => route('drivers.show', $driver->id),

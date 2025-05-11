@@ -12,7 +12,7 @@ use Stancl\Tenancy\Database\Concerns\BelongsToPrimaryModel;
 
 class VehicleLocation extends Model
 {
-    use HasFactory, BelongsToPrimaryModel, HasUuids;
+    use HasFactory, BelongsToPrimaryModel;
 
     public function getRelationshipToPrimaryModel(): string
     {
