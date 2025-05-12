@@ -48,7 +48,7 @@ export default function VehiclesLayout({ children, showSidebar = false, vehicle 
                     <aside className="w-full max-w-xl lg:w-48">
                         {vehicle.current_driver && (
                             <Link href={route('drivers.show', { driver: vehicle.current_driver.id })}>
-                                <DriverCompactCard driver={vehicle.current_driver} />
+                                <DriverCompactCard className="mb-4" driver={vehicle.current_driver} />
                             </Link>
                         )}
                         <nav className="flex flex-col space-y-1 space-x-0">

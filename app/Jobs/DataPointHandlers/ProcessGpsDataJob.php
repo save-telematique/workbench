@@ -88,9 +88,8 @@ class ProcessGpsDataJob implements ShouldQueue, DataPointHandlerJob
             return;
         }
 
-        $movement = $data['movement'] ?? false;
-        $ignition = $data['ignition'] ?? false;
-
+        $movement = $this->deviceMessage->dataPoints->where('data_point_type_id', MessageFields::MOVEMENT->value)->first()?->value;
+        $ignition = $this->deviceMessage->dataPoints->where('data_point_type_id', MessageFields::IGNITION->value)->first()?->value;
         $locationData = [
             'vehicle_id' => $this->vehicle->id,
             'latitude' => $latitude,
@@ -99,8 +98,8 @@ class ProcessGpsDataJob implements ShouldQueue, DataPointHandlerJob
             'heading' => (int) $this->data['angle'],
             'satellites' => (int) $this->data['satellites'],
             'speed' => (float) $this->data['speed'],
-            'moving' => (bool) $movement,
-            'ignition' => (bool) $ignition,
+            'moving' => (bool) $movement ?? false,
+            'ignition' => (bool) $ignition ?? false,
             'recorded_at' => $timestamp,
             'device_message_id' => $this->deviceMessage->id,
         ];
