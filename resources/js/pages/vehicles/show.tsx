@@ -19,6 +19,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { usePermission } from "@/utils/permissions";
+import VehicleTrackingMap from "@/components/maps/vehicle-tracking-map";
 
 interface VehicleShowProps {
   vehicle: VehicleResource;
@@ -180,6 +181,17 @@ export default function Show({ vehicle }: VehicleShowProps) {
             </Table>
           </CardContent>
         </Card>
+
+        {/* Add the Vehicle Tracking Map component */}
+        <div className="mt-6">
+          <VehicleTrackingMap 
+            vehicle={vehicle} 
+            title={__("vehicles.show.sections.tracking.title")}
+            historyModeDefault={false}
+            showDatePicker={true}
+            initialDate={new Date()}
+          />
+        </div>
 
         {/* Delete Confirmation Dialog */}
         <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

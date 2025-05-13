@@ -3,23 +3,19 @@
 namespace App\Actions\DataPoints;
 
 use App\Http\Resources\Devices\DataPointResource;
-use App\Models\Device;
-use App\Models\DataPointType;
-use App\Services\DeviceTelemetryService;
+use App\Models\Vehicle;
+use App\Services\VehicleTelemetryService;
 use Carbon\Carbon;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Gate;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class GetDeviceDataPointsAction
+class GetVehicleDataPointsAction
 {
     use AsAction;
 
-    protected DeviceTelemetryService $telemetryService;
+    protected VehicleTelemetryService $telemetryService;
 
-    public function __construct(DeviceTelemetryService $telemetryService)
+    public function __construct(VehicleTelemetryService $telemetryService)
     {
         $this->telemetryService = $telemetryService;
     }
@@ -27,6 +23,7 @@ class GetDeviceDataPointsAction
     public function rules(): array
     {
         return [
+            'device' => 'required|string|exists:devices,id',
             'data_point_type_id' => 'required|integer|exists:data_point_types,id',
             'start_time' => 'required|date',
             'end_time' => 'required|date|after_or_equal:start_time',
@@ -36,11 +33,11 @@ class GetDeviceDataPointsAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->can('view', $request->device);
+        return $request->user()->can('view', $request->vehicle);
     }
 
     public function handle(
-        Device $device,
+        Vehicle $vehicle,
         int $dataPointTypeId,
         Carbon $startTime,
         Carbon $endTime,
@@ -49,7 +46,7 @@ class GetDeviceDataPointsAction
         // Handle aggregation if requested
         if ($aggregation) {
             $data = $this->telemetryService->getAggregatedReadings(
-                $device,
+                $vehicle,
                 $dataPointTypeId,
                 $aggregation,
                 $startTime,
@@ -62,7 +59,7 @@ class GetDeviceDataPointsAction
         
         // For regular data points, use our resource collection
         $readings = $this->telemetryService->getReadingsForPeriod(
-            $device,
+            $vehicle,
             $dataPointTypeId,
             $startTime,
             $endTime
@@ -71,13 +68,13 @@ class GetDeviceDataPointsAction
         return $readings;
     }
 
-    public function asController(ActionRequest $request, Device $device)
+    public function asController(ActionRequest $request, Vehicle $vehicle)
     {
         $startTime = Carbon::parse($request->start_time);
         $endTime = Carbon::parse($request->end_time);
         
         $result = $this->handle(
-            $device,
+            $vehicle,
             $request->data_point_type_id,
             $startTime,
             $endTime,

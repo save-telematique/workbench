@@ -94,7 +94,7 @@ export function formatDate(
 }
 
 /**
- * Format a date for input elements (YYYY-MM-DD)
+ * Format a date for input elements (yyyy-MM-dd)
  */
 export function formatDateForInput(date: string | Date | null): string {
   const parsedDate = parseDate(date);

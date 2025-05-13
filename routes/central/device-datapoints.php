@@ -18,5 +18,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/devices/{device}/datapoints', [DataPointController::class, 'index'])->name('devices.datapoints.index');
     
     // DataPoints API routes
-    Route::get('/api/devices/datapoints', GetDeviceDataPointsAction::class)->name('api.devices.datapoints');
+    Route::get('/api/devices/{device}/datapoints', GetDeviceDataPointsAction::class)->name('api.devices.datapoints');
 }); 

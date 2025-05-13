@@ -67,6 +67,8 @@ class User extends Authenticatable
             'name' => (string) $this->name,
             'email' => (string) $this->email,
             'tenant_name' => (string) $this->tenant?->name,
+            'tenant_id' => (string) $this->tenant?->id,
+            'tenant_id_null' => (bool) $this->tenant ? false : true,
             'created_at' => $this->created_at ? (int) $this->created_at->timestamp : null,
         ];
 

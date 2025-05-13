@@ -316,6 +316,14 @@ return [
                             'type' => 'string',
                         ],
                         [
+                            'name' => 'tenant_id',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'tenant_id_null',
+                            'type' => 'bool',
+                        ],
+                        [
                             'name' => 'created_at',
                             'type' => 'int64',
                         ],
@@ -323,7 +331,7 @@ return [
                     'default_sorting_field' => 'created_at',
                 ],
                 'search-parameters' => [
-                    'query_by' => 'name,email,tenant_name',
+                    'query_by' => 'name,email,tenant_name,tenant_id',
                 ],
             ],
             \App\Models\Tenant::class => [

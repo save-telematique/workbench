@@ -6,6 +6,8 @@ use App\Actions\Vehicles\GetVehiclesWithLocationsAction;
 use App\Actions\Vehicles\UpdateVehicleAction;
 use App\Actions\Vehicles\RestoreVehicleAction;
 use App\Actions\Vehicles\ScanVehicleRegistrationAction;
+use App\Actions\Vehicles\GetVehicleRouteAction;
+use App\Actions\Vehicles\GetVehicleActivityChangesAction;
 use App\Http\Controllers\Vehicles\VehicleController;
 use App\Http\Controllers\Vehicles\VehicleActivitiesController;
 use App\Http\Controllers\Vehicles\VehicleCsvImportController;
@@ -36,6 +38,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/vehicles/{vehicle}', [VehicleController::class, 'show'])->name('vehicles.show');
     Route::get('/vehicles/{vehicle}/edit', [VehicleController::class, 'edit'])->name('vehicles.edit');
     Route::get('/vehicles/{vehicle}/activities', [VehicleActivitiesController::class, 'index'])->name('vehicles.activities');
+    Route::get('/vehicles/{vehicle}/route', GetVehicleRouteAction::class)->name('vehicles.route');
+    Route::get('/vehicles/{vehicle}/activity-changes', GetVehicleActivityChangesAction::class)->name('vehicles.activity_changes');
 
     Route::put('/vehicles/{vehicle}', UpdateVehicleAction::class)->name('vehicles.update');
     Route::delete('/vehicles/{vehicle}', DeleteVehicleAction::class)->name('vehicles.destroy');

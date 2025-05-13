@@ -180,7 +180,6 @@ export default function DeviceDataPoints({ device, dataPointTypes, latestReading
     
     try {
       const params = {
-        device: device.id,
         data_point_type_id: currentParams.dataPointTypeId,
         start_time: currentParams.startTime,
         end_time: currentParams.endTime,
@@ -188,7 +187,11 @@ export default function DeviceDataPoints({ device, dataPointTypes, latestReading
         order: 'desc', // Always order data descending (newest first)
       };
       
-      const response = await fetch(route("api.devices.datapoints", params));
+      const response = await fetch(route("api.devices.datapoints", { device: device.id, ...params }), {
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
       const data = await response.json();
       
       if (isMounted.current) {

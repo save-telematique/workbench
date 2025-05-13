@@ -25,7 +25,7 @@ class UserController extends Controller
     public function index(): Response
     {
         $users = User::search(request()->get('search', ''))
-            ->query(fn ($query) => $query->where('tenant_id', tenant('id')))
+            ->where('tenant_id_null', true)
             ->orderBy(request()->get('sort', 'created_at'), request()->get('direction', 'desc'))
             ->paginate(request()->get('perPage', 10))
             ->withQueryString();
@@ -49,7 +49,7 @@ class UserController extends Controller
     public function show(User $user): Response
     {
         $user->load('roles');
-        
+
         return Inertia::render('users/show', [
             'user' => new UserResource($user),
         ]);
@@ -78,13 +78,13 @@ class UserController extends Controller
             $roles = Role::where('name', 'like', 'tenant_%')->get();
         } else {
             // Central user: only central roles and super_admin
-            $roles = Role::where(function($query) {
+            $roles = Role::where(function ($query) {
                 $query->where('name', 'like', 'central_%')
-                      ->orWhere('name', 'super_admin');
+                    ->orWhere('name', 'super_admin');
             })->get();
         }
 
-        $roles = $roles->map(function($role) {
+        $roles = $roles->map(function ($role) {
             return [
                 'id' => $role->id,
                 'name' => $role->name,
@@ -123,4 +123,4 @@ class UserController extends Controller
 
         return $descriptions[$roleName] ?? $roleName;
     }
-} 
+}

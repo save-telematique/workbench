@@ -21,7 +21,11 @@ import {
     Minimize2, 
     RefreshCw,
     Circle,
-    CheckCircle2
+    CheckCircle2,
+    LayoutGrid,
+    ChevronRight,
+    Pencil,
+    X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -32,22 +36,47 @@ import { Link } from "@inertiajs/react";
 import useSupercluster from "use-supercluster";
 import { BBox } from "geojson";
 import { LicensePlate } from "../ui/license-plate";
+import BaseMap, { 
+    mapStyles,
+    VehicleIcon,
+    vehicleTypes,
+    activityColors,
+    getActivityColor,
+    getVehicleTypeIcon
+} from "@/components/maps/base-map";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface FleetMapProps {
     className?: string;
     title?: string;
     initialRefreshInterval?: number; // in seconds
     showFullscreenOption?: boolean;
+    vehicles: VehicleResource[];
+    onVehicleClick?: (vehicle: VehicleResource) => void;
+    onMarkerClick?: (vehicle: VehicleResource) => void;
+    refreshVehicles?: () => void;
+    showVehiclePanel?: boolean;
+    initialSelectedVehicleId?: string;
+    refreshInterval?: number;
 }
 
 // Activity color mapping - different colors for different activities
-const activityColors = {
-    0: { color: "#2563eb", label: "rest" },        // Repos (0) - Blue
-    1: { color: "#8b5cf6", label: "available" },   // Disponibilité (1) - Purple
-    2: { color: "#ea580c", label: "work" },        // Travail (2) - Orange
-    3: { color: "#16a34a", label: "driving" },     // Conduite (3) - Green
-    100: { color: "#4b5563", label: "removed_card" }, // Carte retirée (100) - Gray
-    default: { color: "#4b5563", label: "unknown" },  // Default - Gray
+// const activityColors = {
+//     0: { color: "#2563eb", label: "rest" },        // Repos (0) - Blue
+//     1: { color: "#8b5cf6", label: "available" },   // Disponibilité (1) - Purple
+//     2: { color: "#ea580c", label: "work" },        // Travail (2) - Orange
+//     3: { color: "#16a34a", label: "driving" },     // Conduite (3) - Green
+//     100: { color: "#4b5563", label: "removed_card" }, // Carte retirée (100) - Gray
+//     default: { color: "#4b5563", label: "unknown" },  // Default - Gray
+// };
+
+// Vehicle type mapping by ID with corresponding icons
+// const vehicleTypes = {
+//     1: { icon: Truck, label: "truck" },           // Camion/Truck (ID 2)
+const statusColors = {
+    moving: "#16a34a", // Moving - green
+    idling: "#f59e0b", // Idling - amber
+    parked: "#6b7280", // Parked - gray
 };
 
 // Vehicle type mapping by ID with corresponding icons
@@ -224,16 +253,23 @@ const ActivityTag = ({ vehicle }: { vehicle: VehicleResource }) => {
     
     if (!activity) return null;
     
-    // Get activity label from the mapping
-    const activityId = activity.id;
-    const activityData = activityColors[activityId as keyof typeof activityColors] || activityColors.default;
-    const activityKey = `vehicles.activity.${activityData.label}`;
-    
-    const style = { backgroundColor: getActivityColor(activity) };
+    // Get activity color from the imported activityColors
+    const activityId = activity.id as keyof typeof activityColors;
+    const activityData = activityColors[activityId] || activityColors.default;
+    const colorHex = activityData.color;
+    const labelKey = activityData.label;
     
     return (
-        <Badge variant="outline" style={style} className="text-white border-transparent">
-            {__(activityKey, { fallback: activity.name })}
+        <Badge 
+            variant="outline" 
+            className="text-xs" 
+            style={{ 
+                backgroundColor: `${colorHex}20`, 
+                borderColor: colorHex,
+                color: colorHex
+            }}
+        >
+            {__(`vehicles.activity.${labelKey}`)}
         </Badge>
     );
 };
@@ -387,31 +423,32 @@ interface ClusterProperties {
     vehicle?: VehicleResource;
 }
 
-export default function FleetMap({ 
+const FleetMap: React.FC<FleetMapProps> = ({ 
     className, 
     title = "fleet.title", 
     initialRefreshInterval = 60,
-    showFullscreenOption = true 
-}: FleetMapProps) {
+    showFullscreenOption = true,
+    vehicles,
+    onVehicleClick,
+    onMarkerClick,
+    refreshVehicles,
+    showVehiclePanel = true,
+    initialSelectedVehicleId,
+    refreshInterval
+}) => {
     const { __ } = useTranslation();
     const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
     const mapRef = useRef<MapRef>(null);
     
-    // Define status colors for consistency
-    const statusColors = {
-        moving: "#16a34a", // Green
-        idling: "#f59e0b", // Amber
-        parked: "#6b7280", // Gray
-    };
-    
     // Component state
-    const [vehicles, setVehicles] = useState<VehicleResource[]>([]);
+    const [vehiclesWithLocation, setVehiclesWithLocation] = useState<VehicleResource[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const [selectedVehicle, setSelectedVehicle] = useState<VehicleResource | null>(null);
+    const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(
+        initialSelectedVehicleId || null
+    );
     const [showFullscreen, setShowFullscreen] = useState<boolean>(false);
     const [mapStyle, setMapStyle] = useState<string>(mapStyles.streets); // Default to streets style
-    const [refreshInterval, setRefreshInterval] = useState<number>(initialRefreshInterval);
     const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
     const [showLegend, setShowLegend] = useState<boolean>(true);
     const [bounds, setBounds] = useState<BBox | null>(null);
@@ -437,7 +474,7 @@ export default function FleetMap({
             }
             
             const data = await response.json();
-            setVehicles(data || []);
+            setVehiclesWithLocation(data || []);
             setLastRefresh(new Date());
             setError(null);
         } catch (err) {
@@ -841,24 +878,27 @@ export default function FleetMap({
                             anchor="center"
                             onClick={(e) => {
                                 e.originalEvent.stopPropagation();
-                                setSelectedVehicle(vehicle);
+                                setSelectedVehicleId(vehicle.id);
+                                if (onMarkerClick) {
+                                    onMarkerClick(vehicle);
+                                }
                             }}
                         >
                             <VehicleIcon 
                                 vehicle={vehicle} 
-                                onClick={() => setSelectedVehicle(vehicle)}
+                                onClick={() => setSelectedVehicleId(vehicle.id)}
                             />
                         </Marker>
                     );
                 })}
 
                 {/* Popup for selected vehicle */}
-                {selectedVehicle && selectedVehicle.current_location && (
+                {selectedVehicleId && vehiclesWithLocation.find(v => v.id === selectedVehicleId) && (
                     <Popup
-                        longitude={selectedVehicle.current_location.longitude}
-                        latitude={selectedVehicle.current_location.latitude}
+                        longitude={vehiclesWithLocation.find(v => v.id === selectedVehicleId)?.current_location?.longitude || 0}
+                        latitude={vehiclesWithLocation.find(v => v.id === selectedVehicleId)?.current_location?.latitude || 0}
                         anchor="bottom"
-                        onClose={() => setSelectedVehicle(null)}
+                        onClose={() => setSelectedVehicleId(null)}
                         closeOnClick={false}
 
                         className="z-20 p-0 -translate-y-2 translate-x-3.5"
@@ -868,7 +908,7 @@ export default function FleetMap({
                             {/* Custom close button */}
                             <button 
                                 className="absolute -top-1 -right-1 w-6 h-6 bg-background rounded-full border border-border flex items-center justify-center shadow-sm hover:bg-muted transition-colors z-50"
-                                onClick={() => setSelectedVehicle(null)}
+                                onClick={() => setSelectedVehicleId(null)}
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                     <path d="M18 6 6 18"></path>
@@ -879,17 +919,17 @@ export default function FleetMap({
                             {/* Header with license plate */}
                             <div className="mb-3 pr-5">
                                 <Link 
-                                    href={route('vehicles.show', { vehicle: selectedVehicle.id })} 
+                                    href={route('vehicles.show', { vehicle: selectedVehicleId })} 
                                     className="block mb-2"
                                 >
-                                    <LicensePlate registration={selectedVehicle.registration} />
+                                    <LicensePlate registration={vehiclesWithLocation.find(v => v.id === selectedVehicleId)?.registration || ''} />
                                 </Link>
                                 <div className="text-xs text-muted-foreground">
                                     <span className="inline-flex items-center">
-                                        {selectedVehicle.vehicle_model?.vehicle_brand?.name} {selectedVehicle.vehicle_model?.name}
-                                        {selectedVehicle.type && (
+                                        {vehiclesWithLocation.find(v => v.id === selectedVehicleId)?.vehicle_model?.vehicle_brand?.name} {vehiclesWithLocation.find(v => v.id === selectedVehicleId)?.vehicle_model?.name}
+                                        {vehiclesWithLocation.find(v => v.id === selectedVehicleId)?.type && (
                                             <span className="ml-1 text-muted-foreground/80">
-                                                • {selectedVehicle.type.name}
+                                                • {vehiclesWithLocation.find(v => v.id === selectedVehicleId)?.type.name}
                                             </span>
                                         )}
                                     </span>
@@ -898,34 +938,34 @@ export default function FleetMap({
                             
                             {/* All status badges grouped together */}
                             <div className="flex flex-wrap gap-1.5 mb-3">
-                                <VehicleStatusTag vehicle={selectedVehicle} />
+                                <VehicleStatusTag vehicle={vehiclesWithLocation.find(v => v.id === selectedVehicleId) || {} as VehicleResource} />
                                 
                                 <Badge variant="outline" className="text-xs">
-                                    {selectedVehicle.current_location.speed} {__("vehicles.map.km_per_hour")}
+                                    {vehiclesWithLocation.find(v => v.id === selectedVehicleId)?.current_location?.speed} {__("vehicles.map.km_per_hour")}
                                 </Badge>
                                 
-                                {selectedVehicle.current_driver && (
+                                {vehiclesWithLocation.find(v => v.id === selectedVehicleId)?.current_driver && (
                                     <Badge variant="outline" className="text-xs">
-                                        {selectedVehicle.current_driver.firstname} {selectedVehicle.current_driver.surname}
+                                        {vehiclesWithLocation.find(v => v.id === selectedVehicleId)?.current_driver.firstname} {vehiclesWithLocation.find(v => v.id === selectedVehicleId)?.current_driver.surname}
                                     </Badge>
                                 )}
                                 
-                                {selectedVehicle.current_working_session?.activity && (
-                                    <ActivityTag vehicle={selectedVehicle} />
+                                {vehiclesWithLocation.find(v => v.id === selectedVehicleId)?.current_working_session?.activity && (
+                                    <ActivityTag vehicle={vehiclesWithLocation.find(v => v.id === selectedVehicleId) || {} as VehicleResource} />
                                 )}
                             </div>
                             
                             {/* Address if available */}
-                            {selectedVehicle.current_location.address && (
+                            {vehiclesWithLocation.find(v => v.id === selectedVehicleId)?.current_location?.address && (
                                 <div className="flex items-start gap-2 text-xs mb-3 px-0.5 py-1.5 bg-muted/30 rounded-sm">
-                                    <span className="flex-1 text-muted-foreground">{selectedVehicle.current_location.address}</span>
+                                    <span className="flex-1 text-muted-foreground">{vehiclesWithLocation.find(v => v.id === selectedVehicleId)?.current_location.address}</span>
                                 </div>
                             )}
                             
                             {/* Timestamp */}
                             <div className="text-xs text-muted-foreground opacity-75">
-                                {selectedVehicle.current_location.recorded_at && 
-                                  formatDate(selectedVehicle.current_location.recorded_at, 'PPp')}
+                                {vehiclesWithLocation.find(v => v.id === selectedVehicleId)?.current_location.recorded_at && 
+                                  formatDate(vehiclesWithLocation.find(v => v.id === selectedVehicleId)?.current_location.recorded_at, 'PPp')}
                             </div>
                         </div>
                     </Popup>
@@ -1076,8 +1116,8 @@ export default function FleetMap({
                 )}
                 
                 {!showFullscreen && (
-                    <div className="mt-2 flex flex-wrap gap-4 justify-between">
-                        <div className="text-xs text-center text-muted-foreground">
+                    <div className="mt-2 p-2 flex flex-wrap gap-4 justify-between">
+                        <div className="text-xs text-left text-muted-foreground">
                             {__("vehicles.map.last_updated", { fallback: "Dernière mise à jour" })}: {formatDate(lastRefresh, 'TIME')} 
                             <span className="mx-1">•</span> 
                             {__("vehicles.map.auto_refresh", { fallback: "Rafraîchissement auto" })}: {refreshInterval}s
@@ -1117,4 +1157,6 @@ export default function FleetMap({
             </CardContent>
         </Card>
     );
-} 
+}
+
+export default FleetMap; 
