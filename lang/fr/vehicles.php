@@ -121,6 +121,12 @@ return [
         'settings' => 'Paramètres',
         'activities' => 'Activités',
         'driver' => 'Chauffeur',
+        'current_driver' => 'Chauffeur actuel',
+        'navigation' => 'Navigation',
+        'unknown_location' => 'Emplacement inconnu',
+        'moving' => 'En mouvement',
+        'stationary' => 'À l\'arrêt',
+        'unknown_activity' => 'Activité inconnue',
     ],
     'dialogs' => [
         'tenant_assignment' => [

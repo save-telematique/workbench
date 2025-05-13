@@ -32,6 +32,9 @@ class VehicleActivitiesController extends Controller
         $vehicle->load([
             'tenant',
             'currentDriver',
+            'currentLocation',
+            'type',
+            'model.vehicleBrand',
             'currentWorkingSession.activity',
             'workingSessions' => function ($query) use ($request) {
                 $query->with(['activity', 'workingDay.driver'])

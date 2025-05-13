@@ -120,6 +120,12 @@ return [
         'settings' => 'Settings',
         'activities' => 'Activities',
         'driver' => 'Driver',
+        'current_driver' => 'Current Driver',
+        'navigation' => 'Navigation',
+        'unknown_location' => 'Unknown location',
+        'moving' => 'Moving',
+        'stationary' => 'Stationary',
+        'unknown_activity' => 'Unknown activity',
     ],
     'dialogs' => [
         'tenant_assignment' => [
