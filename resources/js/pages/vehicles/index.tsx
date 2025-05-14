@@ -77,7 +77,14 @@ export default function Index({ vehicles, filters, brands, tenants }: VehiclesPa
 
             <VehiclesLayout>
                 {/* Fleet map */}
-                <FleetMap title="vehicles.fleet_map.title" className="mb-6" />
+                <FleetMap 
+                    title="vehicles.fleet_map.title" 
+                    className="mb-6" 
+                    refreshInterval={60}
+                    onVehicleClick={(vehicle) => {
+                        router.visit(route('vehicles.show', { vehicle: vehicle.id }));
+                    }}
+                />
 
                 <DataTable
                     columns={columns}

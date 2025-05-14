@@ -23,7 +23,6 @@ class GetVehicleDataPointsAction
     public function rules(): array
     {
         return [
-            'device' => 'required|string|exists:devices,id',
             'data_point_type_id' => 'required|integer|exists:data_point_types,id',
             'start_time' => 'required|date',
             'end_time' => 'required|date|after_or_equal:start_time',

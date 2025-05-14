@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\DataPoints\GetVehicleDataPointsAction;
 use App\Actions\Vehicles\CreateVehicleAction;
 use App\Actions\Vehicles\DeleteVehicleAction;
 use App\Actions\Vehicles\GetVehiclesWithLocationsAction;
@@ -43,6 +44,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::put('/vehicles/{vehicle}', UpdateVehicleAction::class)->name('vehicles.update');
     Route::delete('/vehicles/{vehicle}', DeleteVehicleAction::class)->name('vehicles.destroy');
+    Route::get('/vehicles/{vehicle}/datapoints', GetVehicleDataPointsAction::class)->name('vehicles.datapoints');
     Route::post('/vehicles/{vehicle}/restore', RestoreVehicleAction::class)->name('vehicles.restore')->withTrashed();
     
     Route::post('/vehicles/scan-registration', ScanVehicleRegistrationAction::class)->name('vehicles.scan-registration');
