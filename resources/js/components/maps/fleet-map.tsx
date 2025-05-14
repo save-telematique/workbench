@@ -645,6 +645,7 @@ const FleetMap: React.FC<FleetMapProps> = ({
                             onBoundsChange={handleBoundsChange}
                             showLegendToggle={false}
                             showStyleSelector={true}
+                            showInfoPanel={true}
                             showRefreshButton={true}
                             showResetViewButton={true}
                             ref={mapRef}
@@ -662,13 +663,8 @@ const FleetMap: React.FC<FleetMapProps> = ({
                 )}
                 
                 {/* Activity legend for non-fullscreen view */}
-                <div className="mt-2 p-2 flex flex-wrap gap-4 justify-between">
-                    <div className="text-xs text-left text-muted-foreground">
-                        {__("vehicles.map.last_updated", { fallback: "Dernière mise à jour" })}: {formatDate(lastRefresh, 'TIME')} 
-                        <span className="mx-1">•</span> 
-                        {__("vehicles.map.auto_refresh", { fallback: "Rafraîchissement auto" })}: {refreshInterval}s
-                    </div>
-                    
+                <div className="mt-2 flex flex-wrap gap-4 justify-end">
+        
                     {/* Activity distribution */}
                     <div className="flex flex-wrap gap-2 text-xs">
                         {activityDistribution}

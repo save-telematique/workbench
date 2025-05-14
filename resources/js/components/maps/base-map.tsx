@@ -587,7 +587,7 @@ const BaseMap = forwardRef<MapRef, BaseMapProps>(({
             
             {/* Bottom info panel for non-fullscreen view */}
             {!showFullscreen && showInfoPanel && (
-                <div className="mt-2 p-2">
+                <div className="mt-2">
                     <div className="text-xs text-left text-muted-foreground">
                         {__("vehicles.map.last_updated")}: {formatDate(lastRefresh, 'TIME')} 
                         {refreshInterval && (
