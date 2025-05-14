@@ -110,11 +110,11 @@ class ProcessGpsDataJob implements ShouldQueue, DataPointHandlerJob
             $timeDiffSeconds = abs($currentLocation->recorded_at->diffInSeconds($timestamp));
             $distanceMeters = GeoHelper::vincentyGreatCircleDistance($currentLocation->latitude, $currentLocation->longitude, $latitude, $longitude);
             
-            if ($timeDiffSeconds < 120 && $distanceMeters < 25) {
+            if ($timeDiffSeconds < 120 /*&& $distanceMeters < 100*/) {
                 return;
             }
 
-            if ($timeDiffSeconds > 0) {
+            /*if ($timeDiffSeconds > 0) {
                  $maxSpeedKmh = 160; 
                  $maxSpeedMetersPerSecond = $maxSpeedKmh * 1000 / 3600;
                  $maxDistancePossible = $maxSpeedMetersPerSecond * $timeDiffSeconds;
@@ -127,7 +127,7 @@ class ProcessGpsDataJob implements ShouldQueue, DataPointHandlerJob
                         ]);
                      return;
                  }
-            }
+            }*/
         }
 
         $location = VehicleLocation::create($locationData);

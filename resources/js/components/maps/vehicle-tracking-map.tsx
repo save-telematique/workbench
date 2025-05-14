@@ -18,9 +18,6 @@ import {
   History,
   ArrowLeft,
   Calendar as CalendarIcon,
-  LocateFixed,
-  Layers,
-  Check,
   Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -34,8 +31,6 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { NavigationControl } from "react-map-gl";
 
 interface VehicleTrackingMapProps {
   vehicle: VehicleResource;
@@ -146,17 +141,6 @@ export default function VehicleTrackingMap({
 
   // Add a new state variable to track if playback has been started
   const [playbackInitiated, setPlaybackInitiated] = useState<boolean>(false);
-
-  // Map style state
-  const [mapStyle, setMapStyle] = useState<string>("streets");
-
-  // Map styles
-  const mapStyles = {
-    streets: "streets",
-    light: "light",
-    dark: "dark",
-    satellite: "satellite"
-  };
 
   // Add a state to store the historical activities
   const [activityChanges, setActivityChanges] = useState<ActivityChangeResource[]>([]);
@@ -479,22 +463,6 @@ export default function VehicleTrackingMap({
     setSelectedPoint(null);
   };
   
-  // Reset map view
-  const resetMapView = () => {
-    setViewState({
-      longitude: 2.3522, // Default to center of France
-      latitude: 46.2276,
-      zoom: 5,
-      bearing: 0,
-      pitch: 0,
-    });
-  };
-
-  // Refresh data
-  const refreshData = () => {
-    fetchVehicleData();
-  };
-
   // Update the helper function to find the active activity at a specific time
   const getActivityAtTime = (timestamp: string | null) => {
     if (!timestamp || !activityChanges || activityChanges.length === 0) {
@@ -882,7 +850,11 @@ export default function VehicleTrackingMap({
               <BaseMap
                 initialRefreshInterval={60}
                 showFullscreenOption={true}
+                showRefreshButton={true}
+                showResetViewButton={true}
+                showStyleSelector={true}
                 onRefresh={fetchVehicleData}
+                onViewStateChange={setViewState}
                 lastRefresh={lastRefresh}
                 showInfoPanel={false}
                 stats={
@@ -908,63 +880,9 @@ export default function VehicleTrackingMap({
                 zoom={viewState.zoom}
                 bearing={viewState.bearing}
                 pitch={viewState.pitch}
-                onViewStateChange={setViewState}
                 ref={mapRef}
               >
                 {renderMapElements()}
-                
-                {/* Map Controls */}
-                <div className="absolute top-3 right-3 flex flex-col gap-2">
-                  <NavigationControl showCompass={false} />
-                  
-                  <Button 
-                    variant="outline" 
-                    size="icon" 
-                    className="!h-[30px] !w-[30px] bg-background border border-input"
-                    onClick={resetMapView}
-                  >
-                    <LocateFixed className="h-3.5 w-3.5" />
-                  </Button>
-                  
-                  <Button 
-                    variant="outline" 
-                    size="icon" 
-                    className="!h-[30px] !w-[30px] bg-background border border-input" 
-                    onClick={refreshData}
-                  >
-                    <RefreshCw className="h-3.5 w-3.5" />
-                  </Button>
-                  
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button 
-                        variant="outline" 
-                        size="icon" 
-                        className="!h-[30px] !w-[30px] bg-background border border-input"
-                      >
-                        <Layers className="h-3.5 w-3.5" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      <DropdownMenuItem onClick={() => setMapStyle(mapStyles.streets)}>
-                        {mapStyle === mapStyles.streets && <Check className="mr-2 h-3.5 w-3.5" />}
-                        {__("vehicles.map.style_streets")}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setMapStyle(mapStyles.light)}>
-                        {mapStyle === mapStyles.light && <Check className="mr-2 h-3.5 w-3.5" />}
-                        {__("vehicles.map.style_light")}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setMapStyle(mapStyles.dark)}>
-                        {mapStyle === mapStyles.dark && <Check className="mr-2 h-3.5 w-3.5" />}
-                        {__("vehicles.map.style_dark")}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setMapStyle(mapStyles.satellite)}>
-                        {mapStyle === mapStyles.satellite && <Check className="mr-2 h-3.5 w-3.5" />}
-                        {__("vehicles.map.style_satellite")}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
                 
                 {loading && (
                   <div className="absolute top-3 left-3 bg-background/85 backdrop-blur-sm p-2 rounded-md shadow-md text-sm flex items-center">
