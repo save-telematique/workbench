@@ -27,23 +27,113 @@ alwaysApply: true
 
 **7. Testing (Pest + Dusk):**
 
-*   **Framework:** Utiliser **Pest PHP** pour les tests backend (`Unit`, `Feature`) et **Laravel Dusk** (avec Pest) pour les tests navigateur (`Browser`).
-*   **Organisation:**
-    *   Structure: `tests/Feature/{Module}`, `tests/Unit/{Module}`, `tests/Browser/{Module}`.
-    *   Nommer les tests de façon descriptive (`it('does something specific')` ou `test('module action works')`).
-    *   Tester chaque endpoint/action de manière isolée.
-*   **Database:**
-    *   Utiliser le trait `RefreshDatabase` pour réinitialiser la BDD (PostgreSQL) entre les tests.
-    *   Utiliser les **Factories** pour la préparation des données.
-    *   Valider l'état de la BDD avec `assertDatabaseHas()`, `assertDatabaseMissing()`, `assertSoftDeleted()`.
+*   **Framework:** Use **Pest PHP v3.8+** for backend (`Unit`, `Feature`) tests and **Laravel Dusk** (with Pest) for browser (`Browser`) tests
+*   **Current Setup:** Project uses Pest PHP with Laravel plugin, TestCase configured for TimescaleDB models
+
+*   **Organization:**
+    *   **Structure**: `tests/Feature/{Module}`, `tests/Unit/{Module}`, `tests/Browser/{Module}`
+    *   **Naming**: Use descriptive test names (`it('allows user to create vehicle')` or `test('user can update profile')`)
+    *   **Isolation**: Test each endpoint/action separately with focused, single-purpose tests
+    *   **Grouping**: Use Pest's `describe()` blocks to group related test cases
+
+*   **Database Management:**
+    *   **RefreshDatabase Trait**: Use `RefreshDatabase` trait to reset PostgreSQL database between tests
+    *   **TimescaleDB Support**: Custom `TestCase` class handles TimescaleDB models (drops hypertables before refresh)
+    *   **Factory Usage**: Leverage **Laravel Factories** for test data creation, ensuring realistic test scenarios
+    *   **Validation**: Use `assertDatabaseHas()`, `assertDatabaseMissing()`, `assertSoftDeleted()` for data assertions
+
 *   **HTTP/Feature Tests:**
-    *   Simuler un utilisateur authentifié avec `actingAs($user)`.
-    *   Tester les autorisations (Policies) et les accès protégés.
-    *   Vérifier les codes de statut HTTP (`assertOk()`, `assertNotFound()`, etc.) et les redirections (`assertRedirect()`).
-    *   Tester les validations de formulaire (`assertSessionHasErrors([...])`, `assertInvalid([...])`).
-*   **Inertia Tests (dans les Feature tests):**
-    *   Utiliser `$response->assertInertia(...)` pour vérifier le composant rendu.
-    *   Vérifier la présence et la structure des **props** passées au composant.
+    *   **Authentication**: Simulate authenticated users with `actingAs($user)` for protected routes
+    *   **Authorization Testing**: Test permissions with different user roles (super_admin, tenant_admin, tenant_user, etc.)
+    *   **HTTP Assertions**: Verify status codes (`assertOk()`, `assertNotFound()`, `assertForbidden()`) and redirections (`assertRedirect()`)
+    *   **Form Validation**: Test validation rules using `assertSessionHasErrors([...])`, `assertInvalid([...])`
+    *   **Tenant Isolation**: Verify tenant users can only access their own tenant's data
+
+*   **Inertia.js Integration Testing:**
+    *   **Component Rendering**: Use `$response->assertInertia(...)` to verify correct component rendered
+    *   **Props Verification**: Check presence and structure of **props** passed to React components
+    *   **Page Data**: Validate that required data is properly shared from backend to frontend
+    *   **Route Testing**: Test Inertia page responses with proper component and data loading
+
+*   **Permission & Policy Testing:**
+    *   **Policy Methods**: Test each policy method (`viewAny`, `view`, `create`, `update`, `delete`) for all scenarios
+    *   **Role Permissions**: Verify role-based access with different user types (central vs tenant users)
+    *   **Tenant Isolation**: Ensure tenant users cannot access other tenants' resources
+    *   **Group Access**: Test group-based permissions for vehicles and drivers where applicable
+    *   **Super Admin Override**: Verify super_admin role bypasses all permission checks
+
+*   **Laravel Actions Testing:**
+    *   **Action Authorization**: Test the `authorize()` method in Action classes
+    *   **Business Logic**: Verify Action execution with valid and invalid data
+    *   **Exception Handling**: Test Actions handle errors gracefully and return appropriate responses
+    *   **Validation**: Test Action request validation and error handling
+
+*   **TimescaleDB & Time-Series Testing:**
+    *   **Hypertable Operations**: Test insertion and querying of time-series data in hypertables
+    *   **Aggregation Functions**: Test TimescaleDB-specific functions like `time_bucket`
+    *   **Device Data Points**: Test device telemetry data storage and retrieval
+    *   **Service Classes**: Test `DeviceTelemetryService` and `VehicleTelemetryService` aggregation methods
+
+*   **Multi-Tenancy Testing:**
+    *   **Tenant Scoping**: Verify tenant isolation across all tenant-scoped models
+    *   **Central vs Tenant Users**: Test access patterns for central users vs tenant users
+    *   **Cross-Tenant Access**: Ensure proper 404/403 responses for cross-tenant access attempts
+    *   **Tenant Data Integrity**: Verify tenant_id is properly set on created resources
+
 *   **Browser Tests (Dusk):**
-    *   Configurer Dusk pour l'environnement de test et **Laravel Sail**.
-    *   Utiliser pour les tests d'interaction utilisateur complexes qui ne peuvent pas être couverts par les tests Feature/Inertia.
+    *   **Environment**: Configure Dusk for Laravel Sail testing environment
+    *   **Use Cases**: Use for complex user interaction flows that cannot be covered by Feature/Inertia tests
+    *   **UI Components**: Test React component interactions, form submissions, table operations
+    *   **Permission UI**: Verify conditional rendering based on user permissions works correctly
+
+*   **Test Data & Factories:**
+    *   **Realistic Data**: Create factories that generate realistic test data matching production patterns
+    *   **Relationships**: Properly handle model relationships in factories (tenant_id, foreign keys)
+    *   **States**: Use factory states for different scenarios (active, inactive, with groups, etc.)
+    *   **Seeding**: Use seeders for reference data that tests depend on (device types, vehicle types, etc.)
+
+*   **Best Practices:**
+    *   **Single Responsibility**: Each test should verify one specific behavior or outcome
+    *   **Arrange-Act-Assert**: Structure tests clearly with setup, execution, and verification phases
+    *   **Descriptive Names**: Use test names that clearly describe what is being tested
+    *   **Test Coverage**: Aim for comprehensive coverage of critical business logic and security boundaries
+    *   **Fast Execution**: Keep test suite execution time reasonable through efficient database operations
+    *   **Consistent Patterns**: Follow established patterns for similar test types across the codebase
+
+*   **Example Test Structure:**
+    ```php
+    describe('Vehicle Management', function () {
+        beforeEach(function () {
+            $this->tenant = Tenant::factory()->create();
+            $this->user = User::factory()->create(['tenant_id' => $this->tenant->id]);
+            $this->user->assignRole('tenant_admin');
+        });
+        
+        it('allows tenant admin to create vehicles', function () {
+            $vehicleData = [
+                'registration' => 'AB-123-CD',
+                'vin' => '1HGCM82633A123456',
+                'vehicle_type_id' => VehicleType::factory()->create()->id,
+            ];
+            
+            $response = $this->actingAs($this->user)
+                ->post(route('vehicles.store'), $vehicleData);
+                
+            $response->assertRedirect(route('vehicles.index'));
+            $this->assertDatabaseHas('vehicles', [
+                'registration' => 'AB-123-CD',
+                'tenant_id' => $this->tenant->id,
+            ]);
+        });
+        
+        it('prevents tenant users from accessing other tenant vehicles', function () {
+            $otherTenant = Tenant::factory()->create();
+            $otherVehicle = Vehicle::factory()->create(['tenant_id' => $otherTenant->id]);
+            
+            $response = $this->actingAs($this->user)
+                ->get(route('vehicles.show', $otherVehicle));
+                
+            $response->assertNotFound();
+        });
+    });
+    ```

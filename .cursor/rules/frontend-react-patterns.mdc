@@ -1,0 +1,157 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+**4. Frontend (React) Patterns & Conventions:**
+
+*   **Architecture:**
+    *   **React 19** avec TypeScript strict
+    *   **Inertia.js 2.0** pour SSR et navigation
+    *   **Shadcn UI** basé sur Radix UI primitives
+    *   **TanStack React Table v8** pour les tables de données avancées
+    *   **React Hook Form + Zod** pour la validation des formulaires
+
+*   **Structure des dossiers:**
+    ```
+    resources/js/
+    ├── components/          # Composants réutilisables
+    │   ├── ui/             # Composants Shadcn UI
+    │   ├── forms/          # Composants de formulaire
+    │   ├── {feature}/      # Composants spécifiques par feature
+    │   └── icons/          # Icônes personnalisées
+    ├── pages/              # Pages Inertia par feature
+    ├── layouts/            # Layouts d'application
+    ├── hooks/              # Hooks personnalisés
+    ├── utils/              # Utilitaires et helpers
+    ├── types/              # Définitions TypeScript
+    └── lib/                # Configuration et utilitaires base
+    ```
+
+*   **Hooks personnalisés essentiels:**
+    *   `useTranslation()` - Traductions custom (pas i18next)
+    *   `usePermission()`, `useRole()`, `useHasAnyPermission()` - Autorizations
+    *   `useTenantUser()` - Vérification tenant
+    *   `useStandardActions()` - Actions CRUD standardisées
+    *   `useNavItems()` - Navigation avec permissions
+    *   `useIsMobile()` - Responsive design
+
+*   **Patterns de composants:**
+    *   **Pages Inertia:** Utiliser `Head` pour les titres, breadcrumbs via props
+    *   **Layouts:** Composition via children, pas d'héritage complexe
+    *   **Forms:** React Hook Form avec validation Zod, gestion d'erreurs Inertia
+    *   **Tables:** TanStack Table avec colonnes typées, actions standardisées
+    *   **Permissions:** Rendu conditionnel via hooks, pas de logique métier
+
+*   **Gestion d'état:**
+    *   **Props Inertia:** Source de vérité pour les données serveur
+    *   **State local:** React useState pour l'UI state uniquement
+    *   **Forms:** React Hook Form pour l'état des formulaires
+    *   **Pas de Redux/Zustand:** Préférer les props Inertia et state local
+
+*   **Patterns TanStack Table:**
+    ```tsx
+    // Colonnes avec traduction et métadonnées
+    {
+        accessorKey: 'name',
+        header: 'vehicles.fields.name', // Clé de traduction
+        meta: { title: 'vehicles.fields.name' },
+        enableSorting: true,
+        enableHiding: true,
+    }
+    
+    // Actions standardisées
+    const getStandardActions = useStandardActions({
+        resourceName: "vehicles",
+        routePrefix: "vehicles",
+        additionalParams: {}
+    });
+    ```
+
+*   **Patterns de traduction:**
+    ```tsx
+    const { __ } = useTranslation();
+    
+    // Traduction simple
+    {__('vehicles.title')}
+    
+    // Traduction avec paramètres
+    {__('common.table.selected_rows', { selected: 5, total: 100 })}
+    
+    // Namespace conditionnel pour composants réutilisables
+    <UserForm translationNamespace={isTenant ? 'tenant_users' : 'users'} />
+    ```
+
+*   **Patterns de permissions:**
+    ```tsx
+    // Rendu conditionnel simple
+    {usePermission('create_vehicles') && <CreateButton />}
+    
+    // Permissions multiples
+    {useHasAnyPermission(['create_vehicles', 'edit_vehicles']) && <ActionMenu />}
+    
+    // Navigation tenant-aware
+    const isTenantUser = useTenantUser();
+    if (!isTenantUser) {
+        // Afficher éléments central only
+    }
+    ```
+
+*   **Patterns de navigation:**
+    ```tsx
+    // Utiliser Ziggy pour les routes
+    <Link href={route('vehicles.show', { vehicle: vehicle.id })}>
+        {vehicle.name}
+    </Link>
+    
+    // Navigation Inertia avec préfetch
+    <Link href={route('vehicles.index')} prefetch>
+        {__('vehicles.title')}
+    </Link>
+    ```
+
+*   **Patterns UI/UX:**
+    *   **Classes Tailwind:** Utiliser `cn()` pour les classes conditionnelles
+    *   **Responsive:** Mobile-first avec hooks de responsive
+    *   **Accessibility:** Aria labels via traductions, Radix UI pour les primitives
+    *   **Loading states:** Gérer via Inertia progress, pas de spinners custom
+    *   **Notifications:** Sonner pour les toasts
+
+*   **Patterns de données:**
+    ```tsx
+    // Props typées depuis le serveur
+    interface PageProps {
+        vehicles: ResourceCollection<VehicleResource>;
+        filters?: {
+            search?: string;
+            status?: string;
+        };
+    }
+    
+    // Resources pour consistency des données
+    export interface VehicleResource {
+        id: string;
+        name: string;
+        registration: string;
+        // Toujours utiliser les types de Resource, pas les models raw
+    }
+    ```
+
+*   **Conventions de nommage:**
+    *   **Composants:** PascalCase (ex: `VehicleForm`, `DataTablePagination`)
+    *   **Hooks:** camelCase avec `use` prefix (ex: `usePermission`)
+    *   **Types:** PascalCase avec suffixe descriptif (ex: `VehicleResource`, `PageProps`)
+    *   **Fichiers:** Correspond au nom du composant principal
+
+*   **Patterns à éviter:**
+    *   Pas de data fetching côté client (utiliser Inertia props)
+    *   Pas de state management global complexe
+    *   Pas de logique métier dans les composants
+    *   Éviter les useEffect pour la synchronisation de données
+    *   Pas de texte en dur (toujours `__()`)
+
+*   **Performance:**
+    *   Utiliser `React.memo()` pour les composants lourds uniquement
+    *   Préférer la composition à l'optimisation prématurée
+    *   TanStack Table gère automatiquement la virtualisation si nécessaire
+    *   Inertia gère le cache et la préfetch automatiquement

@@ -3,11 +3,153 @@ description:
 globs: *.tsx
 alwaysApply: false
 ---
-**5. Styling (Tailwind + Shadcn):**
+**5. Styling (Tailwind CSS 4 + Shadcn UI):**
 
-*   Utiliser Tailwind CSS 4 (classes utilitaires).
-*   **Tailwind 4 Config:** Via variables CSS (`@theme` dans CSS principal), valeurs/variantes dynamiques, palette P3 (oklch). Éviter `tailwind.config.js` pour le thème si possible.
-*   **Shadcn UI:**
-    *   Ajouter via `npx shadcn-ui@latest add [component-name]`.
-    *   Personnaliser dans `resources/js/Components/ui`.
-    *   Utiliser `cn()` pour fusionner les classes conditionnelles.
+*   **Tailwind CSS 4**: Latest version with CSS-first configuration using `@theme` directive
+*   **Configuration**: CSS-based theming in `resources/css/app.css` (no `tailwind.config.js` for theme)
+*   **UI Library**: Shadcn UI v2 with extensive Radix UI primitives
+
+*   **Tailwind CSS 4 Features:**
+    *   **CSS-First Config**: Theme configuration via `@theme` directive in CSS
+    *   **OKLCH Colors**: Modern color space with better perceptual uniformity
+    *   **CSS Variables**: Dynamic theming with CSS custom properties
+    *   **@source Directives**: Automatic content scanning for optimization
+    *   **Native CSS Nesting**: Modern CSS features fully supported
+
+*   **Theme Configuration (`resources/css/app.css`):**
+    ```css
+    @import 'tailwindcss';
+    @plugin 'tailwindcss-animate';
+    
+    @source '../views';
+    @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+    
+    @custom-variant dark (&:is(.dark *));
+    
+    @theme {
+        --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+        --radius-lg: var(--radius);
+        --radius-md: calc(var(--radius) - 2px);
+        --radius-sm: calc(var(--radius) - 4px);
+        
+        --color-background: var(--background);
+        --color-foreground: var(--foreground);
+        /* ... other color mappings */
+    }
+    ```
+
+*   **Color System:**
+    *   **OKLCH Colors**: All colors defined using `oklch()` function for better perceptual uniformity
+    *   **CSS Variables**: Colors defined as CSS custom properties in `:root` and `.dark`
+    *   **Semantic Naming**: Colors use semantic names (background, foreground, primary, secondary)
+    *   **Dark Mode**: Full dark mode support with automatic switching via `next-themes`
+
+*   **Component Library (Shadcn UI):**
+    *   **Installation**: Use `sail npx shadcn-ui@latest add [component]` for new components
+    *   **Configuration**: Components configured in `components.json`
+    *   **Customization**: All components fully customizable and owned by the project
+    *   **TypeScript**: Full TypeScript support with proper type definitions
+
+*   **Available Components (Comprehensive Set):**
+    *   **Layout**: Card, Sidebar, Sheet, Tabs, Collapsible, Separator
+    *   **Forms**: Input, Textarea, Label, Button, Checkbox, Switch, Select, Form
+    *   **Data Display**: Table, Badge, Avatar, Skeleton, Chart
+    *   **Feedback**: Alert, Alert Dialog, Dialog, Popover, Tooltip, Sonner (toasts)
+    *   **Navigation**: Navigation Menu, Breadcrumb, Pagination, Command
+    *   **Data Tables**: Custom DataTable with TanStack React Table integration
+    *   **Interaction**: Dropdown Menu, Context Menu, Toggle, Slider, Calendar, Date Picker
+
+*   **Custom Components:**
+    *   **DataTable System**: Comprehensive data table components with TanStack React Table
+    *   **License Plate**: Specialized component for vehicle registration display
+    *   **Activity Badge**: Status indicators with semantic meaning
+    *   **Charts**: Recharts integration with theme-aware styling
+    *   **Maps**: Mapbox GL integration with custom controls
+
+*   **Styling Conventions:**
+    *   **Utility Classes**: Prefer Tailwind utility classes over custom CSS
+    *   **Component Variants**: Use `class-variance-authority` (cva) for component variants
+    *   **Responsive Design**: Mobile-first approach with responsive breakpoints
+    *   **Consistent Spacing**: Use standard Tailwind spacing scale (4px increments)
+    *   **Semantic Classes**: Use semantic utility classes over hardcoded values
+
+*   **Layout Patterns:**
+    *   **Sidebar Layout**: Primary layout with collapsible sidebar using Shadcn Sidebar component
+    *   **Content Areas**: Proper content spacing with padding and margins
+    *   **Grid Systems**: CSS Grid and Flexbox for complex layouts
+    *   **Card-Based UI**: Extensive use of Card components for content organization
+
+*   **Form Styling:**
+    *   **React Hook Form**: Integration with Shadcn Form components
+    *   **Validation States**: Error states with proper visual feedback
+    *   **Field Grouping**: Logical grouping of form fields with proper spacing
+    *   **Accessibility**: Full ARIA support and keyboard navigation
+
+*   **Button Variants:**
+    ```tsx
+    // Standard button variants available
+    <Button variant="default">Primary Action</Button>
+    <Button variant="destructive">Delete</Button>
+    <Button variant="outline">Secondary</Button>
+    <Button variant="secondary">Tertiary</Button>
+    <Button variant="ghost">Minimal</Button>
+    <Button variant="link">Link Style</Button>
+    
+    // Size variants
+    <Button size="default">Standard</Button>
+    <Button size="sm">Small</Button>
+    <Button size="lg">Large</Button>
+    <Button size="icon">Icon Only</Button>
+    ```
+
+*   **Color Usage Guidelines:**
+    *   **Primary**: Main brand actions and emphasis
+    *   **Secondary**: Secondary actions and backgrounds
+    *   **Destructive**: Delete, remove, or warning actions
+    *   **Muted**: Subdued text and backgrounds
+    *   **Accent**: Highlights and special emphasis
+    *   **Border**: Borders and dividers
+
+*   **Dark Mode Implementation:**
+    *   **next-themes**: Automatic theme detection and switching
+    *   **CSS Variables**: All colors defined with CSS variables for easy switching
+    *   **Component Support**: All Shadcn components support dark mode out of the box
+    *   **Consistent Experience**: Maintains design coherence across light and dark themes
+
+*   **Responsive Design:**
+    *   **Breakpoints**: Standard Tailwind breakpoints (sm, md, lg, xl, 2xl)
+    *   **Mobile-First**: Design mobile-first, enhance for larger screens
+    *   **Component Responsiveness**: All components adapt to different screen sizes
+    *   **Table Handling**: Special considerations for data tables on mobile
+
+*   **Animation and Transitions:**
+    *   **tailwindcss-animate**: Additional animation utilities
+    *   **Consistent Timing**: Standard timing functions for all animations
+    *   **Reduced Motion**: Respect user preferences for reduced motion
+    *   **Performance**: Efficient animations using CSS transforms and opacity
+
+*   **Accessibility:**
+    *   **ARIA Support**: Full ARIA attributes on interactive components
+    *   **Keyboard Navigation**: Complete keyboard accessibility
+    *   **Color Contrast**: WCAG compliant color contrast ratios
+    *   **Focus Management**: Proper focus indicators and management
+    *   **Screen Reader**: Optimized for screen reader compatibility
+
+*   **Development Workflow:**
+    *   **Component Addition**: Use Shadcn CLI to add new components
+    *   **Customization**: Modify components in `@/components/ui/` as needed
+    *   **Theme Updates**: Modify CSS variables in `app.css` for theme changes
+    *   **Build Optimization**: Tailwind automatically purges unused styles
+
+*   **Performance Considerations:**
+    *   **CSS Optimization**: Tailwind 4's improved performance and smaller bundle sizes
+    *   **Component Lazy Loading**: Lazy load heavy components when possible
+    *   **Critical CSS**: Important styles loaded immediately
+    *   **Cache Strategy**: Proper caching for CSS assets
+
+*   **Best Practices:**
+    *   **Consistency**: Use design system tokens and components consistently
+    *   **Maintainability**: Avoid custom CSS when Tailwind utilities suffice
+    *   **Readability**: Use semantic class names and proper organization
+    *   **Scalability**: Design with component reusability in mind
+    *   **Testing**: Verify styling across different browsers and devices

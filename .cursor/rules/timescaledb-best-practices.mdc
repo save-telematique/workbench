@@ -5,6 +5,8 @@ alwaysApply: false
 ---
 # TimescaleDB Best Practices for Save Workbench
 
+> **Note:** For concrete development patterns and code examples, see `timescaledb-development.mdc`. This document focuses on theoretical best practices and architectural guidelines.
+
 TimescaleDB is a powerful open-source time-series database built on PostgreSQL. Integrating it into Save Workbench can significantly enhance performance for handling and analyzing time-stamped data, such as vehicle telemetry, device events, and other operational metrics. This document outlines best practices for using TimescaleDB within the Save Workbench project.
 
 ## Core TimescaleDB Concepts

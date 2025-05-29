@@ -1,0 +1,416 @@
+---
+description: 
+globs: *.tsx
+alwaysApply: false
+---
+# Data Tables with TanStack React Table
+
+This document outlines the standardized approach for implementing data tables using TanStack React Table v8 with custom DataTable components in Save Workbench.
+
+## Overview
+
+Save Workbench uses a comprehensive data table system built on:
+
+- **TanStack React Table v8.21+**: Core table functionality with advanced features
+- **Custom DataTable Components**: Reusable components in `@/components/ui/data-table/`
+- **Automatic Translation**: String headers automatically translated via `useTranslation()`
+- **Permission Integration**: Row actions based on user permissions
+- **Persistence**: User preferences saved for column visibility, ordering, and pinning
+
+## Core Components
+
+### DataTable Component
+
+Located at `@/components/ui/data-table/data-table.tsx`, provides:
+
+- Column visibility management with drag-and-drop reordering
+- Column pinning (left/right)
+- Sorting and filtering capabilities
+- Action bar slots for custom controls
+- User preference persistence
+- Responsive design with mobile adaptations
+
+### Component Exports
+
+All components exported from `@/components/ui/data-table/index.tsx`:
+
+```tsx
+export { DataTable } from "./data-table"
+export { DataTableColumnHeader } from "./data-table-column-header"
+export { DataTablePagination } from "./data-table-pagination"
+export { DataTableColumnVisibility } from "./data-table-column-visibility"
+export { DataTableRowActions } from "./data-table-row-actions"
+
+// Re-exported types for convenience
+export type {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  VisibilityState,
+  PaginationState,
+} from "@tanstack/react-table"
+```
+
+## Basic Usage
+
+### Simple Table
+
+```tsx
+import { DataTable, type ColumnDef } from "@/components/ui/data-table";
+import { User } from "@/types";
+
+const columns: ColumnDef<User>[] = [
+  {
+    accessorKey: "name",
+    header: "users.fields.name", // Automatically translated
+    enableSorting: true,
+  },
+  {
+    accessorKey: "email", 
+    header: "users.fields.email",
+    enableSorting: true,
+  }
+];
+
+export default function UsersTable({ users }: { users: User[] }) {
+  return (
+    <DataTable
+      columns={columns}
+      data={users}
+      tableId="users-table" // Unique ID for persistence
+      config={{
+        pagination: true,
+        sorting: true,
+      }}
+    />
+  );
+}
+```
+
+### Table with Action Bar
+
+```tsx
+<DataTable
+  columns={columns}
+  data={data}
+  tableId="vehicles-table"
+  config={{
+    pagination: true,
+    sorting: true,
+  }}
+  actionBarLeft={
+    <div className="flex items-center gap-2 w-full">
+      <div className="relative w-full">
+        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder={__("common.search")}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-8"
+        />
+      </div>
+    </div>
+  }
+  actionBarRight={
+    <div className="flex gap-2">
+      {usePermission('create_vehicles') && (
+        <Button asChild>
+          <Link href={route("vehicles.create")}>
+            <Plus className="mr-2 h-4 w-4" />
+            {__("vehicles.actions.create")}
+          </Link>
+        </Button>
+      )}
+    </div>
+  }
+/>
+```
+
+## Column Definitions
+
+### Basic Properties
+
+For simple property access, use `accessorKey`:
+
+```tsx
+{
+  accessorKey: "name",
+  header: "users.fields.name",
+  enableSorting: true,
+  enableHiding: true, // Allow column to be hidden
+}
+```
+
+### Nested Properties - IMPORTANT
+
+**Always use `accessorFn` for nested properties to ensure proper sorting:**
+
+```tsx
+// CORRECT: Using accessorFn for nested properties
+{
+  accessorFn: (row) => row.tenant?.name ?? "",
+  id: "tenant", // Required when using accessorFn
+  header: "vehicles.fields.tenant",
+  enableSorting: true,
+  cell: ({ row }) => (
+    <div>{row.original.tenant?.name ?? "-"}</div>
+  )
+}
+
+// INCORRECT: This will sort by the object, not the name
+{
+  accessorKey: "tenant", // Sorts by tenant object
+  header: "vehicles.fields.tenant",
+  cell: ({ row }) => (
+    <div>{row.original.tenant?.name ?? "-"}</div>
+  )
+}
+```
+
+**Key Rules for Nested Properties:**
+- Always provide fallback values (`?? ""` or `?? "-"`)
+- When using `accessorFn`, you must specify an `id` property
+- Ensure `accessorFn` returns the same value type displayed in the cell
+- Use consistent fallback patterns across the application
+
+### Custom Cell Rendering
+
+```tsx
+{
+  accessorKey: "status",
+  header: "common.status",
+  cell: ({ row }) => (
+    <Badge variant={row.original.active ? "success" : "secondary"}>
+      {__(row.original.active ? "common.active" : "common.inactive")}
+    </Badge>
+  ),
+}
+```
+
+### Row Actions Column
+
+```tsx
+{
+  id: "actions",
+  enableHiding: false, // Always visible
+  cell: ({ row }) => (
+    <DataTableRowActions 
+      row={row}
+      actions={[
+        {
+          label: __("common.edit"),
+          href: route("vehicles.edit", row.original.id),
+          visible: usePermission('edit_vehicles'),
+        },
+        {
+          label: __("common.delete"),
+          onClick: () => handleDelete(row.original),
+          variant: "destructive",
+          visible: usePermission('delete_vehicles'),
+          requireConfirmation: true,
+        }
+      ]}
+    />
+  ),
+}
+```
+
+## Translation Integration
+
+### Automatic Header Translation
+
+String headers are automatically wrapped with `DataTableColumnHeader` and translated:
+
+```tsx
+// These are equivalent:
+{
+  accessorKey: "name",
+  header: "users.fields.name", // Automatically translated
+}
+
+{
+  accessorKey: "name", 
+  header: ({ column }) => (
+    <DataTableColumnHeader column={column} title={__("users.fields.name")} />
+  ),
+}
+```
+
+### Custom Headers
+
+For more control, use manual header functions:
+
+```tsx
+{
+  accessorKey: "created_at",
+  header: ({ column }) => (
+    <DataTableColumnHeader 
+      column={column} 
+      title={__("common.created_at")}
+      className="text-right"
+    />
+  ),
+  cell: ({ row }) => (
+    <div className="text-right">
+      {format(row.original.created_at, 'PP')}
+    </div>
+  ),
+}
+```
+
+## Permission-Based Row Actions
+
+### Standard Actions Pattern
+
+```tsx
+const getStandardActions = (row: Row<Vehicle>) => [
+  {
+    label: __("common.view"),
+    href: route("vehicles.show", row.original.id),
+    visible: true, // View is usually always available
+  },
+  {
+    label: __("common.edit"),
+    href: route("vehicles.edit", row.original.id),
+    visible: usePermission('edit_vehicles'),
+  },
+  {
+    label: __("common.delete"),
+    onClick: () => handleDelete(row.original),
+    variant: "destructive" as const,
+    visible: usePermission('delete_vehicles') && !row.original.deleted_at,
+    requireConfirmation: true,
+  },
+  {
+    label: __("common.restore"),
+    onClick: () => handleRestore(row.original),
+    visible: usePermission('edit_vehicles') && row.original.deleted_at,
+  }
+];
+```
+
+### Conditional Actions
+
+```tsx
+const actions = [
+  {
+    label: __("vehicles.actions.assign_driver"),
+    href: route("vehicles.assign-driver", row.original.id),
+    visible: usePermission('edit_vehicles') && !row.original.driver_id,
+  },
+  {
+    label: __("vehicles.actions.remove_driver"), 
+    onClick: () => handleRemoveDriver(row.original),
+    visible: usePermission('edit_vehicles') && row.original.driver_id,
+  }
+];
+```
+
+## Table Configuration
+
+### Configuration Options
+
+```tsx
+const config = {
+  pagination: true,      // Enable pagination
+  sorting: true,        // Enable column sorting
+  filtering: false,     // Enable column filtering
+  selection: false,     // Enable row selection
+  columnVisibility: true, // Enable column visibility controls
+  columnOrdering: true,  // Enable column reordering
+  columnPinning: true,   // Enable column pinning
+};
+```
+
+### Persistence
+
+Tables automatically save user preferences using the `tableId`:
+
+- Column visibility state
+- Column ordering
+- Column pinning (left/right)
+- Sort state (optional)
+
+```tsx
+<DataTable
+  tableId="vehicles-list" // Unique identifier for persistence
+  // ... other props
+/>
+```
+
+## Advanced Features
+
+### Custom Empty State
+
+```tsx
+<DataTable
+  // ... other props
+  noResultsMessage={__("vehicles.no_results")}
+  // or custom component
+  noResultsComponent={<CustomEmptyState />}
+/>
+```
+
+### Loading State
+
+```tsx
+<DataTable
+  // ... other props
+  loading={isLoading}
+  loadingComponent={<CustomLoadingSpinner />}
+/>
+```
+
+### Server-Side Operations
+
+For large datasets, implement server-side sorting, filtering, and pagination:
+
+```tsx
+const [sorting, setSorting] = useState<SortingState>([]);
+const [pagination, setPagination] = useState<PaginationState>({
+  pageIndex: 0,
+  pageSize: 10,
+});
+
+// Fetch data based on table state
+const { data, isLoading } = useQuery({
+  queryKey: ['vehicles', sorting, pagination],
+  queryFn: () => fetchVehicles({ sorting, pagination }),
+});
+
+<DataTable
+  columns={columns}
+  data={data?.data ?? []}
+  pageCount={data?.pageCount}
+  state={{
+    sorting,
+    pagination,
+  }}
+  onSortingChange={setSorting}
+  onPaginationChange={setPagination}
+  manualSorting
+  manualPagination
+/>
+```
+
+## Best Practices
+
+1. **Consistent Column Patterns**: Use standardized patterns for common column types (dates, statuses, actions)
+
+2. **Permission Integration**: Always check permissions for row actions and table features
+
+3. **Translation Keys**: Use consistent translation key patterns (`{resource}.fields.{field}`)
+
+4. **Accessibility**: Ensure all interactive elements are keyboard accessible
+
+5. **Performance**: Use server-side operations for large datasets (>1000 rows)
+
+6. **Mobile Responsiveness**: Test table behavior on mobile devices, consider hiding non-essential columns
+
+7. **Loading States**: Always provide loading and empty states for better UX
+
+8. **Error Handling**: Implement proper error boundaries and fallback states
+
+9. **Type Safety**: Use proper TypeScript types for row data and column definitions
+
+10. **Consistent Styling**: Follow established design patterns for table elements (badges, buttons, etc.)

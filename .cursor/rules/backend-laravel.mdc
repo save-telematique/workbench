@@ -5,28 +5,69 @@ alwaysApply: false
 ---
 **3. Backend (Laravel):**
 
+*   **Environment de développement:** Utiliser Laravel Sail pour toutes les commandes (`sail artisan`, `sail composer`, `sail npm`)
 *   Utiliser Laravel 12 et ses conventions :
-    *   **Models:** Eloquent (`app/Models`, `PascalCase`). Utiliser `HasFactory` et `SoftDeletes` si pertinent.
+    *   **Models:** Eloquent (`app/Models`, `PascalCase`). 
+        *   Utiliser `HasFactory` et `SoftDeletes` si pertinent
+        *   Pour les entités time-series, utiliser le trait `HasHyperTable` (TimescaleDB)
+        *   Utiliser `HasUuids` pour les entités tenant-scoped, auto-increment pour les référentiels globaux
+        *   Implémenter `Laravel\Scout\Searchable` pour les entités recherchables
     *   **Controllers:** (`app/Http/Controllers/{FeatureName}`, `PascalCase`). 
-        *   Primarily responsible for **displaying Inertia pages** (`index`, `create`, `show`, `edit`).
-        *   Their methods should fetch data and return `Inertia::render(...)`.
-        *   All data passed to Inertia views **MUST** be formatted using **API Resources** (e.g., `App\Http\Resources\YourResource`).
-        *   For CRUD, CUD operations (`store`, `update`, `destroy`) are typically delegated to Action classes.
-    *   **Form Requests:** (`app/Http/Requests/{FeatureName}`, `PascalCase`). Créer des requests distinctes pour `store` et `update` si les règles diffèrent. (Note: For Actions, validation is often handled within the Action itself using `rules()` and `getValidationMessages()` methods).
-    *   **Policies:** (`app/Policies/{FeatureName}`, `PascalCase`) pour la gestion des autorisations. Utilized by both controllers (for display methods) and Actions.
-    *   **Actions:** (`app/Actions/{FeatureName}`, `PascalCase`) pour la logique métier complexe, CUD operations, and specific business tasks. Actions handle their own authorization and validation. See `laravel-actions-best-practices.mdc`.
-    *   **Services:** (`app/Services`, `PascalCase`) for reusable, often more generic, business logic that might be used by multiple Actions or other parts of the application.
-    *   **Seeders:** (`database/seeders`, `PascalCase`).
-    *   Utiliser les commandes `artisan make:` pour générer ces classes.
-    *   Utiliser `to_route()` pour les redirections après action (typically from an Action's `asController` method).
-*   **Migrations:** Créer des migrations atomiques et réversibles. Définir les champs et index avec précision. Gérer les relations via clés étrangères.
-    *   **Types d'identifiants:**
-        *   Utiliser `$table->uuid('id')->primary()` pour les entités liées à un tenant (vehicles, devices, etc.)
-        *   Utiliser `$table->id()` (auto-incrémenté) pour les entités de référentiel global (brands, models, etc.)
-        *   Rester cohérent: foreign keys doivent utiliser `foreignUuid()` ou `foreignId()` selon le type de la clé primaire référencée
-*   **Base de Données:** PostgreSQL. Utiliser les fonctionnalités spécifiques (JSONB, etc.) si pertinent.
-*   **Multi-Tenancy (`stancl/tenancy`):**
-    *   Distinguer clairement les routes **`central`** (admin globale, domaines centraux) et **`tenant`** (spécifiques client/agence, domaines locataires).
-    *   Appliquer le scoping `stancl/tenancy` (middleware `InitializeTenancyBySubdomainOrDomain`, trait `TenantScoped`, etc.) pour l'isolation des données (single database).
-    *   Placer la logique `central`/`tenant` dans les contrôleurs/services appropriés.
-*   **Queues:** Utiliser les jobs Laravel pour les tâches longues/asynchrones.
+        *   Primarily responsible for **displaying Inertia pages** (`index`, `create`, `show`, `edit`)
+        *   Utiliser `$this->authorizeResource()` dans le constructeur pour l'autorisation automatique
+        *   Their methods should fetch data and return `Inertia::render(...)`
+        *   All data passed to Inertia views **MUST** be formatted using **API Resources** (e.g., `App\Http\Resources\YourResource`)
+        *   For CRUD, CUD operations (`store`, `update`, `destroy`) are typically delegated to Action classes
+    *   **Form Requests:** (`app/Http/Requests/{FeatureName}`, `PascalCase`). 
+        *   Créer des requests distinctes pour `store` et `update` si les règles diffèrent
+        *   Note: For Actions, validation is often handled within the Action itself using `rules()` and `getValidationMessages()` methods
+    *   **Policies:** (`app/Policies/{FeatureName}`, `PascalCase`) pour la gestion des autorisations. 
+        *   Extend `BasePolicy` qui fournit les méthodes standard de permission
+        *   Implémenter l'isolation tenant-aware pour les entités scoped
+        *   Utilized by both controllers (for display methods) and Actions
+    *   **Actions:** (`app/Actions/{FeatureName}`, `PascalCase`) pour la logique métier complexe, CUD operations, and specific business tasks. 
+        *   Actions handle their own authorization and validation
+        *   Organiser par feature/module (ex: `app/Actions/Vehicles/CreateVehicleAction`)
+        *   See `laravel-actions-best-practices.mdc`
+    *   **Services:** (`app/Services`, `PascalCase`) for reusable, often more generic, business logic that might be used by multiple Actions or other parts of the application
+        *   Ex: `DeviceTelemetryService`, `VehicleTelemetryService` pour l'aggregation TimescaleDB
+    *   **Resources:** (`app/Http/Resources`, `PascalCase`) pour formatter toutes les données passées à Inertia
+        *   Utiliser `JsonResource::withoutWrapping()` (déjà configuré)
+    *   **Seeders:** (`database/seeders`, `PascalCase`)
+        *   Inclure `PermissionSeeder` pour les rôles et permissions
+        *   Utiliser `DataPointTypeSeeder` pour les types de données télématiques
+    *   Utiliser les commandes `sail artisan make:` pour générer ces classes
+    *   Utiliser `to_route()` pour les redirections après action (typically from an Action's `asController` method)
+
+*   **Packages Spécialisés:**
+    *   **Spatie Laravel Permission:** Pour la gestion des rôles et permissions
+        *   Utiliser `hasPermissionTo()`, `hasRole()`, `can()` dans les policies
+        *   Super admin bypass via `Gate::before()`
+    *   **Stancl Tenancy:** Multi-tenancy single database
+        *   Models tenant-scoped utilisent des UUIDs
+        *   Isolation automatique via tenant_id
+    *   **Laravel Scout + Typesense:** Pour la recherche
+        *   Implémenter `Searchable` sur les models concernés
+        *   Configurer `makeAllSearchableUsing()` pour les relations
+    *   **TimescaleDB:** Pour les données time-series
+        *   Utiliser `create_hypertable()` dans les migrations
+        *   Utiliser `time_bucket()` pour les agrégations
+        *   Voir `timescaledb-best-practices.mdc`
+    *   **Laravel Actions:** Pour la logique métier
+        *   Utiliser `AsAction` trait
+        *   Implémenter `authorize()` et `rules()` methods
+    *   **Maatwebsite Excel:** Pour l'import/export CSV
+    *   **OpenAI Laravel:** Pour l'intégration IA
+
+*   **Conventions spécifiques:**
+    *   **Enum:** Utiliser des enums PHP (ex: `DataPointDataType`) pour les valeurs fixes
+    *   **Traits:** Créer des traits réutilisables (ex: `HasHyperTable`)
+    *   **Jobs:** Pour le traitement asynchrone (ex: `ProcessDeviceMessage`)
+    *   **Migrations:** Utiliser `DB::statement()` pour les fonctionnalités spécifiques TimescaleDB
+    *   **Model Prevention:** `Model::preventLazyLoading()` est activé en dev
+
+*   **Structure des routes:**
+    *   `routes/web.php` - Routes principales
+    *   `routes/tenant.php` - Routes tenant-specific
+    *   `routes/central/` et `routes/tenant/` - Organisation modulaire
+    *   Utiliser Ziggy pour partager les routes avec le frontend

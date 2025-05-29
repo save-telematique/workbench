@@ -7,16 +7,16 @@ alwaysApply: true
 
 ## Overview
 
-This document outlines the best practices for handling authorization in Save Workbench using Laravel Policies and Spatie Laravel Permission.
+This document outlines the best practices for handling authorization in Save Workbench using Laravel Policies and Spatie Laravel Permission v6.17+.
 
 ## Key Principles
 
 1. **Resource-based Permissions**: All permissions follow the format `action_resource` (e.g., `view_vehicles`, `edit_users`).
 2. **Role Hierarchy**: Roles are clearly separated between central application roles and tenant-specific roles.
 3. **Tenant Data Isolation**: Policies enforce that tenant users can only access data within their tenant.
-4. **Base Policy**: All policies extend the `BasePolicy` which provides standardized permission checks.
-5. **Gate Super Admin Override**: Super admins automatically pass all permission checks via a Gate::before rule.
-6. **Policies as Source of Truth**: Policies define *what* a user is allowed to do. They are the central point for authorization logic and are utilized by both display-focused Controllers (via `\$this->authorizeResource` or `\$this->authorize`) and by task-focused Actions (via `$request->user()->can()` within their `authorize` method).
+4. **Base Policy**: All policies extend the `BasePolicy` which provides standardized permission checks using `$permissionPrefix`.
+5. **Gate Super Admin Override**: Super admins automatically pass all permission checks via a `Gate::before` rule.
+6. **Policies as Source of Truth**: Policies define *what* a user is allowed to do. They are the central point for authorization logic and are utilized by both controllers (via `\$this->authorizeResource` or `\$this->authorize`) and by Actions (via `$request->user()->can()` within their `authorize` method).
 
 ## Permission Structure
 
@@ -31,13 +31,21 @@ Permissions are organized by these standard actions:
 
 ### Resources
 
-Each model has a corresponding set of permissions (e.g., vehicles, users, devices, etc.)
+Each model has a corresponding set of permissions managed by `PermissionSeeder`:
+
+```php
+$resources = [
+    'users', 'tenants', 'tenant_users', 'vehicles', 'devices', 
+    'drivers', 'groups', 'device_types', 'vehicle_types', 
+    'vehicle_brands', 'vehicle_models', 'global_settings'
+];
+```
 
 ## Role Structure
 
 ### Central Roles
 
-- **super_admin**: Full system access with no restrictions
+- **super_admin**: Full system access with no restrictions (automatic Gate::before bypass)
 - **central_admin**: Administrative access to most functionality except critical operations
 - **central_user**: Limited view-only access to central application
 
@@ -50,65 +58,284 @@ Each model has a corresponding set of permissions (e.g., vehicles, users, device
 
 ## Implementing Policies
 
-1. **Base Policy**:
-   - All policies should extend `App\Policies\BasePolicy`
-   - Override methods only when different behavior is needed
+### 1. Base Policy Extension
 
-2. **Tenant-Aware Policies**:
-   - Always check `$user->tenant_id` matches the model's `tenant_id` in tenant-scoped policies for tenant users.
-   - Central users (non-tenant users) can typically access all resources regardless of tenant, subject to their roles and permissions.
+All policies should extend `App\Policies\BasePolicy`:
 
-3. **Special Checks**:
-   - Implement special checks like preventing users from deleting themselves.
-   - Consider resource relationships when determining access.
+```php
+class VehiclePolicy extends BasePolicy
+{
+    protected string $permissionPrefix = 'vehicles';
+    
+    // BasePolicy provides standard methods:
+    // viewAny, view, create, update, delete, restore, forceDelete
+    
+    // Override only when different behavior is needed
+    public function update(User $user, Vehicle $vehicle): bool
+    {
+        // Custom logic for updates
+        if ($user->tenant_id && $vehicle->tenant_id !== $user->tenant_id) {
+            return false;
+        }
+        
+        return parent::update($user, $vehicle);
+    }
+}
+```
+
+### 2. Tenant-Aware Policies
+
+For tenant-scoped resources, always implement tenant isolation:
+
+```php
+public function view(User $user, Vehicle $vehicle): bool
+{
+    // Tenant users can only view vehicles in their tenant
+    if ($user->tenant_id && $vehicle->tenant_id !== $user->tenant_id) {
+        return false;
+    }
+    
+    // Central users (non-tenant) can view all vehicles subject to permissions
+    return parent::view($user, $vehicle);
+}
+```
+
+### 3. Special Resource Checks
+
+Implement business logic constraints:
+
+```php
+public function delete(User $user, User $targetUser): bool
+{
+    // Users cannot delete themselves
+    if ($user->id === $targetUser->id) {
+        return false;
+    }
+    
+    return parent::delete($user, $targetUser);
+}
+```
 
 ## Controller Usage (for Display Logic)
 
-1. **Authorization Checks for Views**:
-   - Use `$this->authorizeResource(Model::class, 'parameter_name')` in the controller's constructor for standard `index`, `show`, `create`, `edit` view methods.
-   - For custom view methods in a controller requiring specific authorization, use `$this->authorize('policy_method', $model_or_class)`.
-   - Remember, CUD (Create, Update, Delete) operations themselves are handled by Action classes, which perform their own authorization.
+### Resource Authorization
+
+Use `authorizeResource` in controller constructors for standard CRUD views:
+
+```php
+public function __construct()
+{
+    $this->authorizeResource(Vehicle::class, 'vehicle');
+}
+```
+
+This automatically maps:
+- `index` → `viewAny`
+- `show` → `view`
+- `create`, `edit` → `create`, `update`
+
+### Custom Authorization
+
+For non-standard methods, use explicit authorization:
+
+```php
+public function dashboard()
+{
+    $this->authorize('view_dashboard');
+    
+    // Dashboard logic
+}
+```
 
 ## Action Usage (for CUD and Business Logic)
 
-1. **Authorization within Actions**:
-   - Each Action class should define an `authorize(ActionRequest $request, ...)` method.
-   - Inside this method, use `$request->user()->can('policy_method', $model_or_class)` to check permissions against the relevant policy.
-   - The `AsAction` trait will automatically call this `authorize` method.
-   - Refer to `laravel-actions-best-practices.mdc` and `applying-permissions.mdc` for detailed examples.
+### Authorization within Actions
+
+Each Action class should implement an `authorize` method:
+
+```php
+use Lorisleiva\Actions\ActionRequest;
+
+public function authorize(ActionRequest $request, Vehicle $vehicle = null): bool
+{
+    if ($vehicle) {
+        return $request->user()->can('update', $vehicle);
+    }
+    
+    return $request->user()->can('create', Vehicle::class);
+}
+```
+
+The `AsAction` trait automatically calls this method before executing the action.
+
+### Action Organization
+
+Actions are organized by feature/module:
+
+```
+app/Actions/
+├── Vehicles/
+│   ├── CreateVehicleAction.php
+│   ├── UpdateVehicleAction.php
+│   └── DeleteVehicleAction.php
+├── Devices/
+│   ├── CreateDeviceAction.php
+│   └── ProcessDeviceMessageAction.php
+└── DataPoints/
+    ├── GetVehicleDataPointsAction.php
+    └── GetDeviceDataPointsAction.php
+```
+
+## Policy Registration
+
+Register policies in `AuthServiceProvider::$policies`:
+
+```php
+protected $policies = [
+    Vehicle::class => VehiclePolicy::class,
+    Device::class => DevicePolicy::class,
+    Driver::class => DriverPolicy::class,
+    // etc.
+];
+```
+
+## Permission Seeding
+
+### PermissionSeeder Structure
+
+The seeder automatically creates permissions for all resources:
+
+```php
+private function createResourcePermissions(): void
+{
+    $resources = [
+        'users', 'tenants', 'tenant_users', 'vehicles', 'devices', 
+        'drivers', 'groups', 'device_types', 'vehicle_types', 
+        'vehicle_brands', 'vehicle_models', 'global_settings'
+    ];
+    
+    $actions = ['view', 'create', 'edit', 'delete'];
+    
+    foreach ($resources as $resource) {
+        foreach ($actions as $action) {
+            Permission::firstOrCreate(['name' => "{$action}_{$resource}"]);
+        }
+    }
+}
+```
+
+### Role Assignment
+
+Roles are assigned permissions based on their level:
+
+```php
+private function assignPermissionsToRoles(): void
+{
+    // Super admin gets all permissions automatically via Gate::before
+    
+    $centralAdmin = Role::findByName('central_admin');
+    $centralAdmin->givePermissionTo([
+        'view_tenants', 'create_tenants', 'edit_tenants',
+        'view_global_settings', 'edit_global_settings',
+        // etc.
+    ]);
+    
+    $tenantAdmin = Role::findByName('tenant_admin');
+    $tenantAdmin->givePermissionTo([
+        'view_vehicles', 'create_vehicles', 'edit_vehicles', 'delete_vehicles',
+        'view_devices', 'create_devices', 'edit_devices', 'delete_devices',
+        // etc.
+    ]);
+}
+```
 
 ## Testing Policies
 
-1. **Complete Test Coverage**:
-   - Test each policy method for both positive and negative cases
-   - Test with different roles to ensure correct permissions
+### Comprehensive Policy Tests
 
-2. **Tenant Isolation Testing**:
-   - Verify that tenant users cannot access other tenants' data
-   - Test cross-tenant scenarios to ensure proper isolation
+Test all policy methods for each role:
 
-3. **Special Conditions**:
-   - Test edge cases and special conditions explicitly
+```php
+public function test_tenant_admin_can_manage_vehicles_in_their_tenant()
+{
+    $tenant = Tenant::factory()->create();
+    $user = User::factory()->create(['tenant_id' => $tenant->id]);
+    $user->assignRole('tenant_admin');
+    
+    $vehicle = Vehicle::factory()->create(['tenant_id' => $tenant->id]);
+    
+    $this->assertTrue($user->can('view', $vehicle));
+    $this->assertTrue($user->can('update', $vehicle));
+    $this->assertTrue($user->can('delete', $vehicle));
+}
 
-## Security Considerations
+public function test_tenant_users_cannot_access_other_tenant_vehicles()
+{
+    $tenant1 = Tenant::factory()->create();
+    $tenant2 = Tenant::factory()->create();
+    
+    $user = User::factory()->create(['tenant_id' => $tenant1->id]);
+    $user->assignRole('tenant_admin');
+    
+    $vehicle = Vehicle::factory()->create(['tenant_id' => $tenant2->id]);
+    
+    $this->assertFalse($user->can('view', $vehicle));
+    $this->assertFalse($user->can('update', $vehicle));
+    $this->assertFalse($user->can('delete', $vehicle));
+}
+```
 
-1. **Defense in Depth**:
-   - Always implement authorization at the controller level, even if also checked in the UI
-   - Validate tenant access in policies, even if middleware also enforces tenant scoping
+### Action Authorization Tests
 
-2. **Super Admin Caution**:
-   - Avoid creating too many super admin users
-   - Consider audit logging for sensitive operations by super admins
+Test that Actions respect policies:
+
+```php
+public function test_create_vehicle_action_requires_permission()
+{
+    $user = User::factory()->create();
+    $user->assignRole('tenant_viewer'); // No create permission
+    
+    $action = new CreateVehicleAction();
+    
+    $this->expectException(AuthorizationException::class);
+    
+    $action->handle([
+        'name' => 'Test Vehicle',
+        'registration' => 'ABC123',
+    ]);
+}
+```
 
 ## Adding New Resources
 
 When adding a new resource:
 
-1. Create permissions in `PermissionSeeder.php` using the standard format (e.g., `view_resource`, `create_resource`).
-2. Create a Policy class extending `BasePolicy` with resource-specific logic, implementing methods like `viewAny`, `view`, `create`, `update`, `delete`, `restore`, etc.
-3. Register the policy in `AuthServiceProvider`.
-4. Assign permissions to appropriate roles in `PermissionSeeder.php`.
-5. **Controllers (for display)**: If the controller has methods like `index`, `show`, `create`, `edit`, use `$this->authorizeResource()` or `$this->authorize()` to protect these views, leveraging the policy.
-6. **Actions (for CUD & tasks)**: For each action (e.g., `CreateResourceAction`, `UpdateResourceAction`), implement an `authorize()` method that uses `$request->user()->can(...)` to check against the corresponding policy method.
-7. Write tests covering all policy methods and ensuring actions/controllers correctly respect these policies.
-8. Use permission hooks in frontend components as needed (see `applying-permissions.mdc`).
+1. **Add to PermissionSeeder**: Include in the `$resources` array
+2. **Create Policy**: Extend `BasePolicy` with correct `$permissionPrefix`
+3. **Register Policy**: Add to `AuthServiceProvider::$policies`
+4. **Assign Permissions**: Configure in `PermissionSeeder::assignPermissionsToRoles()`
+5. **Controller Authorization**: Use `$this->authorizeResource()` or manual authorization
+6. **Action Authorization**: Implement `authorize()` method in Action classes
+7. **Frontend Integration**: Use permission hooks in components
+8. **Write Tests**: Cover all policy methods and edge cases
+
+## Security Considerations
+
+### Defense in Depth
+
+- Always implement authorization at the policy level
+- Controllers and Actions both check permissions
+- Frontend guards provide UX but not security
+- Tenant isolation is enforced in multiple layers
+
+### Super Admin Caution
+
+- Limit the number of super admin users
+- Consider audit logging for sensitive operations
+- Super admin bypass is implemented via `Gate::before()`
+
+### Cache Considerations
+
+- Permission cache can be reset with `sail artisan permission:cache-reset`
+- Be aware of cache implications in tests
+- Consider cache warming strategies for performance

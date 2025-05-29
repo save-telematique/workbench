@@ -1,0 +1,357 @@
+---
+description: 
+globs: *.php
+alwaysApply: false
+---
+# TimescaleDB Development Patterns
+
+This document outlines specific development patterns for working with TimescaleDB in Save Workbench.
+
+## Model Patterns
+
+### HasHyperTable Trait
+
+Use the `HasHyperTable` trait for time-series models:
+
+```php
+use App\Traits\HasHyperTable;
+
+class DeviceDataPoint extends Model
+{
+    use HasFactory, HasHyperTable;
+
+    protected $primaryKey = null;
+    public $incrementing = false;
+    public $timestamps = false;
+
+    protected $fillable = [
+        'device_message_id',
+        'device_id',
+        'vehicle_id',
+        'data_point_type_id',
+        'value',
+        'recorded_at',
+    ];
+
+    protected $casts = [
+        'value' => 'json', // JSONB storage
+        'recorded_at' => 'datetime',
+    ];
+}
+```
+
+### Key Model Characteristics
+
+- **No primary key or composite primary key** for hypertables
+- **No timestamps** (use `recorded_at` instead)
+- **JSONB for flexible data** storage in `value` field
+- **DateTime casting** for time columns
+
+## Migration Patterns
+
+### Creating Hypertables
+
+```php
+public function up(): void
+{
+    Schema::create('device_data_points', function (Blueprint $table) {
+        $table->foreignId('device_message_id')->constrained('device_messages')->cascadeOnDelete();
+        $table->foreignUuid('device_id')->constrained('devices')->cascadeOnDelete();
+        $table->foreignUuid('vehicle_id')->nullable()->constrained('vehicles')->nullOnDelete();
+        $table->foreignId('data_point_type_id')->constrained('data_point_types')->cascadeOnDelete();
+        $table->jsonb('value');
+        $table->timestamptz('recorded_at');
+    });
+
+    // Convert to hypertable - MUST be after table creation
+    DB::statement("SELECT create_hypertable('device_data_points', by_range('recorded_at'));");
+
+    // Add indexes after hypertable creation
+    Schema::table('device_data_points', function (Blueprint $table) {
+        $table->index(['recorded_at', 'device_id', 'data_point_type_id'], 'idx_device_type_recorded_at');
+        $table->index(['recorded_at', 'vehicle_id', 'data_point_type_id'], 'idx_vehicle_type_recorded_at');
+        $table->index(['recorded_at', 'device_message_id'], 'idx_device_message_recorded_at');
+        $table->index(['recorded_at', 'data_point_type_id'], 'idx_type_recorded_at');
+    });
+}
+```
+
+### Migration Best Practices
+
+1. **Create table first**, then convert to hypertable
+2. **Use `timestamptz`** for time columns (timezone-aware)
+3. **Add indexes after** hypertable creation
+4. **Composite indexes** with `recorded_at` first for time-based queries
+5. **Use `DB::statement()`** for TimescaleDB-specific SQL
+
+## Service Patterns
+
+### Telemetry Services
+
+Create dedicated services for time-series operations:
+
+```php
+class DeviceTelemetryService
+{
+    public function getReadingsForPeriod(Device $device, int $dataPointTypeId, Carbon $startTime, Carbon $endTime): \Illuminate\Support\Collection
+    {
+        $dataPointType = $this->resolveDataPointType($dataPointTypeId);
+        if (!$dataPointType || $dataPointType->category === 'COMPOSITE') {
+            Log::warning('Period queries for COMPOSITE types are not yet fully supported', [
+                'type_id' => $dataPointType?->id,
+                'device_id' => $device->id
+            ]);
+            return collect();
+        }
+
+        return DeviceDataPoint::where('device_id', $device->id)
+            ->where('data_point_type_id', $dataPointType->id)
+            ->whereBetween('recorded_at', [$startTime, $endTime])
+            ->orderBy('recorded_at')
+            ->get(['value', 'recorded_at']);
+    }
+
+    public function getAggregatedReadings(
+        Device $device,
+        int $dataPointTypeId,
+        string $aggregationFunction,
+        Carbon $startTime,
+        Carbon $endTime,
+        ?string $timeBucket = null
+    ): array {
+        // Validation and safety checks
+        $allowedFunctions = ['AVG', 'SUM', 'COUNT', 'MIN', 'MAX'];
+        $safeAggregationFunction = in_array(strtoupper($aggregationFunction), $allowedFunctions) 
+            ? strtoupper($aggregationFunction) 
+            : 'AVG';
+
+        $query = DeviceDataPoint::where('device_id', $device->id)
+            ->where('data_point_type_id', $dataPointTypeId)
+            ->whereBetween('recorded_at', [$startTime, $endTime]);
+
+        if ($timeBucket) {
+            // Validate timeBucket format
+            if (!preg_match('/^\d+\s+(second|minute|hour|day|week|month|year)s?$/', $timeBucket)) {
+                Log::error('Invalid time bucket format', ['bucket' => $timeBucket]);
+                return [];
+            }
+
+            $timeBucketSql = "time_bucket('" . $timeBucket . "', recorded_at)";
+            $numericCastSql = "(value#>>'{}')::numeric";
+
+            $rawAggregatedData = $query->selectRaw("{$timeBucketSql} as time_group, {$safeAggregationFunction}({$numericCastSql}) as aggregate_value")
+                ->groupBy('time_group')
+                ->orderBy('time_group')
+                ->get();
+
+            return $rawAggregatedData->map(function($item) {
+                return [
+                    'value' => (float) $item->aggregate_value,
+                    'recorded_at' => Carbon::parse($item->time_group)->toISOString()
+                ];
+            })->values()->all();
+        }
+
+        // Non-bucketed aggregation
+        $numericCastSql = "(value#>>'{}')::numeric";
+        $result = $query->selectRaw("{$safeAggregationFunction}({$numericCastSql}) as aggregate_value")->first();
+
+        return [
+            [
+                'value' => (float) ($result->aggregate_value ?? 0),
+                'recorded_at' => $startTime->toISOString()
+            ]
+        ];
+    }
+}
+```
+
+## Action Patterns
+
+### Time-series Data Actions
+
+```php
+class GetDeviceDataPointsAction
+{
+    public function handle(
+        Device $device,
+        int $dataPointTypeId,
+        Carbon $startTime,
+        Carbon $endTime,
+        ?string $aggregation = null
+    ) {
+        // Handle aggregation if requested
+        if ($aggregation) {
+            $data = $this->telemetryService->getAggregatedReadings(
+                $device,
+                $dataPointTypeId,
+                $aggregation,
+                $startTime,
+                $endTime,
+                $this->determineTimeBucket($startTime, $endTime)
+            );
+            
+            return $data;
+        }
+        
+        // Regular data points
+        $readings = $this->telemetryService->getReadingsForPeriod(
+            $device,
+            $dataPointTypeId,
+            $startTime,
+            $endTime
+        );
+        
+        return $readings;
+    }
+
+    protected function determineTimeBucket(Carbon $startTime, Carbon $endTime): ?string
+    {
+        $diffInHours = $endTime->diffInHours($startTime);
+        
+        if ($diffInHours <= 24) {
+            return '1 hour'; // Hourly aggregation for ranges up to 24 hours
+        }
+        
+        return '1 day'; // Daily aggregation for longer ranges
+    }
+}
+```
+
+## Job Patterns
+
+### Bulk Data Processing
+
+```php
+class ProcessDeviceMessage implements ShouldQueue
+{
+    public function handle(): void
+    {
+        if ($this->message->processed_at !== null) {
+            return;
+        }
+
+        $recordedAt = Carbon::parse(
+            $this->message->message['messageTimeUtc'] ?? $this->message->created_at, 
+            'UTC'
+        )->tz(config('app.timezone'));
+
+        $device = $this->message->device;
+        $vehicleId = $device->vehicle_id;
+
+        $dataPointTypes = Cache::remember(
+            'data_point_types_all_keyed_by_id',
+            now()->addHours(24),
+            fn() => DataPointType::all()->keyBy('id')
+        );
+
+        $insertDataPoints = [];
+
+        foreach ($this->message->message['fields'] as $fieldId => $fieldValue) {
+            if (isset($dataPointTypes[$fieldId])) {
+                $insertDataPoints[] = [
+                    'device_message_id' => $this->message->id,
+                    'device_id' => $device->id,
+                    'vehicle_id' => $vehicleId,
+                    'data_point_type_id' => $fieldId,
+                    'value' => json_encode($fieldValue),
+                    'recorded_at' => $recordedAt,
+                ];
+            }
+        }
+
+        if (!empty($insertDataPoints)) {
+            DeviceDataPoint::insert($insertDataPoints);
+        }
+
+        $this->message->update(['processed_at' => now()]);
+    }
+}
+```
+
+## Query Patterns
+
+### Time-bucket Aggregations
+
+```php
+// Hourly averages for the last 24 hours
+$hourlyAverages = DeviceDataPoint::where('device_id', $deviceId)
+    ->where('data_point_type_id', $dataPointTypeId)
+    ->where('recorded_at', '>=', now()->subDay())
+    ->selectRaw("time_bucket('1 hour', recorded_at) as hour, AVG((value#>>'{}')::numeric) as avg_value")
+    ->groupBy('hour')
+    ->orderBy('hour')
+    ->get();
+
+// Daily totals for the last month
+$dailyTotals = DeviceDataPoint::where('vehicle_id', $vehicleId)
+    ->where('data_point_type_id', $fuelConsumptionTypeId)
+    ->where('recorded_at', '>=', now()->subMonth())
+    ->selectRaw("time_bucket('1 day', recorded_at) as day, SUM((value#>>'{}')::numeric) as total_fuel")
+    ->groupBy('day')
+    ->orderBy('day')
+    ->get();
+```
+
+### JSONB Value Extraction
+
+```php
+// Extract numeric values from JSONB
+->selectRaw("(value#>>'{}')::numeric as numeric_value")
+
+// Extract nested JSONB values
+->selectRaw("(value#>>'{latitude}')::numeric as latitude")
+->selectRaw("(value#>>'{longitude}')::numeric as longitude")
+
+// Boolean values from JSONB
+->selectRaw("(value#>>'{ignition}')::boolean as ignition_status")
+```
+
+## Testing Patterns
+
+### Custom TestCase for Hypertables
+
+```php
+abstract class TestCase extends BaseTestCase
+{
+    use RefreshDatabase;
+
+    protected function beforeRefreshingDatabase()
+    {
+        $models = [
+            DeviceDataPoint::class,
+        ];
+
+        // Drop tables for models using HasHyperTable trait
+        foreach ($models as $model) {
+            $instance = new $model();
+            $tableName = $instance->getTable();
+            DB::statement("DROP TABLE IF EXISTS {$tableName};");
+        }
+    }
+}
+```
+
+## Performance Considerations
+
+### Indexing Strategy
+
+1. **Time-first indexes**: Always include `recorded_at` as the first column
+2. **Composite indexes**: Include frequently filtered columns (device_id, vehicle_id, data_point_type_id)
+3. **Partial indexes**: For specific conditions (e.g., WHERE ignition = true)
+
+### Query Optimization
+
+1. **Use time_bucket()** for aggregations instead of manual grouping
+2. **Limit time ranges** to avoid scanning unnecessary chunks
+3. **Cache data point types** to avoid repeated lookups
+4. **Batch inserts** for bulk data processing
+
+### Data Retention
+
+Consider implementing retention policies for old data:
+
+```sql
+-- Example: Drop data older than 1 year
+SELECT add_retention_policy('device_data_points', INTERVAL '1 year');
+```

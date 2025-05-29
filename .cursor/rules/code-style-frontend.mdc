@@ -3,8 +3,108 @@ description:
 globs: *.tsx
 alwaysApply: false
 ---
-**6. Code Style & Formatting (Frontend):**
+**9. Code Style & Formatting (Frontend):**
 
-*   Formatter avec Prettier, linter avec ESLint (configs: `.prettierrc`, `eslint.config.js`).
-*   **Assurer que TOUT le code (écrit ou généré) respecte ces configurations.**
-*   Exécuter `npm run format` / `npm run lint` via Sail (`sail npm run format`) pour vérifier/corriger.
+*   **Environment de développement:** Utiliser Laravel Sail pour toutes les commandes npm/npx (`sail npm`, `sail npx`)
+*   **Linting & Formatting Tools:**
+    *   **ESLint v9+** with flat configuration system (`eslint.config.js`)
+    *   **TypeScript ESLint v8.23+** for TypeScript-specific linting
+    *   **Prettier v3.4+** with specialized plugins for code organization
+
+*   **ESLint Flat Configuration:**
+    ```js
+    // eslint.config.js
+    export default [
+        js.configs.recommended,
+        ...typescript.configs.recommended,
+        react.configs.flat.recommended,
+        react.configs.flat['jsx-runtime'],
+        // React Hooks plugin configuration
+        // Prettier integration to avoid conflicts
+    ];
+    ```
+
+*   **Prettier Configuration:**
+    *   **Core Settings:**
+        *   `singleQuote: true` - Use single quotes for strings
+        *   `printWidth: 150` - Extended line width for readability
+        *   `tabWidth: 4` - 4-space indentation
+        *   `semi: true` - Always use semicolons
+        *   `singleAttributePerLine: false` - Allow multiple attributes per line
+    *   **Plugin Integration:**
+        *   `prettier-plugin-organize-imports` - Automatic import organization
+        *   `prettier-plugin-tailwindcss` - Tailwind class sorting
+        *   `tailwindFunctions: ["clsx", "cn"]` - Sort classes in utility functions
+
+*   **Available Scripts:**
+    ```json
+    {
+        "format": "prettier --write resources/",
+        "format:check": "prettier --check resources/",
+        "lint": "eslint . --fix",
+        "types": "tsc --noEmit"
+    }
+    ```
+
+*   **TypeScript Configuration:**
+    *   **Strict Mode**: `strict: true` with all strict type checking enabled
+    *   **Module System**: ESNext modules with bundler resolution
+    *   **Path Aliases**: `@/*` mapped to `./resources/js/*`
+    *   **JSX**: React 19 automatic JSX runtime (`jsx: "react-jsx"`)
+    *   **Build**: `noEmit: true` for type checking only
+
+*   **Import Organization Rules:**
+    *   **Automatic Sorting**: Imports automatically organized by Prettier plugin
+    *   **Grouping**: External packages, internal modules, relative imports
+    *   **Type Imports**: Separate type-only imports when beneficial
+    *   **Alias Usage**: Prefer `@/` alias for internal imports
+
+*   **React & Component Guidelines:**
+    *   **Functional Components**: Only functional components with hooks
+    *   **Hook Usage**: Always use `useTranslation()`, `usePermission()` hooks appropriately
+    *   **TypeScript**: Full type coverage for props, state, and return types
+    *   **File Structure**: One main component per file with supporting types
+
+*   **CSS & Styling Rules:**
+    *   **Tailwind Classes**: Automatically sorted by Prettier plugin
+    *   **Utility Functions**: Use `cn()` from `@/lib/utils` for conditional classes
+    *   **Component Variants**: Use `class-variance-authority` for variant handling
+    *   **Consistent Patterns**: Follow established class patterns across components
+
+*   **Naming Conventions:**
+    *   **Components**: PascalCase (e.g., `UserForm`, `DataTable`, `VehicleCard`)
+    *   **Hooks**: camelCase with `use` prefix (e.g., `useTranslation`, `usePermission`)
+    *   **Files**: kebab-case for utilities, PascalCase for components
+    *   **Types**: PascalCase with descriptive suffixes (e.g., `UserResource`, `PageProps`)
+    *   **Constants**: SCREAMING_SNAKE_CASE for true constants
+
+*   **Code Quality Rules:**
+    *   **ESLint Rules**: 
+        *   React/JSX best practices
+        *   TypeScript strict mode compliance
+        *   Hook dependency warnings
+        *   Accessibility guidelines
+    *   **Prettier Rules**:
+        *   Consistent formatting across all files
+        *   Automatic class organization
+        *   Import sorting and cleanup
+
+*   **Development Workflow:**
+    *   **Local Development**: Run via `sail npm run format` and `sail npm run lint`
+    *   **Pre-commit**: Format and lint before commits
+    *   **CI/CD**: Automated checks in GitHub Actions
+    *   **IDE Integration**: VS Code/Cursor with ESLint and Prettier extensions
+
+*   **File Organization Patterns:**
+    *   **Pages**: Organized by feature in `pages/{feature}/`
+    *   **Components**: Reusable components in `components/`
+    *   **UI Components**: Shadcn components in `components/ui/`
+    *   **Utils**: Helper functions in `utils/` with proper exports
+    *   **Types**: Type definitions in `types/` directory
+
+*   **Quality Assurance:**
+    *   **Type Safety**: No `any` types, proper interface definitions
+    *   **Error Handling**: Proper error boundaries and fallback states
+    *   **Performance**: Efficient re-renders and proper dependency arrays
+    *   **Accessibility**: ARIA attributes and semantic HTML structure
+    *   **Testing**: Component and integration test coverage where applicable

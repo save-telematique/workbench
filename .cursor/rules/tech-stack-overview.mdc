@@ -5,22 +5,47 @@ alwaysApply: true
 ---
 **2. Tech Stack & Environment:**
 
-*   **Backend:** Laravel 12 (PHP)
+*   **Backend:** Laravel 12 (PHP 8.2+)
 *   **Frontend:** React 19 (TypeScript)
-*   **Passerelle:** Inertia.js
-*   **Styling:** Tailwind CSS 4
-*   **UI Components:** Shadcn UI (`npx shadcn-ui@latest add ...`)
-*   **Database:** PostgreSQL
-    *   TimescaleDB extension for time-series data. See `docs/timescaledb-best-practices.md` for guidelines.
-*   **Multi-Tenancy:** `stancl/tenancy` (mode **single database**)
-*   **Types d'Identifiants:**
-    *   **UUIDs:** Pour toutes les entités liées aux tenants (vehicles, devices, etc.)
-    *   **Auto-incrémentés (bigint):** Pour les tables de référentiels globaux (brands, models, types, etc.)
-*   **Internationalization (i18n):**
-    *   Backend: Laravel Localization (`lang/`, `__()`)
-    *   Frontend Access: Translations shared via Inertia (e.g., Middleware/Shared Props, potentially using `protonemedia/inertia-translation`)
-*   **Development Environment:** Laravel Sail (Docker) (run command using `sail artisan ...`)
-*   **Testing:** Pest PHP (Backend/Inertia), Laravel Dusk (Browser)
-*   **Linting/Formatting FE:** ESLint & Prettier
-*   **Duplocation de code** EVITE AU MAXIMUM LA DUPLICATION DE CODE, ET APPLIQUE LES PRINCIPES SOLID
+*   **Bridge:** Inertia.js 2.0 (SSR-ready with Ziggy for routes)
+*   **Styling:** Tailwind CSS 4 (with @theme directive, oklch colors, CSS-first config)
+*   **UI Components:** Shadcn UI (v2) with extensive Radix UI primitives
+*   **Tables:** TanStack React Table v8 for advanced data table functionality with custom DataTable components
+*   **Database:** PostgreSQL with TimescaleDB extension for time-series data (hypertables via HasHyperTable trait)
+*   **Multi-Tenancy:** `stancl/tenancy` v3.9+ (single database mode)
+*   **Search:** Laravel Scout with Typesense search engine v5.0+
+*   **Authentication & Authorization:** Spatie Laravel Permission v6.17+ with custom BasePolicy pattern
+*   **Business Logic:** Laravel Actions (`lorisleiva/laravel-actions` v2.9+) for CUD operations
+*   **AI Integration:** OpenAI PHP Laravel v0.11+
+*   **File Processing:** Maatwebsite Excel v3.1+, QR Code processing with `khanamiryan/qrcode-detector-decoder`
+*   **Maps:** Mapbox GL JS v3.11+ with React Map GL v7.1.7 and Supercluster for clustering
+*   **Charts:** Recharts v2.15+ for data visualization
+*   **Drag & Drop:** @hello-pangea/dnd v18+ (React DnD successor)
+*   **Form Handling:** React Hook Form v7.56+ with @hookform/resolvers and Zod v3.24+ validation
+*   **Date Handling:** date-fns v4.1+ (configured with locale support)
+*   **Theme Management:** next-themes v0.4+ for dark/light mode
+*   **Notifications:** sonner v2.0+ for toast notifications
+*   **Internationalization:** Custom Laravel-based translation system (NOT i18next) via `@/utils/translation`
+*   **Development Environment:** Laravel Sail (Docker) with TimescaleDB, Redis, Typesense, Minio, Mailpit
+*   **Testing:** Pest PHP v3.8+ for backend/feature tests
+*   **Code Quality:** ESLint v9+ (flat config), Prettier v3.4+, TypeScript v5.7+
+*   **Build:** Vite v6.0+ with Laravel Vite Plugin, React plugin, Tailwind plugin
+
+**Key Architecture Patterns:**
+*   **Actions Pattern**: Business logic in Laravel Actions with `authorize()` methods
+*   **BasePolicy Pattern**: Standardized authorization with `$permissionPrefix` 
+*   **Custom Translation System**: Laravel translations shared via Inertia props, accessed via `useTranslation()` hook
+*   **TimescaleDB Integration**: `HasHyperTable` trait for time-series models with automatic hypertable creation
+*   **Data Tables**: Reusable DataTable components with TanStack React Table, column management, sorting, filtering
+*   **Permission-Based UI**: Conditional rendering using `usePermission()`, `useRole()`, `useTenantUser()` hooks
+*   **Modular Layouts**: Feature-specific layouts (vehicles, devices, settings, etc.) with shared components
+*   **Type Safety**: Full TypeScript coverage with Ziggy route types and comprehensive type definitions
+
+**Principes de développement:**
+*   ÉVITE AU MAXIMUM LA DUPLICATION DE CODE et applique les principes SOLID
+*   Use API Resources for all data passed to Inertia components
+*   Préférer les Actions Laravel pour la logique métier CUD
+*   Utiliser les Policies pour l'autorisation et l'isolation des tenants
+*   **TOUJOURS utiliser Laravel Sail:** Préfixer toutes les commandes avec `sail` (ex: `sail artisan`, `sail npm`, `sail composer`)
+
 Se référer aux règles spécifiques pour plus de détails sur chaque partie.

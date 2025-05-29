@@ -11,10 +11,11 @@ This document outlines how to apply permissions to controllers and frontend comp
 
 Save Workbench uses the following authorization components:
 
-1. **Spatie Laravel Permission**: For managing roles and permissions in the database
-2. **Policies**: Resource-specific classes that implement authorization logic
-3. **BasePolicy**: A common base class that standardizes permission checks
+1. **Spatie Laravel Permission v6.17+**: For managing roles and permissions in the database
+2. **Policies**: Resource-specific classes that implement authorization logic by extending `BasePolicy`
+3. **BasePolicy**: A common base class that standardizes permission checks using `$permissionPrefix`
 4. **Tenant isolation**: Logic that ensures tenant users only access their tenant's data
+5. **Gate Super Admin Override**: Super admins automatically pass all permission checks
 
 ## Adding Permissions to Controllers
 
@@ -50,7 +51,6 @@ This automatically maps the following methods to policy actions:
 | update            | update        |
 | destroy           | delete        |
 
-
 ### Nested Resources or Special Cases
 
 For controllers that manage nested resources (e.g., users within a tenant), use manual authorization:
@@ -61,6 +61,7 @@ public function index(Tenant $tenant)
     $this->authorize('view_tenant_users');
     
     // Additional tenant checks if needed
+    // Ensure user has access to this specific tenant
     // ...
     
     // Controller logic
@@ -85,11 +86,34 @@ public function show(Tenant $tenant, User $user)
 }
 ```
 
+## Adding Permissions to Laravel Actions
+
+### Action Authorization
+
+Each Action class should implement an `authorize` method:
+
+```php
+use Lorisleiva\Actions\ActionRequest;
+
+public function authorize(ActionRequest $request, Vehicle $vehicle = null): bool
+{
+    if ($vehicle) {
+        // For update/delete operations
+        return $request->user()->can('update', $vehicle);
+    }
+    
+    // For create operations
+    return $request->user()->can('create', Vehicle::class);
+}
+```
+
+The `AsAction` trait automatically calls this method before executing the action.
+
 ## Adding Permissions to Frontend Components
 
 ### Checking Permissions in React Components
 
-Use the helper functions from `resources/js/utils/permissions.ts`:
+Use the helper functions from `@/utils/permissions`:
 
 ```tsx
 import { usePermission, useRole, useHasAnyPermission } from '@/utils/permissions';
@@ -109,7 +133,11 @@ function MyComponent() {
             {canViewUsers && <UsersList />}
             
             {canManageUsers && (
-                <button>Add User</button>
+                <Button asChild>
+                    <Link href={route('users.create')}>
+                        {__('users.actions.create')}
+                    </Link>
+                </Button>
             )}
         </div>
     );
@@ -122,9 +150,12 @@ Hide elements that the user doesn't have permission to access:
 
 ```tsx
 {usePermission('create_users') && (
-    <Link href={route('users.create')} className="btn">
-        Add New User
-    </Link>
+    <Button asChild>
+        <Link href={route('users.create')} className="btn">
+            <Plus className="mr-2 h-4 w-4" />
+            {__('users.actions.create')}
+        </Link>
+    </Button>
 )}
 ```
 
@@ -142,13 +173,66 @@ function SidebarMenu() {
         <div>
             {!isTenantUser && (
                 // Central app menu items
-                <MenuItem href={route('tenants.index')}>Tenants</MenuItem>
+                <MenuItem href={route('tenants.index')}>
+                    {__('tenants.title')}
+                </MenuItem>
             )}
             
             {isTenantUser && (
                 // Tenant-specific menu items
-                <MenuItem href={route('vehicles.index')}>Vehicles</MenuItem>
+                <MenuItem href={route('vehicles.index')}>
+                    {__('vehicles.title')}
+                </MenuItem>
             )}
+        </div>
+    );
+}
+```
+
+### Data Table Actions
+
+Use the `useStandardActions` utility for common CRUD actions in data tables:
+
+```tsx
+import { useStandardActions } from '@/utils/actions';
+
+function VehicleTable() {
+    const getStandardActions = useStandardActions({
+        resourceName: "vehicles",
+        routePrefix: "vehicles", // Optional, for nested routes like "tenants.users"
+        additionalParams: {}, // For additional route parameters
+    });
+    
+    const columns = [
+        // ... other columns
+        {
+            id: "actions",
+            cell: ({ row }) => (
+                <DataTableRowActions 
+                    row={row} 
+                    actions={getStandardActions(row.original)} 
+                />
+            ),
+        },
+    ];
+}
+```
+
+### Navigation with Permissions
+
+The `useNavItems` hook automatically filters navigation based on permissions:
+
+```tsx
+import { useNavItems } from '@/hooks/use-nav-items';
+
+function Sidebar() {
+    const { mainNavItems, settingsNavItems } = useNavItems();
+    
+    return (
+        <div>
+            {mainNavItems.map(item => (
+                <NavItem key={item.href} {...item} />
+            ))}
         </div>
     );
 }
@@ -158,15 +242,42 @@ function SidebarMenu() {
 
 When adding a new resource to the application:
 
-1. Add the resource to the list in `PermissionSeeder.php`
-2. Create a policy extending `BasePolicy` with the correct permission prefix
-3. Register the policy in `AuthServiceProvider`
-4. Assign permissions to appropriate roles in `PermissionSeeder.php` 
-5. Apply the policy to controllers as described above
+1. **Add to PermissionSeeder**: Include the resource in the `$resources` array
+2. **Create Policy**: Extend `BasePolicy` with the correct `$permissionPrefix`
+3. **Register Policy**: Add to `AuthServiceProvider::$policies`
+4. **Assign Permissions**: Configure role permissions in `PermissionSeeder`
+5. **Controller Authorization**: Use `$this->authorizeResource()` or manual authorization
+6. **Action Authorization**: Implement `authorize()` method in Action classes
+7. **Frontend Guards**: Use permission hooks in components
+
+Example PermissionSeeder entry:
+
+```php
+$resources = [
+    'users', 'tenants', 'vehicles', 'devices', 'drivers', 'groups',
+    'your_new_resource', // Add your resource here
+];
+```
+
+Example Policy:
+
+```php
+class YourResourcePolicy extends BasePolicy
+{
+    protected string $permissionPrefix = 'your_new_resource';
+    
+    // Custom policy methods if needed
+    public function customAction(User $user, YourResource $resource): bool
+    {
+        // Custom logic
+        return parent::update($user, $resource);
+    }
+}
+```
 
 ## Testing Permissions
 
-Always write tests to verify that your permission system works correctly. Test both positive and negative cases:
+Always write tests to verify that your permission system works correctly:
 
 ```php
 public function test_unauthorized_users_cannot_access_resource()
@@ -174,9 +285,21 @@ public function test_unauthorized_users_cannot_access_resource()
     $user = User::factory()->create();
     $user->assignRole('tenant_viewer');
     
-    $response = $this->actingAs($user)->get(route('tenants.create'));
+    $response = $this->actingAs($user)->get(route('vehicles.create'));
     
     $response->assertStatus(403);
+}
+
+public function test_actions_respect_permissions()
+{
+    $user = User::factory()->create();
+    $user->assignRole('tenant_viewer'); // No create permission
+    
+    $action = new CreateVehicleAction();
+    
+    $this->expectException(AuthorizationException::class);
+    
+    $action->handle($validData);
 }
 ```
 
@@ -184,8 +307,10 @@ public function test_unauthorized_users_cannot_access_resource()
 
 If permissions aren't working as expected:
 
-1. Check that the user has the correct role assigned
-2. Verify the role has the necessary permissions
-3. Ensure the policy is registered in `AuthServiceProvider`
-4. Confirm the policy permission prefix matches the seeded permissions
-5. Make sure tenant isolation logic is working correctly if applicable
+1. **Check user roles**: Verify the user has the correct role assigned
+2. **Verify role permissions**: Ensure the role has the necessary permissions in `PermissionSeeder`
+3. **Policy registration**: Confirm the policy is registered in `AuthServiceProvider`
+4. **Permission prefix**: Ensure the policy `$permissionPrefix` matches the seeded permissions
+5. **Tenant isolation**: Verify tenant-scoping logic is working correctly
+6. **Frontend hooks**: Check that permission hooks are properly imported and used
+7. **Cache**: Clear permission cache if using cached permissions: `sail artisan permission:cache-reset`
