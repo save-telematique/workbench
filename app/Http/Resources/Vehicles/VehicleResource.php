@@ -5,6 +5,7 @@ namespace App\Http\Resources\Vehicles;
 use App\Http\Resources\ActivityChanges\ActivityChangeResource;
 use App\Http\Resources\Devices\DeviceResource;
 use App\Http\Resources\Drivers\DriverResource;
+use App\Http\Resources\Groups\GroupResource;
 use App\Http\Resources\Tenants\TenantResource;
 use App\Http\Resources\WorkingSessions\WorkingSessionResource;
 use Illuminate\Http\Request;
@@ -26,11 +27,13 @@ class VehicleResource extends JsonResource
             'country' => $this->country,
             'tenant_id' => $this->tenant_id,
             'device_id' => $this->device_id,
+            'group_id' => $this->group_id,
 
             'vehicle_model' => new VehicleModelResource($this->whenLoaded('model')),
             'type' => $this->whenLoaded('type', fn() => $this->type ? new VehicleTypeResource($this->type) : null),
             'tenant' => $this->whenLoaded('tenant', fn() => $this->tenant ? new TenantResource($this->tenant) : null),
             'device' => $this->whenLoaded('device', fn() => $this->device ? new DeviceResource($this->device) : null),
+            'group' => $this->whenLoaded('group', fn() => $this->group ? new GroupResource($this->group) : null),
             'current_driver' => $this->whenLoaded('currentDriver', fn() => $this->currentDriver ? new DriverResource($this->currentDriver) : null),
             'current_working_session' => $this->whenLoaded('currentWorkingSession', fn() => $this->currentWorkingSession ? new WorkingSessionResource($this->currentWorkingSession) : null),
             'current_location' => $this->whenLoaded('currentLocation', fn() => $this->currentLocation ? new VehicleLocationResource($this->currentLocation) : null),

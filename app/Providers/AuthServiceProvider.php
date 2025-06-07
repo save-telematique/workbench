@@ -6,6 +6,7 @@ use App\Models\Device;
 use App\Models\DeviceMessage;
 use App\Models\DeviceType;
 use App\Models\Driver;
+use App\Models\Group;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Models\Vehicle;
@@ -16,6 +17,7 @@ use App\Policies\DeviceMessagePolicy;
 use App\Policies\DevicePolicy;
 use App\Policies\DeviceTypePolicy;
 use App\Policies\DriverPolicy;
+use App\Policies\GroupPolicy;
 use App\Policies\TenantPolicy;
 use App\Policies\UserPolicy;
 use App\Policies\VehiclePolicy;
@@ -37,6 +39,7 @@ class AuthServiceProvider extends ServiceProvider
         DeviceMessage::class => DeviceMessagePolicy::class,
         DeviceType::class => DeviceTypePolicy::class,
         Driver::class => DriverPolicy::class,
+        Group::class => GroupPolicy::class,
         Tenant::class => TenantPolicy::class,
         User::class => UserPolicy::class,
         Vehicle::class => VehiclePolicy::class,

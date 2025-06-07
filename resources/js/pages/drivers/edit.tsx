@@ -1,5 +1,5 @@
 import { Head } from "@inertiajs/react";
-import { type BreadcrumbItem, DriverResource, TenantResource, UserResource } from "@/types";
+import { type BreadcrumbItem, DriverResource, TenantResource, UserResource, GroupResource } from "@/types";
 import { useTranslation } from "@/utils/translation";
 import DriversLayout from "@/layouts/drivers/layout";
 import AppLayout from "@/layouts/app-layout";
@@ -10,9 +10,10 @@ interface EditDriverProps {
   driver: DriverResource;
   tenants: TenantResource[];
   users: UserResource[];
+  groups: GroupResource[];
 }
 
-export default function Edit({ driver, tenants, users }: EditDriverProps) {
+export default function Edit({ driver, tenants, users, groups }: EditDriverProps) {
   const { __ } = useTranslation();
   
   const breadcrumbs: BreadcrumbItem[] = [
@@ -45,6 +46,7 @@ export default function Edit({ driver, tenants, users }: EditDriverProps) {
             driver={driver}
             tenants={tenants}
             users={users}
+            groups={groups}
           />
         </div>
       </DriversLayout>

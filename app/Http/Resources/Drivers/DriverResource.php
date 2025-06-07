@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Drivers;
 
+use App\Http\Resources\Groups\GroupResource;
 use App\Http\Resources\Tenants\TenantResource;
 use App\Http\Resources\Users\UserResource;
 use App\Http\Resources\WorkingDays\WorkingDayResource;
@@ -30,8 +31,10 @@ class DriverResource extends JsonResource
             'card_expiration_date' => $this->card_expiration_date?->format('Y-m-d'),
             'tenant_id' => $this->tenant_id,
             'user_id' => $this->user_id,
+            'group_id' => $this->group_id,
             'tenant' => $this->whenLoaded('tenant', fn() => new TenantResource($this->tenant)),
             'user' => $this->whenLoaded('user', fn() => new UserResource($this->user)),
+            'group' => $this->whenLoaded('group', fn() => $this->group ? new GroupResource($this->group) : null),
             'working_days' => $this->whenLoaded('workingDays', fn() => WorkingDayResource::collection($this->workingDays)),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

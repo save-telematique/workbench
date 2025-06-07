@@ -19,6 +19,7 @@ class Driver extends Model
         'surname',
         'firstname',
         'tenant_id',
+        'group_id',
         'phone',
         'user_id',
         'card_issuing_country',
@@ -38,6 +39,11 @@ class Driver extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(Group::class);
     }
 
     /**

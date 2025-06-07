@@ -430,6 +430,58 @@ return [
                     'query_by' => 'firstname,surname,full_name,card_number,license_number,phone,tenant_name',
                 ],
             ],
+            \App\Models\Group::class => [
+                'collection-schema' => [
+                    'fields' => [
+                        [
+                            'name' => 'id',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'name',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'description',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'tenant_id',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'parent_id',
+                            'type' => 'string',
+                            'optional' => true,
+                        ],
+                        [
+                            'name' => 'full_path',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'is_active',
+                            'type' => 'bool',
+                        ],
+                        [
+                            'name' => 'tenant_name',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'parent_name',
+                            'type' => 'string',
+                            'optional' => true,
+                        ],
+                        [
+                            'name' => 'created_at',
+                            'type' => 'int64',
+                        ],
+                    ],
+                    'default_sorting_field' => 'created_at',
+                ],
+                'search-parameters' => [
+                    'query_by' => 'name,description,full_path,tenant_name,parent_name',
+                ],
+            ],
         ],
     ],
 

@@ -91,6 +91,27 @@ export const useColumns = () => {
       ),
     },
     {
+      accessorFn: (row) => row.group?.full_path ?? "",
+      id: "group",
+      header: "vehicles.fields.group",
+      enableSorting: true,
+      enableHiding: true,
+      cell: ({ row }) => (
+        <div className="w-[150px]">
+          {row.original.group ? (
+            <Link
+              href={route("groups.show", { group: row.original.group.id })}
+              className="hover:underline"
+            >
+              {row.original.group.full_path}
+            </Link>
+          ) : (
+            <span className="text-gray-400">{__("common.none")}</span>
+          )}
+        </div>
+      ),
+    },
+    {
       accessorKey: "vin",
       header: "vehicles.fields.vin",
       enableSorting: true,

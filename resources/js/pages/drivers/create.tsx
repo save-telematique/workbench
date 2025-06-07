@@ -1,5 +1,5 @@
 import { Head } from "@inertiajs/react";
-import { type BreadcrumbItem, TenantResource, UserResource } from "@/types";
+import { type BreadcrumbItem, TenantResource, UserResource, GroupResource } from "@/types";
 import { useTranslation } from "@/utils/translation";
 import DriversLayout from "@/layouts/drivers/layout";
 import AppLayout from "@/layouts/app-layout";
@@ -11,9 +11,10 @@ import DriverForm from "@/components/drivers/driver-form";
 interface CreateDriverProps {
   tenants: TenantResource[];
   users: UserResource[];
+  groups: GroupResource[];
 }
 
-export default function Create({ tenants, users }: CreateDriverProps) {
+export default function Create({ tenants, users, groups }: CreateDriverProps) {
   const { __ } = useTranslation();
   
   const breadcrumbs: BreadcrumbItem[] = [
@@ -50,6 +51,7 @@ export default function Create({ tenants, users }: CreateDriverProps) {
             driver={{}}
             tenants={tenants}
             users={users}
+            groups={groups}
             isCreate={true}
           />
         </div>

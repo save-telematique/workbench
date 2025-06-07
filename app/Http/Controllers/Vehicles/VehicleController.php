@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Vehicles\StoreVehicleRequest;
 use App\Http\Requests\Vehicles\UpdateVehicleRequest;
 use App\Models\Device;
+use App\Models\Group;
 use App\Models\Tenant;
 use App\Models\Vehicle;
 use App\Models\VehicleBrand;
@@ -15,6 +16,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Services\ImageAnalysisService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\Vehicles\VehicleResource;
@@ -23,6 +25,7 @@ use App\Http\Resources\Vehicles\VehicleBrandResource;
 use App\Http\Resources\Vehicles\VehicleModelResource;
 use App\Http\Resources\Vehicles\VehicleTypeResource;
 use App\Http\Resources\Devices\DeviceResource;
+use App\Http\Resources\Groups\GroupResource;
 
 class VehicleController extends Controller
 {
@@ -47,7 +50,7 @@ class VehicleController extends Controller
                     : $query->query(fn ($q) => $q->doesntHave('device'));
             });
 
-        $query->query(fn ($q) => $q->with(['tenant', 'device.type', 'model.vehicleBrand', 'type']));
+        $query->query(fn ($q) => $q->with(['tenant', 'device.type', 'model.vehicleBrand', 'type', 'group']));
 
         $brandsForFilter = VehicleBrand::all();
         $tenantsForFilter = Tenant::all();
@@ -90,6 +93,11 @@ class VehicleController extends Controller
         $tenants = Tenant::select('id', 'name')->get();
         $devices = Device::whereNull('vehicle_id')->with('type')->get();
         $vehicleTypes = VehicleType::select('id', 'name')->get();
+        
+        // Get groups for the current user's tenant or all groups for central users
+        $groups = Group::when(Auth::user()->tenant_id, function ($query) {
+            $query->where('tenant_id', Auth::user()->tenant_id);
+        })->active()->get();
 
         return Inertia::render('vehicles/create', [
             'brands' => VehicleBrandResource::collection($brands),
@@ -97,12 +105,13 @@ class VehicleController extends Controller
             'tenants' => TenantResource::collection($tenants),
             'devices' => DeviceResource::collection($devices),
             'vehicleTypes' => VehicleTypeResource::collection($vehicleTypes),
+            'groups' => GroupResource::collection($groups),
         ]);
     }
 
     public function edit(Vehicle $vehicle)
     {
-        $vehicle->load(['model.vehicleBrand', 'type', 'tenant', 'device.type']);
+        $vehicle->load(['model.vehicleBrand', 'type', 'tenant', 'device.type', 'group']);
 
         $brands = VehicleBrand::select('id', 'name')->get();
         $models = VehicleModel::with('vehicleBrand')->get();
@@ -115,6 +124,11 @@ class VehicleController extends Controller
         })
             ->with('type')
             ->get();
+            
+        // Get groups for the current user's tenant or all groups for central users
+        $groups = Group::when(Auth::user()->tenant_id, function ($query) {
+            $query->where('tenant_id', Auth::user()->tenant_id);
+        })->active()->get();
 
         return Inertia::render('vehicles/edit', [
             'vehicle' => new VehicleResource($vehicle),
@@ -123,6 +137,7 @@ class VehicleController extends Controller
             'tenants' => TenantResource::collection($tenants),
             'devices' => DeviceResource::collection($devices),
             'vehicleTypes' => VehicleTypeResource::collection($vehicleTypes),
+            'groups' => GroupResource::collection($groups),
         ]);
     }
 }

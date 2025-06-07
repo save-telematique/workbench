@@ -18,7 +18,7 @@ import { Transition } from '@headlessui/react';
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ImageAnalysisUpload from "@/components/image-analysis-upload";
-import { DriverResource, TenantResource, UserResource } from "@/types/resources";
+import { DriverResource, TenantResource, UserResource, GroupResource } from "@/types/resources";
 import { DriverAnalysisData, AnalysisData } from "@/types/analysis";
 import { usePage } from '@inertiajs/react';
 import { SharedData } from "@/types";
@@ -58,6 +58,7 @@ interface DriverFormProps {
   driver: Partial<DriverResource>;
   tenants: TenantResource[];
   users: UserResource[];
+  groups: GroupResource[];
   isCreate?: boolean;
   onSuccess?: () => void;
 }
@@ -75,6 +76,7 @@ interface DriverFormData {
   card_expiration_date: string;
   tenant_id: string | null;
   user_id: number | null;
+  group_id: string | null;
   [key: string]: string | number | null | undefined;
 }
 
@@ -82,6 +84,7 @@ export default function DriverForm({
   driver,
   tenants, 
   users,
+  groups,
   isCreate = false,
   onSuccess 
 }: DriverFormProps) {
@@ -107,6 +110,7 @@ export default function DriverForm({
     card_expiration_date: driver.card_expiration_date || '',
     tenant_id: driver.tenant_id || null,
     user_id: driver.user_id || null,
+    group_id: driver.group_id || null,
   });
 
   // Update filtered users when tenant selection changes
@@ -203,6 +207,10 @@ export default function DriverForm({
 
   function handleCountryChange(value: string) {
     setData('card_issuing_country', value);
+  }
+
+  function handleGroupChange(value: string) {
+    setData('group_id', value === 'none' ? null : value);
   }
 
   const driverName = `${driver.firstname || ''} ${driver.surname || ''}`.trim();
@@ -429,6 +437,39 @@ export default function DriverForm({
           </div>
         </>
       )}
+
+      {/* Group Assignment - Available for both central and tenant users */}
+      <Separator className="my-4" />
+      
+      <div className="space-y-1">
+        <h3 className="text-lg font-medium">{__("drivers.sections.group_assignment")}</h3>
+        <p className="text-sm text-muted-foreground">{__("drivers.sections.group_assignment_description")}</p>
+      </div>
+      
+      <div className="grid gap-6 md:grid-cols-2">
+        <div>
+          <Label htmlFor="group_id" className="text-sm font-medium">
+            {__("drivers.fields.group")}
+          </Label>
+          <Select
+            value={data.group_id ?? ''}
+            onValueChange={handleGroupChange}
+          >
+            <SelectTrigger id="group_id" className="mt-1">
+              <SelectValue placeholder={__("drivers.placeholders.group")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">{__("common.none")}</SelectItem>
+              {groups.map((group) => (
+                <SelectItem key={`group-${group.id}`} value={group.id}>
+                  {group.full_path}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <FormError message={errors.group_id} />
+        </div>
+      </div>
     </CardContent>
   );
 

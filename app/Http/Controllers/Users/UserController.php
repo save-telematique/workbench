@@ -25,7 +25,12 @@ class UserController extends Controller
     public function index(): Response
     {
         $users = User::search(request()->get('search', ''))
-            ->where('tenant_id_null', true)
+            ->when(tenant('id'), function ($query) {
+                $query->where('tenant_id', tenant('id'));
+            })
+            ->when(!tenant('id'), function ($query) {
+                $query->where('tenant_id_null', true);
+            })
             ->orderBy(request()->get('sort', 'created_at'), request()->get('direction', 'desc'))
             ->paginate(request()->get('perPage', 10))
             ->withQueryString();

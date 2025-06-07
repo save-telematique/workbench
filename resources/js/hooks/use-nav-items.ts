@@ -1,5 +1,5 @@
 import { type NavItem } from '@/types';
-import { Building2, Car, Cpu, LayoutGrid, LucideIcon, Settings, UserCog, Users } from 'lucide-react';
+import { Building2, Car, Cpu, FolderTree, LayoutGrid, LucideIcon, Settings, UserCog, Users } from 'lucide-react';
 import { usePermission, useTenantUser } from '@/utils/permissions';
 import { useTranslation } from '@/utils/translation';
 
@@ -22,14 +22,14 @@ export function useNavItems(): NavItem[] {
     const navItemsConfig: NavItemConfig[] = [
         {
             title: 'common.dashboard',
-            href: '/dashboard',
+            href: route('dashboard'),
             icon: LayoutGrid,
             shortcut: '1',
             access: 'shared'
         },
         {
             title: 'common.tenants', 
-            href: '/tenants', 
+            href: route('tenants.index'), 
             icon: Building2,
             shortcut: '2',
             hasPermission: usePermission('view_tenants'),
@@ -37,7 +37,7 @@ export function useNavItems(): NavItem[] {
         },
         {
             title: 'users.list.breadcrumb',
-            href: '/users', 
+            href: route('users.index'), 
             icon: Users,
             shortcut: '3',
             hasPermission: usePermission('view_users'),
@@ -45,7 +45,7 @@ export function useNavItems(): NavItem[] {
         },
         {
             title: 'devices.title',
-            href: '/devices',
+            href: route('devices.index'),
             icon: Cpu,
             shortcut: '4',
             hasPermission: usePermission('view_devices'),
@@ -53,7 +53,7 @@ export function useNavItems(): NavItem[] {
         },
         {
             title: 'vehicles.title',
-            href: '/vehicles', 
+            href: route('vehicles.index'), 
             icon: Car,
             shortcut: '5',
             hasPermission: usePermission('view_vehicles'),
@@ -61,17 +61,25 @@ export function useNavItems(): NavItem[] {
         },
         {
             title: 'drivers.title',
-            href: '/drivers',
+            href: route('drivers.index'),
             icon: UserCog,
             shortcut: '6',
             hasPermission: usePermission('view_drivers'),
             access: 'shared'
         },
         {
-            title: 'common.global_settings',
-            href: '/global-settings/device-types',
-            icon: Settings,
+            title: 'groups.title',
+            href: route('groups.index'),
+            icon: FolderTree,
             shortcut: '7',
+            hasPermission: usePermission('view_groups'),
+            access: 'shared'
+        },
+        {
+            title: 'common.global_settings',
+            href: route('global-settings.device-types.index'),
+            icon: Settings,
+            shortcut: '8',
             hasPermission: usePermission('view_global_settings'),
             access: 'central'
         }

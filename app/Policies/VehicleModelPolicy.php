@@ -13,4 +13,11 @@ class VehicleModelPolicy extends BasePolicy
     {
         $this->permissionPrefix = 'vehicle_models';
     }
+
+    public function viewAny(User $user): bool
+    {
+        return true;
+    }
+
+ 
 } 

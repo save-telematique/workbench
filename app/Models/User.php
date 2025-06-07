@@ -8,6 +8,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Scout\Searchable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\Permission\Traits\HasRoles;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
@@ -86,8 +88,51 @@ class User extends Authenticatable
         return $query->with('tenant');
     }
 
-    public function tenant()
+    public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);
+    }
+
+    /**
+     * The groups this user has access to
+     */
+    public function groups(): BelongsToMany
+    {
+        return $this->belongsToMany(Group::class, 'user_groups');
+    }
+
+    /**
+     * Get all group IDs this user has access to (including descendants)
+     */
+    public function getAccessibleGroupIds(): array
+    {
+        $groupIds = [];
+        
+        foreach ($this->groups as $group) {
+            $groupIds = array_merge($groupIds, $group->getAllDescendantIds());
+        }
+        
+        return array_unique($groupIds);
+    }
+
+    /**
+     * Check if user has access to a specific group
+     */
+    public function hasAccessToGroup(Group $group): bool
+    {
+        return in_array($group->id, $this->getAccessibleGroupIds());
+    }
+
+    /**
+     * Check if user can access resources of a specific group (or groupless resources)
+     */
+    public function canAccessResourceGroup($groupId): bool
+    {
+        // Always can access groupless resources (null group_id)
+        if (is_null($groupId)) {
+            return true;
+        }
+        
+        return in_array($groupId, $this->getAccessibleGroupIds());
     }
 }

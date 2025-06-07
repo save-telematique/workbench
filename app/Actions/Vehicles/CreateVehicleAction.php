@@ -38,6 +38,7 @@ class CreateVehicleAction
             'country' => 'required|min:2|max:2',
             'vehicle_model_id' => 'required|exists:vehicle_models,id',
             'vehicle_type_id' => 'required|exists:vehicle_types,id',
+            'group_id' => 'nullable|uuid|exists:groups,id',
         ];
 
         if (!tenant('id')) {
@@ -58,7 +59,7 @@ class CreateVehicleAction
         $vehicle = new Vehicle($data);
         $vehicle->save();
 
-        if ($data['device_id']
+        if (isset($data['device_id']) && $data['device_id']
             && ($device = Device::where('id', $data['device_id'])->where('tenant_id', $vehicle->tenant_id)->first())
         ) {
             $device->vehicle_id = $vehicle->id;

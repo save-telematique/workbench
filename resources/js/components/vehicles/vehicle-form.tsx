@@ -25,7 +25,8 @@ import {
   VehicleModelResource, 
   VehicleTypeResource,
   TenantResource,
-  DeviceResource 
+  DeviceResource,
+  GroupResource 
 } from "@/types/resources";
 import { VehicleAnalysisData } from "@/types/analysis";
 import { SharedData } from "@/types";
@@ -69,6 +70,7 @@ interface VehicleFormProps {
   brands: VehicleBrandResource[];
   models: VehicleModelResource[];
   vehicleTypes: VehicleTypeResource[];
+  groups: GroupResource[];
   isCreate?: boolean;
   onSuccess?: () => void;
 }
@@ -82,6 +84,7 @@ interface VehicleFormData {
   vin: string;
   tenant_id: string | null | undefined;
   device_id: string | null | undefined;
+  group_id: string | null | undefined;
   country: string;
   [key: string]: string | number | null | undefined;
 }
@@ -93,6 +96,7 @@ export default function VehicleForm({
   brands, 
   models,
   vehicleTypes,
+  groups,
   isCreate = false,
   onSuccess 
 }: VehicleFormProps) {
@@ -117,6 +121,7 @@ export default function VehicleForm({
     vin: vehicle.vin || '',
     tenant_id: vehicle.tenant_id || null,
     device_id: vehicle.device_id || null,
+    group_id: vehicle.group_id || null,
     country: vehicle.country || '',
   });
 
@@ -129,7 +134,7 @@ export default function VehicleForm({
     
     setIsLoadingModels(true);
     try {
-      const response = await axios.get<VehicleModelResource[]>(route('global-settings.vehicle-brands.models', { id: brandId }));
+      const response = await axios.get<VehicleModelResource[]>(route('api.vehicle-brands.models', { id: brandId }));
       setFilteredModels(response.data);
     } catch (error) {
       console.error('Error while loading models:', error);
@@ -442,11 +447,35 @@ export default function VehicleForm({
               ))}
             </SelectContent>
           </Select>
-          <FormError message={errors.device_id} />
-            </div>
-          </div>
+                    <FormError message={errors.device_id} />
+        </div>
+      </div>
         </>
       )}
+
+      {/* Group selection */}
+      <div className="space-y-2">
+        <Label htmlFor="group_id" className="text-sm font-medium">
+          {__("vehicles.fields.group")}
+        </Label>
+        <Select
+          value={data.group_id ?? ''}
+          onValueChange={(value) => setData("group_id", value === 'none' ? null : value)}
+        >
+          <SelectTrigger id="group_id" className="mt-1">
+            <SelectValue placeholder={__("vehicles.placeholders.group")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">{__("common.none")}</SelectItem>
+            {groups.map((group) => (
+              <SelectItem key={`group-${group.id}`} value={group.id}>
+                {group.full_path}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <FormError message={errors.group_id} />
+      </div>
     </CardContent>
   );
 

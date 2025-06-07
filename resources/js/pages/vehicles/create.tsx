@@ -1,5 +1,5 @@
 import { Head } from "@inertiajs/react";
-import { type BreadcrumbItem, TenantResource, DeviceResource, VehicleBrandResource, VehicleModelResource, VehicleTypeResource } from "@/types";
+import { type BreadcrumbItem, TenantResource, DeviceResource, VehicleBrandResource, VehicleModelResource, VehicleTypeResource, GroupResource } from "@/types";
 import { useTranslation } from "@/utils/translation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -14,9 +14,10 @@ interface VehicleCreateProps {
   brands: VehicleBrandResource[];
   models: VehicleModelResource[];
   vehicleTypes: VehicleTypeResource[];
+  groups: GroupResource[];
 }
 
-export default function Create({ tenants, devices, brands, models, vehicleTypes }: VehicleCreateProps) {
+export default function Create({ tenants, devices, brands, models, vehicleTypes, groups }: VehicleCreateProps) {
   const { __ } = useTranslation();
 
   const breadcrumbs: BreadcrumbItem[] = [
@@ -56,6 +57,7 @@ export default function Create({ tenants, devices, brands, models, vehicleTypes 
             brands={brands}
             models={models}
             vehicleTypes={vehicleTypes}
+            groups={groups}
           />
         </div>
       </VehiclesLayout>

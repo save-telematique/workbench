@@ -31,6 +31,13 @@ class DriverPolicy extends BasePolicy
             return false;
         }
         
+        // Check group access if driver has a group
+        if ($model instanceof Driver && $model->group_id) {
+            if (!$user->canAccessResourceGroup($model->group_id)) {
+                return false;
+            }
+        }
+        
         return parent::view($user, $model);
     }
     
@@ -47,6 +54,13 @@ class DriverPolicy extends BasePolicy
         // For tenant users, ensure they can only update drivers within their tenant
         if ($model instanceof Driver && $model->tenant_id !== $user->tenant_id) {
             return false;
+        }
+
+        // Check group access if driver has a group
+        if ($model instanceof Driver && $model->group_id) {
+            if (!$user->canAccessResourceGroup($model->group_id)) {
+                return false;
+            }
         }
         
         return parent::update($user, $model);
@@ -65,6 +79,13 @@ class DriverPolicy extends BasePolicy
         // For tenant users, ensure they can only delete drivers within their tenant
         if ($model instanceof Driver && $model->tenant_id !== $user->tenant_id) {
             return false;
+        }
+
+        // Check group access if driver has a group
+        if ($model instanceof Driver && $model->group_id) {
+            if (!$user->canAccessResourceGroup($model->group_id)) {
+                return false;
+            }
         }
         
         return parent::delete($user, $model);

@@ -43,6 +43,7 @@ return [
         'phone' => 'Numéro de téléphone',
         'user' => 'Utilisateur associé',
         'tenant' => 'Client',
+        'group' => 'Groupe',
         'created_at' => 'Créé le',
         'updated_at' => 'Mis à jour le',
     ],
@@ -56,6 +57,7 @@ return [
         'card_number' => 'Saisissez le numéro de carte',
         'tenant' => 'Sélectionner un tenant',
         'user' => 'Sélectionner un utilisateur',
+        'group' => 'Sélectionner un groupe (optionnel)',
     ],
     
     'filters' => [
@@ -67,6 +69,10 @@ return [
         'driver_info_description' => 'Informations personnelles du conducteur',
         'license_info' => 'Informations du permis',
         'license_info_description' => 'Détails concernant le permis et la carte du conducteur',
+        'assignment' => 'Affectation',
+        'assignment_description' => 'Affecter ce conducteur à un client et un compte utilisateur',
+        'group_assignment' => 'Affectation de groupe',
+        'group_assignment_description' => 'Affecter optionnellement ce conducteur à un groupe pour l\'organisation',
         'tenant_info' => 'Informations du tenant',
         'tenant_info_description' => 'Associer ce conducteur à un tenant',
         'user_info' => 'Informations du compte utilisateur',

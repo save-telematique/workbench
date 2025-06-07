@@ -29,6 +29,7 @@ class CreateDriverAction
             'card_issuing_date' => 'nullable|date',
             'card_expiration_date' => 'nullable|date',
             'user_id' => 'nullable|uuid|exists:users,id',
+            'group_id' => 'nullable|uuid|exists:groups,id',
         ];
 
         if (!tenant('id')) {

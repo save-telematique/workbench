@@ -30,16 +30,17 @@ class PermissionSeeder extends Seeder
             'device_types',
             'device_messages',
             'drivers',
+            'groups',
             'global_settings',
         ];
 
         // Create permissions for each resource
         foreach ($resources as $resource) {
             // CRUD permissions
-            Permission::create(['name' => "view_{$resource}", 'guard_name' => 'web']);
-            Permission::create(['name' => "create_{$resource}", 'guard_name' => 'web']);
-            Permission::create(['name' => "edit_{$resource}", 'guard_name' => 'web']);
-            Permission::create(['name' => "delete_{$resource}", 'guard_name' => 'web']);
+            Permission::firstOrCreate(['name' => "view_{$resource}", 'guard_name' => 'web']);
+            Permission::firstOrCreate(['name' => "create_{$resource}", 'guard_name' => 'web']);
+            Permission::firstOrCreate(['name' => "edit_{$resource}", 'guard_name' => 'web']);
+            Permission::firstOrCreate(['name' => "delete_{$resource}", 'guard_name' => 'web']);
         }
 
         // Central roles
@@ -59,12 +60,12 @@ class PermissionSeeder extends Seeder
 
         // Create central roles
         foreach ($centralRoles as $role => $description) {
-            Role::create(['name' => $role]);
+            Role::firstOrCreate(['name' => $role]);
         }
 
         // Create tenant roles
         foreach ($tenantRoles as $role => $description) {
-            Role::create(['name' => $role]);
+            Role::firstOrCreate(['name' => $role]);
         }
 
         // Assign permissions to roles
@@ -91,6 +92,7 @@ class PermissionSeeder extends Seeder
             'view_vehicles', 'create_vehicles', 'edit_vehicles', 'delete_vehicles',
             'view_devices', 'create_devices', 'edit_devices', 'delete_devices',
             'view_drivers', 'create_drivers', 'edit_drivers', 'delete_drivers',
+            'view_groups', 'create_groups', 'edit_groups', 'delete_groups',
         ]);
 
         // Tenant Manager permissions
@@ -101,6 +103,7 @@ class PermissionSeeder extends Seeder
             'view_vehicles', 'create_vehicles', 'edit_vehicles',
             'view_devices', 'create_devices', 'edit_devices',
             'view_drivers', 'create_drivers', 'edit_drivers',
+            'view_groups', 'create_groups', 'edit_groups',
         ]);
 
         // Tenant User permissions
@@ -109,6 +112,7 @@ class PermissionSeeder extends Seeder
             'view_vehicles', 'edit_vehicles',
             'view_devices',
             'view_drivers', 'edit_drivers',
+            'view_groups',
         ]);
 
         // Tenant Viewer permissions
@@ -117,6 +121,7 @@ class PermissionSeeder extends Seeder
             'view_vehicles',
             'view_devices',
             'view_drivers',
+            'view_groups',
         ]);
     }
 } 

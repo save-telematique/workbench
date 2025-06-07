@@ -1,5 +1,5 @@
 import { Head } from "@inertiajs/react";
-import { type BreadcrumbItem, VehicleResource, TenantResource, DeviceResource, VehicleBrandResource, VehicleModelResource, VehicleTypeResource } from "@/types";
+import { type BreadcrumbItem, VehicleResource, TenantResource, DeviceResource, VehicleBrandResource, VehicleModelResource, VehicleTypeResource, GroupResource } from "@/types";
 import { useTranslation } from "@/utils/translation";
 import AppLayout from '@/layouts/app-layout';
 import VehiclesLayout from "@/layouts/vehicles/layout";
@@ -13,9 +13,10 @@ interface VehicleEditProps {
   brands: VehicleBrandResource[];
   models: VehicleModelResource[];
   vehicleTypes: VehicleTypeResource[];
+  groups: GroupResource[];
 }
 
-export default function Edit({ vehicle, tenants, devices, brands, models, vehicleTypes }: VehicleEditProps) {
+export default function Edit({ vehicle, tenants, devices, brands, models, vehicleTypes, groups }: VehicleEditProps) {
   const { __ } = useTranslation();
 
   const breadcrumbs: BreadcrumbItem[] = [
@@ -47,6 +48,7 @@ export default function Edit({ vehicle, tenants, devices, brands, models, vehicl
             brands={brands}
             models={models}
             vehicleTypes={vehicleTypes}
+            groups={groups}
           />
         </div>
       </VehiclesLayout>

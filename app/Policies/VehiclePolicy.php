@@ -30,7 +30,15 @@ class VehiclePolicy extends BasePolicy
         if ($model instanceof Vehicle && $model->tenant_id !== $user->tenant_id) {
             return false;
         }
-        
+
+
+        // Check group access if vehicle has a group
+        if ($model instanceof Vehicle && $model->group_id) {
+            if (!$user->canAccessResourceGroup($model->group_id)) {
+                return false;
+            }
+        }
+
         return parent::view($user, $model);
     }
     
@@ -47,6 +55,13 @@ class VehiclePolicy extends BasePolicy
         // For tenant users, ensure they can only update vehicles within their tenant
         if ($model instanceof Vehicle && $model->tenant_id !== $user->tenant_id) {
             return false;
+        }
+
+        // Check group access if vehicle has a group
+        if ($model instanceof Vehicle && $model->group_id) {
+            if (!$user->canAccessResourceGroup($model->group_id)) {
+                return false;
+            }
         }
         
         return parent::update($user, $model);
@@ -65,6 +80,13 @@ class VehiclePolicy extends BasePolicy
         // For tenant users, ensure they can only delete vehicles within their tenant
         if ($model instanceof Vehicle && $model->tenant_id !== $user->tenant_id) {
             return false;
+        }
+
+        // Check group access if vehicle has a group
+        if ($model instanceof Vehicle && $model->group_id) {
+            if (!$user->canAccessResourceGroup($model->group_id)) {
+                return false;
+            }
         }
         
         return parent::delete($user, $model);

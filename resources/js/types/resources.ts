@@ -33,9 +33,11 @@ export interface DriverResource {
   card_expiration_date: string | null;
   tenant_id: string;
   user_id: number | null;
+  group_id: string | null;
   
   tenant?: TenantResource;
   user?: UserResource;
+  group?: GroupResource;
   working_days?: WorkingDayResource[];
   
   created_at: string | null;
@@ -142,11 +144,13 @@ export interface VehicleResource {
   country: string;
   tenant_id: string;
   device_id: string | null;
+  group_id: string | null;
   
   vehicle_model?: VehicleModelResource;
   type?: VehicleTypeResource;
   tenant?: TenantResource;
   device?: DeviceResource;
+  group?: GroupResource;
   current_driver?: DriverResource;
   current_working_session?: WorkingSessionResource;
   current_location?: VehicleLocationResource;
@@ -156,6 +160,39 @@ export interface VehicleResource {
   created_at: string | null;
   updated_at: string | null;
   deleted_at: string | null;
+}
+
+// Group Resources
+export interface GroupResource {
+  id: string;
+  name: string;
+  description: string | null;
+  color: string;
+  parent_id: string | null;
+  tenant_id: string;
+  is_active: boolean;
+  
+  // Computed fields
+  full_path: string;
+  has_children: boolean;
+  can_delete: boolean;
+  
+  // Count fields
+  children_count: number;
+  vehicles_count: number;
+  drivers_count: number;
+  users_count: number;
+  
+  // Relationships
+  parent?: GroupResource;
+  children?: GroupResource[];
+  tenant?: TenantResource;
+  vehicles?: VehicleResource[];
+  drivers?: DriverResource[];
+  users?: UserResource[];
+  
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 // Activity Resources

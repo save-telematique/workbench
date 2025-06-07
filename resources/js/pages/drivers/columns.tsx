@@ -6,9 +6,12 @@ import { DataTableRowActions } from "@/components/ui/data-table/data-table-row-a
 import { useStandardActions } from "@/utils/actions";
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header";
 import { DriverResource } from "@/types";
+import { useTenantUser } from "@/utils/permissions";
 
 export function useColumns() {
   const { __ } = useTranslation();
+  const isTenantUser = useTenantUser();
+  
   const getStandardActions = useStandardActions({
     resourceName: "drivers"
   });
@@ -44,6 +47,30 @@ export function useColumns() {
       }
     },
     {
+      accessorFn: (row) => row.group?.full_path ?? "",
+      id: "group",
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={__("drivers.fields.group")}
+        />
+      ),
+      cell: ({ row }) => (
+        <div>
+          {row.original.group ? (
+            <Link
+              href={route("groups.show", { group: row.original.group.id })}
+              className="hover:underline"
+            >
+              {row.original.group.full_path}
+            </Link>
+          ) : (
+            "-"
+          )}
+        </div>
+      ),
+    },
+    {
       accessorKey: "card_number",
       header: ({ column }) => (
         <DataTableColumnHeader
@@ -63,7 +90,7 @@ export function useColumns() {
       ),
       cell: ({ row }) => row.original.phone || "-"
     },
-    {
+    ...(!isTenantUser ? [{
       accessorFn: (row) => row.tenant?.name ?? "",
       id: "tenant",
       header: ({ column }) => (
@@ -75,7 +102,7 @@ export function useColumns() {
       cell: ({ row }) => (
         row.original.tenant ? row.original.tenant.name : "-"
       ),
-    },
+    }] : []),
     {
       accessorFn: (row) => row.user?.name ?? "",
       id: "user",
@@ -89,6 +116,7 @@ export function useColumns() {
         row.original.user ? row.original.user.name : "-"
       ),
     },
+
     {
       id: "actions",
       cell: ({ row }) => {

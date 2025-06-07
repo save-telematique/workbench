@@ -42,6 +42,7 @@ return [
         'phone' => 'Phone Number',
         'user' => 'Associated User',
         'tenant' => 'Tenant',
+        'group' => 'Group',
         'created_at' => 'Created At',
         'updated_at' => 'Updated At',
     ],
@@ -55,6 +56,7 @@ return [
         'card_number' => 'Enter card number',
         'tenant' => 'Select a tenant',
         'user' => 'Select a user',
+        'group' => 'Select a group (optional)',
     ],
     
     'filters' => [
@@ -66,6 +68,10 @@ return [
         'driver_info_description' => 'Personal details of the driver',
         'license_info' => 'License Information',
         'license_info_description' => 'Details about the driver\'s license and card',
+        'assignment' => 'Assignment',
+        'assignment_description' => 'Assign this driver to a tenant and user account',
+        'group_assignment' => 'Group Assignment',
+        'group_assignment_description' => 'Optionally assign this driver to a group for organization',
         'tenant_info' => 'Tenant Information',
         'tenant_info_description' => 'Assign this driver to a tenant',
         'user_info' => 'User Account Information',

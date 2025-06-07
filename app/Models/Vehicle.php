@@ -16,6 +16,7 @@ class Vehicle extends Model
 
     protected $fillable = [
         'tenant_id',
+        'group_id',
         'vehicle_model_id',
         'vehicle_type_id',
         'registration',
@@ -85,6 +86,11 @@ class Vehicle extends Model
     public function tenant()
     {
         return $this->belongsTo(Tenant::class);
+    }
+
+    public function group()
+    {
+        return $this->belongsTo(Group::class);
     }
 
     public function locations()
