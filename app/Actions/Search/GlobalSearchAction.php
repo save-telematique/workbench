@@ -4,6 +4,7 @@ namespace App\Actions\Search;
 
 use App\Models\Device;
 use App\Models\Driver;
+use App\Models\Geofence;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Models\Vehicle;
@@ -29,7 +30,7 @@ class GlobalSearchAction
     public function handle(string $query, int $limit = 5, ?array $types = null): Collection
     {
         $results = collect();
-        $searchableTypes = $types ?? ['users', 'vehicles', 'devices', 'drivers', 'tenants'];
+        $searchableTypes = $types ?? ['users', 'vehicles', 'devices', 'drivers', 'geofences', 'tenants'];
         
         // Only search resources the user has permission to view
         if (in_array('users', $searchableTypes) && Gate::allows('view_users')) {
@@ -50,6 +51,11 @@ class GlobalSearchAction
         if (in_array('drivers', $searchableTypes) && Gate::allows('view_drivers')) {
             $driversResults = $this->searchDrivers($query, $limit);
             $results = $results->merge($driversResults);
+        }
+        
+        if (in_array('geofences', $searchableTypes) && Gate::allows('view_geofences')) {
+            $geofencesResults = $this->searchGeofences($query, $limit);
+            $results = $results->merge($geofencesResults);
         }
         
         if (in_array('tenants', $searchableTypes) && Gate::allows('view_tenants')) {
@@ -177,6 +183,42 @@ class GlobalSearchAction
         });
     }
     
+    /**
+     * Search for geofences
+     * 
+     * @param string $query
+     * @param int $limit
+     * @return Collection
+     */
+    private function searchGeofences(string $query, int $limit): Collection
+    {
+        $user = Auth::user();
+        
+        $geofences = Geofence::search($query)
+            ->when($user && $user->tenant_id, function($query) use ($user) {
+                $query->where('tenant_id', $user->tenant_id);
+            })
+            ->take($limit)
+            ->get()
+            ->load(['tenant', 'group']);
+            
+        return $geofences->map(function ($geofence) {
+            $description = $geofence->tenant?->name ?? '';
+            if ($geofence->group) {
+                $description .= $description ? ' - ' . $geofence->group->name : $geofence->group->name;
+            }
+            
+            return [
+                'id' => $geofence->id,
+                'title' => $geofence->name,
+                'description' => $description,
+                'resource_type' => 'geofence',
+                'url' => route('geofences.show', $geofence->id),
+                'icon' => 'map-pin'
+            ];
+        });
+    }
+
     /**
      * Search for tenants
      * 

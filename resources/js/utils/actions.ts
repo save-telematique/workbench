@@ -1,6 +1,6 @@
 import { router } from "@inertiajs/react";
 import { useTranslation } from "./translation";
-import { Action } from "@/components/ui/data-table-row-actions";
+import { Action } from "@/components/ui/data-table/data-table-row-actions";
 import { usePermission } from "./permissions";
 
 interface ResourceInfo {

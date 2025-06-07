@@ -162,6 +162,25 @@ export interface VehicleResource {
   deleted_at: string | null;
 }
 
+export interface GeofenceResource {
+  id: string;
+  tenant_id: string;
+  group_id: string | null;
+  name: string;
+  geojson: {
+    type: 'Polygon' | 'MultiPolygon';
+    coordinates: number[][][];
+  };
+  is_active: boolean;
+  
+  tenant?: TenantResource;
+  group?: GroupResource;
+  
+  created_at: string | null;
+  updated_at: string | null;
+  deleted_at: string | null;
+}
+
 // Group Resources
 export interface GroupResource {
   id: string;

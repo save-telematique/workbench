@@ -31,6 +31,7 @@ class PermissionSeeder extends Seeder
             'device_messages',
             'drivers',
             'groups',
+            'geofences',
             'global_settings',
         ];
 
@@ -93,6 +94,7 @@ class PermissionSeeder extends Seeder
             'view_devices', 'create_devices', 'edit_devices', 'delete_devices',
             'view_drivers', 'create_drivers', 'edit_drivers', 'delete_drivers',
             'view_groups', 'create_groups', 'edit_groups', 'delete_groups',
+            'view_geofences', 'create_geofences', 'edit_geofences', 'delete_geofences',
         ]);
 
         // Tenant Manager permissions
@@ -104,6 +106,7 @@ class PermissionSeeder extends Seeder
             'view_devices', 'create_devices', 'edit_devices',
             'view_drivers', 'create_drivers', 'edit_drivers',
             'view_groups', 'create_groups', 'edit_groups',
+            'view_geofences', 'create_geofences', 'edit_geofences',
         ]);
 
         // Tenant User permissions
@@ -113,6 +116,7 @@ class PermissionSeeder extends Seeder
             'view_devices',
             'view_drivers', 'edit_drivers',
             'view_groups',
+            'view_geofences',
         ]);
 
         // Tenant Viewer permissions
@@ -122,6 +126,7 @@ class PermissionSeeder extends Seeder
             'view_devices',
             'view_drivers',
             'view_groups',
+            'view_geofences',
         ]);
     }
 } 

@@ -180,6 +180,48 @@ return [
             'retry_interval_seconds' => env('TYPESENSE_RETRY_INTERVAL_SECONDS', 1),
         ],
         'model-settings' => [
+            \App\Models\Geofence::class => [
+                'collection-schema' => [
+                    'fields' => [
+                        [
+                            'name' => 'id',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'tenant_id',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'name',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'group_name',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'tenant_name',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'is_active',
+                            'type' => 'bool',
+                        ],
+                        [
+                            'name' => 'created_at',
+                            'type' => 'int64',
+                        ],
+                        [
+                            'name' => '__soft_deleted',
+                            'type' => 'bool',
+                        ],
+                    ],
+                    'default_sorting_field' => 'created_at',
+                ],
+                'search-parameters' => [
+                    'query_by' => 'name,group_name,tenant_name',
+                ],
+            ],
             \App\Models\Vehicle::class => [
                 'collection-schema' => [
                     'fields' => [

@@ -13,7 +13,7 @@ import {
 import { usePermission, useTenantUser } from '@/utils/permissions';
 import { useNavItems } from '@/hooks/use-nav-items';
 import { router } from '@inertiajs/react';
-import { Search, User, Car, Cpu, UserCog, Building2, LucideIcon } from 'lucide-react';
+import { Search, User, Car, Cpu, UserCog, Building2, MapPin, LucideIcon } from 'lucide-react';
 import { NavItem } from '@/types';
 import axios from 'axios';
 
@@ -22,7 +22,7 @@ interface SearchResult {
   id: string;
   title: string;
   description: string;
-  resource_type: 'user' | 'vehicle' | 'device' | 'driver' | 'tenant';
+  resource_type: 'user' | 'vehicle' | 'device' | 'driver' | 'tenant' | 'geofence';
   url: string;
   icon: string;
 }
@@ -121,6 +121,8 @@ const getIconComponent = (iconName: string): LucideIcon => {
       return UserCog;
     case 'building-2':
       return Building2;
+    case 'map-pin':
+      return MapPin;
     default:
       return Search;
   }
@@ -138,6 +140,7 @@ export function CommandPalette() {
   const canSearchVehicles = usePermission('view_vehicles');
   const canSearchDevices = usePermission('view_devices');
   const canSearchDrivers = usePermission('view_drivers');
+  const canSearchGeofences = usePermission('view_geofences');
   const canSearchTenants = usePermission('view_tenants') && !isTenantUser;
 
   const searchTypes = useMemo(() => [
@@ -145,8 +148,9 @@ export function CommandPalette() {
     canSearchVehicles && 'vehicles',
     canSearchDevices && 'devices',
     canSearchDrivers && 'drivers',
+    canSearchGeofences && 'geofences',
     canSearchTenants && 'tenants',
-  ].filter(Boolean).join(','), [canSearchUsers, canSearchVehicles, canSearchDevices, canSearchDrivers, canSearchTenants]);
+  ].filter(Boolean).join(','), [canSearchUsers, canSearchVehicles, canSearchDevices, canSearchDrivers, canSearchGeofences, canSearchTenants]);
   
   const { searchResults, isSearching, handleSearch, setSearchResults } = useCommandPaletteSearch(searchTypes);
 
@@ -176,6 +180,7 @@ export function CommandPalette() {
     vehicle: __('vehicles.title'),
     device: __('devices.title'),
     driver: __('drivers.title'),
+    geofence: __('geofences.title'),
     tenant: __('common.tenants'),
   }), [__]);
 

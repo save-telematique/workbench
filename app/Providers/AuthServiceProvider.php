@@ -6,6 +6,7 @@ use App\Models\Device;
 use App\Models\DeviceMessage;
 use App\Models\DeviceType;
 use App\Models\Driver;
+use App\Models\Geofence;
 use App\Models\Group;
 use App\Models\Tenant;
 use App\Models\User;
@@ -17,6 +18,7 @@ use App\Policies\DeviceMessagePolicy;
 use App\Policies\DevicePolicy;
 use App\Policies\DeviceTypePolicy;
 use App\Policies\DriverPolicy;
+use App\Policies\GeofencePolicy;
 use App\Policies\GroupPolicy;
 use App\Policies\TenantPolicy;
 use App\Policies\UserPolicy;
@@ -39,6 +41,7 @@ class AuthServiceProvider extends ServiceProvider
         DeviceMessage::class => DeviceMessagePolicy::class,
         DeviceType::class => DeviceTypePolicy::class,
         Driver::class => DriverPolicy::class,
+        Geofence::class => GeofencePolicy::class,
         Group::class => GroupPolicy::class,
         Tenant::class => TenantPolicy::class,
         User::class => UserPolicy::class,

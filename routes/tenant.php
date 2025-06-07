@@ -31,7 +31,8 @@ Route::middleware([
     // Authenticated tenant routes
     Route::middleware(['auth', 'verified'])->group(function () {
         require __DIR__ . '/tenant/dashboard.php';
-
+        require __DIR__ . '/tenant/geofences.php';
+        
         require __DIR__ . '/shared/settings.php';
         require __DIR__ . '/shared/vehicles.php';
         require __DIR__ . '/shared/drivers.php';

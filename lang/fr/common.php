@@ -60,6 +60,7 @@ return [
     'select' => 'Sélectionner',
     'deleted' => 'Supprimé',
     'changes_saved' => 'Modifications enregistrées',
+    'click_to_view_details' => 'Cliquer pour voir les détails',
     
     // Action translations for data-table-row-actions
     'actions' => [
@@ -80,6 +81,8 @@ return [
     'filter' => 'Filtrer',
     'filters' => 'Filtres',
     'reset_filters' => 'Réinitialiser les filtres',
+    'clear_filters' => 'Effacer les filtres',
+    'all' => 'Tout',
     'all_tenants' => 'Tous les clients',
     'all_device_types' => 'Tous les types de boitiers',
     'all_vehicles' => 'Tous les véhicules',

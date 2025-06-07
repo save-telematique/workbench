@@ -4,8 +4,8 @@ import { Link } from '@inertiajs/react';
 import { useTranslation } from '@/utils/translation';
 
 export function NavMain({ items = [] }: { items: NavItem[] }) {
-    const pathname = window.location.pathname;
-
+    const pathname = window.location.href;
+    
     const { __ } = useTranslation();
     return (
         <SidebarGroup className="px-2 py-0">
@@ -14,7 +14,7 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                 {items.map((item) => (
                     <SidebarMenuItem key={item.title}>
                         <SidebarMenuButton  
-                            asChild isActive={item.href.includes(pathname)}
+                            asChild isActive={pathname.includes(item.href)}
                             tooltip={{ children: item.title }}
                         >
                             <Link href={item.href} prefetch>

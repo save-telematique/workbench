@@ -59,6 +59,7 @@ return [
     'select' => 'Select',
     'deleted' => 'Deleted',
     'changes_saved' => 'Changes saved successfully',
+    'click_to_view_details' => 'Click to view details',
     
     // Action translations for data-table-row-actions
     'actions' => [
@@ -79,6 +80,8 @@ return [
     'filter' => 'Filter',
     'filters' => 'Filters',
     'reset_filters' => 'Reset filters',
+    'clear_filters' => 'Clear filters',
+    'all' => 'All',
     'all_tenants' => 'All tenants',
     'all_device_types' => 'All device types',
     'all_vehicles' => 'All vehicles',

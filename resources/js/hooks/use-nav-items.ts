@@ -1,5 +1,5 @@
 import { type NavItem } from '@/types';
-import { Building2, Car, Cpu, FolderTree, LayoutGrid, LucideIcon, Settings, UserCog, Users } from 'lucide-react';
+import { Building2, Car, Cpu, FolderTree, LayoutGrid, LucideIcon, MapPin, Settings, UserCog, Users } from 'lucide-react';
 import { usePermission, useTenantUser } from '@/utils/permissions';
 import { useTranslation } from '@/utils/translation';
 
@@ -25,7 +25,7 @@ export function useNavItems(): NavItem[] {
             href: route('dashboard'),
             icon: LayoutGrid,
             shortcut: '1',
-            access: 'shared'
+            access: 'shared',
         },
         {
             title: 'common.tenants', 
@@ -76,10 +76,18 @@ export function useNavItems(): NavItem[] {
             access: 'shared'
         },
         {
+            title: 'geofences.title',
+            href: route('geofences.index'),
+            icon: MapPin,
+            shortcut: '8',
+            hasPermission: usePermission('view_geofences'),
+            access: 'tenant'
+        },
+        {
             title: 'common.global_settings',
             href: route('global-settings.device-types.index'),
             icon: Settings,
-            shortcut: '8',
+            shortcut: '9',
             hasPermission: usePermission('view_global_settings'),
             access: 'central'
         }
