@@ -38,6 +38,8 @@ foreach (config('tenancy.central_domains') as $domain) {
             require __DIR__ . '/shared/users.php';
             require __DIR__ . '/shared/drivers.php';
             require __DIR__ . '/shared/groups.php';
+            require __DIR__ . '/shared/workflows.php';
+            require __DIR__ . '/shared/alerts.php';
             require __DIR__ . '/shared/api.php';
         });
     });

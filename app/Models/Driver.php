@@ -10,10 +10,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 use Laravel\Scout\Searchable;
+use App\Traits\HasAlerts;
 
 class Driver extends Model
 {
-    use HasFactory, BelongsToTenant, HasUuids, SoftDeletes, Searchable;
+    use HasFactory, BelongsToTenant, HasUuids, SoftDeletes, Searchable, HasAlerts;
 
     protected $fillable = [
         'surname',

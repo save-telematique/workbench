@@ -1,7 +1,8 @@
 import { type NavItem } from '@/types';
-import { Building2, Car, Cpu, FolderTree, LayoutGrid, LucideIcon, MapPin, Settings, UserCog, Users } from 'lucide-react';
+import { Bell, Building2, Car, Cpu, FolderTree, LayoutGrid, LucideIcon, MapPin, Settings, UserCog, Users, Workflow } from 'lucide-react';
 import { usePermission, useTenantUser } from '@/utils/permissions';
 import { useTranslation } from '@/utils/translation';
+import { useUnreadAlertsCount } from './use-unread-alerts-count';
 
 type NavItemConfig = {
     title: string;
@@ -10,11 +11,13 @@ type NavItemConfig = {
     shortcut?: string;
     hasPermission?: boolean | null;
     access: 'central' | 'shared' | 'tenant';
+    badge?: string | number;
 };
 
 export function useNavItems(): NavItem[] {
     const { __ } = useTranslation();
     const isTenantUser = useTenantUser();
+    const { unreadCount } = useUnreadAlertsCount();
     
     // Build navigation items based on permissions
     const mainNavItems: NavItem[] = [];
@@ -26,6 +29,14 @@ export function useNavItems(): NavItem[] {
             icon: LayoutGrid,
             shortcut: '1',
             access: 'shared',
+        },
+        {
+            title: 'alerts.title',
+            href: route('alerts.index'),
+            icon: Bell,
+            hasPermission: usePermission('view_alerts'),
+            access: 'shared',
+            badge: unreadCount > 0 ? unreadCount : undefined,
         },
         {
             title: 'common.tenants', 
@@ -84,10 +95,18 @@ export function useNavItems(): NavItem[] {
             access: 'tenant'
         },
         {
+            title: 'workflows.title',
+            href: route('workflows.index'),
+            icon: Workflow,
+            shortcut: '9',
+            hasPermission: usePermission('view_workflows'),
+            access: 'shared'
+        },
+        {
             title: 'common.global_settings',
             href: route('global-settings.device-types.index'),
             icon: Settings,
-            shortcut: '9',
+            shortcut: '0',
             hasPermission: usePermission('view_global_settings'),
             access: 'central'
         }
@@ -103,7 +122,8 @@ export function useNavItems(): NavItem[] {
                 title: __(item.title),
                 href: item.href,
                 icon: item.icon,
-                shortcut: item.shortcut
+                shortcut: item.shortcut,
+                badge: item.badge
             });
         }
     }

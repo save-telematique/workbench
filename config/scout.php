@@ -338,6 +338,48 @@ return [
                     'query_by' => 'imei,sim_number,serial_number,type_name,type_manufacturer,tenant_name,vehicle_registration,vehicle_model,vehicle_brand',
                 ],
             ],
+            \App\Models\Workflow::class => [
+                'collection-schema' => [
+                    'fields' => [
+                        [
+                            'name' => 'id',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'tenant_id',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'name',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'description',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'is_active',
+                            'type' => 'bool',
+                        ],
+                        [
+                            'name' => 'tenant_name',
+                            'type' => 'string',
+                        ],
+                        [
+                            'name' => 'created_at',
+                            'type' => 'int64',
+                        ],
+                        [
+                            'name' => '__soft_deleted',
+                            'type' => 'bool',
+                        ],
+                    ],
+                    'default_sorting_field' => 'created_at',
+                ],
+                'search-parameters' => [
+                    'query_by' => 'name,description,tenant_name',
+                ],
+            ],
             \App\Models\User::class => [
                 'collection-schema' => [
                     'fields' => [

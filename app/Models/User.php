@@ -12,11 +12,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\Permission\Traits\HasRoles;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
+use App\Traits\HasAlerts;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, Searchable, HasRoles, BelongsToTenant;
+    use HasFactory, Notifiable, Searchable, HasRoles, BelongsToTenant, HasAlerts;
 
     protected $with = ['tenant'];
 

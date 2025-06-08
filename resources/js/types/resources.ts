@@ -290,6 +290,112 @@ export interface ActivityChangeResource {
 }
 
 // Generic Resource Collection type
+// Workflow Resources
+export interface WorkflowTriggerResource {
+  id: string;
+  workflow_id: string;
+  event: string;
+  conditions: Record<string, unknown>;
+  is_active: boolean;
+  
+  workflow?: WorkflowResource;
+  
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface WorkflowConditionResource {
+  id: string;
+  workflow_id: string;
+  field: string;
+  operator: string;
+  value: unknown;
+  logical_operator: string;
+  
+  workflow?: WorkflowResource;
+  
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface WorkflowActionResource {
+  id: string;
+  workflow_id: string;
+  action_type: string;
+  parameters: Record<string, unknown>;
+  order: number;
+  
+  workflow?: WorkflowResource;
+  
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface WorkflowExecutionResource {
+  id: string;
+  workflow_id: string;
+  status: string;
+  started_at: string | null;
+  completed_at: string | null;
+  error_message: string | null;
+  metadata: Record<string, unknown>;
+  triggered_by?: string;
+  duration?: number;
+  
+  workflow?: WorkflowResource;
+  
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface WorkflowResource {
+  id: string;
+  name: string;
+  description: string | null;
+  is_active: boolean;
+  metadata: Record<string, unknown>;
+  created_at: string | null;
+  updated_at: string | null;
+  deleted_at: string | null;
+  
+  // Related data when loaded
+  triggers?: WorkflowTriggerResource[];
+  conditions?: WorkflowConditionResource[];
+  actions?: WorkflowActionResource[];
+  executions?: WorkflowExecutionResource[];
+  
+  // Computed attributes
+  triggers_count?: number;
+  conditions_count?: number;
+  actions_count?: number;
+  executions_count?: number;
+  
+  // Recent execution stats
+  last_execution_at?: string | null;
+  last_execution_status?: string | null;
+}
+
+// Alert Resources
+export interface AlertResource {
+  id: string;
+  title: string;
+  content: string | Record<string, unknown>;
+  severity: 'info' | 'warning' | 'error' | 'success';
+  metadata: Record<string, unknown> | null;
+  alertable_type: string;
+  alertable_id: string;
+  tenant_id: string | null;
+  created_by_id: string | null;
+  expires_at: string | null;
+  is_active: boolean;
+  is_read: boolean;
+  read_at: string | null;
+  created_at: string;
+  updated_at: string;
+  created_by?: UserResource;
+  alertable?: VehicleResource | DriverResource | DeviceResource | UserResource;
+}
+
 export interface ResourceCollection<T> {
   data: T[];
   links: {

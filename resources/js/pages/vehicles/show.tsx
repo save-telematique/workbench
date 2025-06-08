@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { usePermission } from "@/utils/permissions";
 import VehicleTrackingMap from "@/components/maps/vehicle-tracking-map";
+import EntityAlerts from "@/components/alerts/entity-alerts";
 
 interface VehicleShowProps {
   vehicle: VehicleResource;
@@ -190,6 +191,15 @@ export default function Show({ vehicle }: VehicleShowProps) {
             historyModeDefault={false}
             showDatePicker={true}
             initialDate={new Date()}
+          />
+        </div>
+
+        {/* Alerts Section */}
+        <div className="mt-6">
+          <EntityAlerts
+            entityType="vehicle"
+            entityId={vehicle.id}
+            entityName={vehicle.registration}
           />
         </div>
 

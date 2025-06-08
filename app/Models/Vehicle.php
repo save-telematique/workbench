@@ -9,10 +9,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 use Laravel\Scout\Searchable;
 use Illuminate\Database\Eloquent\Builder;
+use App\Traits\HasAlerts;
 
 class Vehicle extends Model
 {
-    use HasFactory, BelongsToTenant, HasUuids, SoftDeletes, Searchable;
+    use HasFactory, BelongsToTenant, HasUuids, SoftDeletes, Searchable, HasAlerts;
 
     protected $fillable = [
         'tenant_id',

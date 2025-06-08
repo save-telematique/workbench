@@ -12,10 +12,11 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Carbon\Carbon;
+use App\Traits\HasAlerts;
 
 class Device extends Model
 {
-    use HasFactory, HasUuids, BelongsToTenant, Searchable, SoftDeletes;
+    use HasFactory, HasUuids, BelongsToTenant, Searchable, SoftDeletes, HasAlerts;
 
     protected $fillable = [
         'tenant_id',

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\GeoHelper;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -84,12 +85,21 @@ class Geofence extends Model
 
     /**
      * Check if a coordinate point is within this geofence.
-     * This method would need a geometric library for proper implementation.
      */
     public function containsPoint(float $latitude, float $longitude): bool
     {
-        // TODO: Implement point-in-polygon algorithm
-        // For now, returning false as placeholder
-        return false;
+        if (!$this->is_active || !$this->geojson) {
+            return false;
+        }
+
+        return GeoHelper::pointInGeoJSON($latitude, $longitude, $this->geojson);
+    }
+
+    /**
+     * Get the geofence type from the GeoJSON.
+     */
+    public function getTypeAttribute(): ?string
+    {
+        return $this->geojson['type'] ?? null;
     }
 } 

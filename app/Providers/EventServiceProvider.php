@@ -9,7 +9,9 @@ use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
 use App\Events\DeviceMessageProcessed;
+use App\Events\WorkflowTriggered;
 use App\Listeners\DataPointJobDispatcherListener;
+use App\Listeners\WorkflowEventListener;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -27,6 +29,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         DeviceMessageProcessed::class => [
             DataPointJobDispatcherListener::class,
+        ],
+        WorkflowTriggered::class => [
+            WorkflowEventListener::class,
         ],
     ];
 

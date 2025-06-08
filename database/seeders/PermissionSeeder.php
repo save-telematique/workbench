@@ -32,6 +32,8 @@ class PermissionSeeder extends Seeder
             'drivers',
             'groups',
             'geofences',
+            'workflows',
+            'alerts',
             'global_settings',
         ];
 
@@ -95,6 +97,8 @@ class PermissionSeeder extends Seeder
             'view_drivers', 'create_drivers', 'edit_drivers', 'delete_drivers',
             'view_groups', 'create_groups', 'edit_groups', 'delete_groups',
             'view_geofences', 'create_geofences', 'edit_geofences', 'delete_geofences',
+            'view_workflows', 'create_workflows', 'edit_workflows', 'delete_workflows',
+            'view_alerts', 'create_alerts', 'edit_alerts', 'delete_alerts',
         ]);
 
         // Tenant Manager permissions
@@ -107,6 +111,8 @@ class PermissionSeeder extends Seeder
             'view_drivers', 'create_drivers', 'edit_drivers',
             'view_groups', 'create_groups', 'edit_groups',
             'view_geofences', 'create_geofences', 'edit_geofences',
+            'view_workflows', 'create_workflows', 'edit_workflows',
+            'view_alerts', 'create_alerts', 'edit_alerts',
         ]);
 
         // Tenant User permissions
@@ -117,6 +123,8 @@ class PermissionSeeder extends Seeder
             'view_drivers', 'edit_drivers',
             'view_groups',
             'view_geofences',
+            'view_workflows',
+            'view_alerts',
         ]);
 
         // Tenant Viewer permissions
@@ -127,6 +135,8 @@ class PermissionSeeder extends Seeder
             'view_drivers',
             'view_groups',
             'view_geofences',
+            'view_workflows',
+            'view_alerts',
         ]);
     }
 } 

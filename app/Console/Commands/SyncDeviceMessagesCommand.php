@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Device;
 use App\Models\DeviceMessage;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -78,8 +79,16 @@ class SyncDeviceMessagesCommand extends Command
             // Group messages by device_id to efficiently batch insert
             $deviceMessages = [];
             
+            $devices = Device::all();
+
             foreach ($messages as $message) {
                 // Prepare data for DeviceMessage model
+                $device = $devices->firstWhere('id', $message['box_id']);
+
+                if (!$device) {
+                    continue;
+                }
+
                 $deviceMessages[] = [
                     'device_id' => $message['box_id'],
                     'message' => json_encode($message['message']),

@@ -16,6 +16,7 @@ import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import FormattedDate from "@/components/formatted-date";
 import { DriverCard } from "@/components/drivers/driver-card";
 import { DriverResource } from "@/types";
+import EntityAlerts from "@/components/alerts/entity-alerts";
 
 interface ShowDriverProps {
   driver: DriverResource;
@@ -177,6 +178,15 @@ export default function Show({ driver }: ShowDriverProps) {
             </Table>
           </CardContent>
         </Card>
+
+        {/* Alerts Section */}
+        <div className="mt-6">
+          <EntityAlerts
+            entityType="driver"
+            entityId={driver.id}
+            entityName={`${driver.surname} ${driver.firstname}`}
+          />
+        </div>
 
         <DeleteDriverDialog
           open={openDeleteDialog}

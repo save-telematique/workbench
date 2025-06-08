@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/table";
 import { type BreadcrumbItem, DeviceResource, DeviceTypeResource } from "@/types";
 import FormattedDate from '@/components/formatted-date';
+import EntityAlerts from "@/components/alerts/entity-alerts";
 
 // Extend DeviceResource to include fields needed for the show page
 interface ExtendedDeviceResource extends DeviceResource {
@@ -316,6 +317,15 @@ export default function Show({ device, deviceTypes }: DeviceShowProps) {
                 </Table>
               </CardContent>
             </Card>
+          )}
+
+          {/* Alerts Section */}
+          {!isEditing && (
+            <EntityAlerts
+              entityType="device"
+              entityId={device.id}
+              entityName={device.serial_number}
+            />
           )}
         </div>
       </DevicesLayout>

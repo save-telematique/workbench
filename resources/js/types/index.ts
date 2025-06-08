@@ -19,6 +19,7 @@ export interface NavItem {
   external?: boolean;
   label?: string;
   shortcut?: string;
+  badge?: string | number;
 }
 
 export interface Tenant {

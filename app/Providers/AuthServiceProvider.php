@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Alert;
 use App\Models\Device;
 use App\Models\DeviceMessage;
 use App\Models\DeviceType;
@@ -14,6 +15,8 @@ use App\Models\Vehicle;
 use App\Models\VehicleBrand;
 use App\Models\VehicleModel;
 use App\Models\VehicleType;
+use App\Models\Workflow;
+use App\Policies\AlertPolicy;
 use App\Policies\DeviceMessagePolicy;
 use App\Policies\DevicePolicy;
 use App\Policies\DeviceTypePolicy;
@@ -26,6 +29,7 @@ use App\Policies\VehiclePolicy;
 use App\Policies\VehicleBrandPolicy;
 use App\Policies\VehicleModelPolicy;
 use App\Policies\VehicleTypePolicy;
+use App\Policies\WorkflowPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 
@@ -37,6 +41,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
+        Alert::class => AlertPolicy::class,
         Device::class => DevicePolicy::class,
         DeviceMessage::class => DeviceMessagePolicy::class,
         DeviceType::class => DeviceTypePolicy::class,
@@ -49,6 +54,7 @@ class AuthServiceProvider extends ServiceProvider
         VehicleBrand::class => VehicleBrandPolicy::class,
         VehicleModel::class => VehicleModelPolicy::class,
         VehicleType::class => VehicleTypePolicy::class,
+        Workflow::class => WorkflowPolicy::class,
     ];
 
     /**
