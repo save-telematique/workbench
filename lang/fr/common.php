@@ -28,7 +28,7 @@ return [
     'update_appearance_settings' => 'Mettre à jour les paramètres d\'apparence de votre compte',
     'language_settings' => 'Paramètres de langue',
     'update_language_settings' => 'Mettre à jour les préférences de langue de votre compte',
-    
+    'refresh' => 'Actualiser',
     // Appearance
     'light' => 'Clair',
     'dark' => 'Sombre',
