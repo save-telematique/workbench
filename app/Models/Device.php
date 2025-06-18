@@ -129,4 +129,9 @@ class Device extends Model
     {
         return $this->belongsTo(Tenant::class);
     }
+
+    public function messages()
+    {
+        return $this->hasMany(DeviceMessage::class);
+    }
 }
