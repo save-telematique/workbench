@@ -22,7 +22,7 @@ class ProductionSeeder extends Seeder
             DataPointTypeSeeder::class,
         ]);
 
-        $superAdmin = User::factory()->create([
+        $superAdmin = User::create([
             'name' => 'Jonathan Jean',
             'email' => 'contact@jonathanjean.fr',
             'tenant_id' => null,
