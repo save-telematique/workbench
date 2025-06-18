@@ -66,7 +66,7 @@ const europeanCountries = [
 interface VehicleFormProps {
   vehicle: Partial<VehicleResource>;
   tenants: TenantResource[];
-  devices: Pick<DeviceResource, 'id' | 'serial_number'>[];
+  devices: Pick<DeviceResource, 'id' | 'imei'>[];
   brands: VehicleBrandResource[];
   models: VehicleModelResource[];
   vehicleTypes: VehicleTypeResource[];
@@ -442,7 +442,7 @@ export default function VehicleForm({
               <SelectItem value="none">{__("common.none")}</SelectItem>
               {devices.map((device) => (
                 <SelectItem key={`device-${device.id}`} value={device.id}>
-                  {device.serial_number}
+                  {device.imei}
                 </SelectItem>
               ))}
             </SelectContent>
