@@ -13,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('vehicle_locations', function (Blueprint $table) {
-            $table->id('id')->primary();
+            $table->id('id');
             $table->foreignUuid('vehicle_id')->constrained();
             $table->decimal('latitude', 11, 8);
             $table->decimal('longitude', 11, 8);
