@@ -49,6 +49,13 @@ return [
         'roles' => 'Roles',
         'permissions' => 'Permissions',
     ],
+    'placeholders' => [
+        'name' => 'Enter the full name',
+        'email' => 'example@domain.com',
+        'password' => 'Choose a secure password',
+        'password_confirmation' => 'Repeat the password',
+        'locale' => 'Select a language',
+    ],
     'messages' => [
         'created' => 'Global user created successfully.',
         'updated' => 'Global user updated successfully.',

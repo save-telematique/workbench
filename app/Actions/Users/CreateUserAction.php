@@ -5,6 +5,7 @@ namespace App\Actions\Users;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -26,9 +27,10 @@ class CreateUserAction
 
     public function rules(): array
     {
+        $tenant = request()->route('tenant');
         $rules = [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->where(fn ($query) => $query->where('tenant_id', $tenant))],
             'password' => ['required', 'confirmed', Password::defaults()],
             'locale' => ['nullable', 'string', 'in:fr,en'],
         ];
@@ -53,8 +55,9 @@ class CreateUserAction
         return User::create($userData);
     }
 
-    public function asController(ActionRequest $request, ?Tenant $tenant = null)
+    public function asController(ActionRequest $request)
     {
+        $tenant = Tenant::find($request->route('tenant'));
         $user = $this->handle($request->validated(), $tenant);
 
         if ($tenant) {

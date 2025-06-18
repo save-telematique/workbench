@@ -5,6 +5,8 @@ use App\Actions\Tenants\UpdateTenantAction;
 use App\Actions\Tenants\DeleteTenantAction;
 use App\Actions\Tenants\CreateDomainAction;
 use App\Actions\Tenants\DeleteDomainAction;
+use App\Actions\Users\CreateUserAction;
+use App\Actions\Users\UpdateUserAction;
 use App\Http\Controllers\Tenants\TenantController;
 use App\Http\Controllers\Tenants\TenantDomainsController;
 use App\Http\Controllers\Tenants\TenantUsersController;
@@ -28,5 +30,7 @@ Route::middleware('auth', 'universal')->group(function () {
     Route::delete('/tenants/{tenant}/domains/{domain}', DeleteDomainAction::class)->name('tenants.domains.destroy');
     
     // Tenant Users routes
-    Route::resource('tenants.users', TenantUsersController::class);
+    Route::post('/tenants/{tenant}/users', CreateUserAction::class)->name('tenants.users.store');
+    Route::put('/tenants/{tenant}/users/{user}', UpdateUserAction::class)->name('tenants.users.update');
+    Route::resource('tenants.users', TenantUsersController::class)->except(['store', 'update']);
 }); 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenants;
 
+use App\Actions\Users\UpdateUserAction;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Tenants\TenantResource;
 use App\Http\Resources\Users\UserResource;
@@ -77,6 +78,15 @@ class TenantUsersController extends Controller
         return Inertia::render('tenants/users/edit', [
             'tenant' => new TenantResource($tenant),
             'user' => new UserResource($user),
+        ]);
+    }
+
+    public function store(Tenant $tenant, User $user): Response
+    {
+        $this->authorize('create_tenant_users');
+        
+        return Inertia::render('tenants/users/create', [
+            'tenant' => new TenantResource($tenant),
         ]);
     }
 } 

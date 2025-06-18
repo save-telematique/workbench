@@ -46,7 +46,7 @@ export default function TenantUserCreate({ tenant }: TenantUserCreateProps) {
                     backLabel={__('tenant_users.actions.back_to_list')}
                 >
                     <UserForm
-                        submitUrl={route('users.store', { tenant: tenant.id })}
+                        submitUrl={route('tenants.users.store', { tenant: tenant.id })}
                         cancelUrl={route('tenants.users.index', { tenant: tenant.id })}
                         isCreate={true}
                     />

@@ -15,11 +15,15 @@ return [
         'title' => 'Modifier l\'utilisateur',
         'breadcrumb' => 'Modifier',
         'description' => 'Mettre à jour les informations de l\'utilisateur',
+        'form_title' => 'Modifier les informations utilisateur',
+        'form_description' => 'Mettre à jour les détails du compte de :name.',
     ],
     'create' => [
         'title' => 'Créer un utilisateur',
         'breadcrumb' => 'Créer',
         'description' => 'Créer un nouvel utilisateur',
+        'form_title' => 'Informations utilisateur',
+        'form_description' => 'Remplissez les détails pour le nouveau compte utilisateur.',
     ],
     'fields' => [
         'name' => 'Nom',
@@ -35,6 +39,13 @@ return [
         'updated_at' => 'Mis à jour le',
         'roles' => 'Rôles',
         'permissions' => 'Permissions',
+    ],
+    'placeholders' => [
+        'name' => 'Entrez le nom complet',
+        'email' => 'exemple@domaine.com',
+        'password' => 'Choisissez un mot de passe sécurisé',
+        'password_confirmation' => 'Répétez le mot de passe',
+        'locale' => 'Sélectionnez une langue',
     ],
     'actions' => [
         'create' => 'Créer un utilisateur',
