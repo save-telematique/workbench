@@ -29,6 +29,8 @@ return [
     'language_settings' => 'Paramètres de langue',
     'update_language_settings' => 'Mettre à jour les préférences de langue de votre compte',
     'refresh' => 'Actualiser',
+    'filters' => 'Filtres',
+
     // Appearance
     'light' => 'Clair',
     'dark' => 'Sombre',
