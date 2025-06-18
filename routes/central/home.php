@@ -13,5 +13,5 @@ use Inertia\Inertia;
 */
 
 Route::get('/', function () {
-    return 'home';
+    return redirect()->route('dashboard');
 })->name('home'); 
