@@ -19,6 +19,7 @@
         "lorisleiva/laravel-actions": "^2.9",
         "maatwebsite/excel": "^3.1",
         "openai-php/laravel": "^0.11.0",
+        "sentry/sentry-laravel": "^4.15",
         "spatie/laravel-permission": "^6.17",
         "stancl/tenancy": "^3.9",
         "tightenco/ziggy": "^2.4",
