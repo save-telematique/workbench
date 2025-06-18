@@ -18,8 +18,7 @@ return [
     'central_domains' => [
         '127.0.0.1',
         'localhost',
-        'save.test',
-        'beta.save-telematique.fr'
+        env('APP_URL')
     ],
 
     /**

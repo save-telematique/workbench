@@ -47,7 +47,7 @@ export default function TenantUserCreate({ tenant }: TenantUserCreateProps) {
                 >
                     <UserForm
                         translationNamespace="tenant_users"
-                        submitUrl={route('tenants.users.store', { tenant: tenant.id })}
+                        submitUrl={route('users.store', { tenant: tenant.id })}
                         cancelUrl={route('tenants.users.index', { tenant: tenant.id })}
                         isCreate={true}
                     />

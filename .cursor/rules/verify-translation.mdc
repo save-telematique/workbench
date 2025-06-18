@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+Ensure that all keys have translations, be sure to reuse keys if it makes sense for commun actions.
