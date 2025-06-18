@@ -151,17 +151,18 @@ class CreateAlertAction
      */
     public function assignAlertToUsers(Alert $alert, Collection $users): void
     {
-        $assignments = $users->map(function ($user) {
+        $assignments = $users->mapWithKeys(function ($user) {
             return [
-                'user_id' => $user->id,
-                'read_at' => null, // Non lu par défaut
-                'created_at' => now(),
-                'updated_at' => now(),
+                $user->id => [
+                    'read_at' => null, // Non lu par défaut
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
             ];
         })->toArray();
 
         if (!empty($assignments)) {
-            $alert->users()->attach($assignments);
+            $alert->users()->syncWithoutDetaching($assignments);
         }
     }
 

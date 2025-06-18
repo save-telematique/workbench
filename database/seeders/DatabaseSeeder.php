@@ -56,7 +56,7 @@ class DatabaseSeeder extends Seeder
             ActivitiesSeeder::class,
             VehicleStaticDataSeeder::class,
             DeviceStaticDataSeeder::class,
-            DataPointTypeSeeder::class, // This is the one we are focusing on
+            DataPointTypeSeeder::class,
         ]);
 
         $this->call(LeffTenantSeeder::class);

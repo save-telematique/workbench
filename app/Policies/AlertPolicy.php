@@ -25,6 +25,11 @@ class AlertPolicy extends BasePolicy
             return false;
         }
 
+        // Check if user is assigned to this specific alert
+        if ($model instanceof Alert) {
+            return $model->users()->where('user_id', $user->id)->exists();
+        }
+
         return true;
     }
 
@@ -66,19 +71,62 @@ class AlertPolicy extends BasePolicy
 
     /**
      * Determine whether the user can mark the alert as read.
-     * Users can always mark alerts as read if they can view them.
+     * More permissive than view - allows eligible users to self-assign and mark as read.
      */
     public function markAsRead(User $user, Alert $alert): bool
     {
-        return $this->view($user, $alert);
+        // Check basic permission first
+        if (!$user->can('view_alerts')) {
+            return false;
+        }
+
+        // Apply tenant isolation
+        if ($user->tenant_id && $alert->tenant_id !== $user->tenant_id) {
+            return false;
+        }
+
+        if (!$alert->tenant_id && $user->tenant_id) {
+            return false;
+        }
+
+        if ($alert->users()->where('user_id', $user->id)->exists()) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
      * Determine whether the user can mark the alert as unread.
-     * Users can always mark alerts as unread if they can view them.
+     * More permissive than view - allows eligible users to self-assign and mark as unread.
      */
     public function markAsUnread(User $user, Alert $alert): bool
     {
-        return $this->view($user, $alert);
+        // Check basic permission first
+        if (!$user->can('view_alerts')) {
+            return false;
+        }
+
+        // Apply tenant isolation
+        if ($user->tenant_id && $alert->tenant_id !== $user->tenant_id) {
+            return false;
+        }
+
+        // Super admins can always mark alerts as unread
+        if ($user->hasRole('super_admin')) {
+            return true;
+        }
+
+        // For tenant alerts, allow if user belongs to same tenant
+        if ($alert->tenant_id && $user->tenant_id === $alert->tenant_id) {
+            return true;
+        }
+
+        // For central alerts, allow if user is central
+        if (!$alert->tenant_id && !$user->tenant_id) {
+            return true;
+        }
+
+        return false;
     }
 } 

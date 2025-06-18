@@ -189,11 +189,11 @@ export const useColumns = () => {
         const alert = row.original;
         
         const handleMarkAsRead = () => {
-          router.patch(route('alerts.mark-as-read', { alert: alert.id }));
+          router.post(route('alerts.mark-as-read', { alert: alert.id }));
         };
         
         const handleMarkAsUnread = () => {
-          router.patch(route('alerts.mark-as-unread', { alert: alert.id }));
+          router.post(route('alerts.mark-as-unread', { alert: alert.id }));
         };
         
         return (

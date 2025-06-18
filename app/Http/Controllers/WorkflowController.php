@@ -25,13 +25,14 @@ class WorkflowController extends Controller
      */
     public function index(Request $request): Response
     {
-        $query = Workflow::with(['triggers', 'conditions', 'actions']);
+        $query = Workflow::withCount(['triggers', 'conditions', 'actions']);
 
         // Use Scout search when search term is provided
         if ($request->filled('search')) {
             $searchQuery = $request->search;
             
-            $workflows = Workflow::search($searchQuery)
+            // For search, get the models directly with counts
+            $workflowIds = Workflow::search($searchQuery)
                 ->when($request->has('is_active'), function ($builder) use ($request) {
                     return $builder->where('is_active', $request->boolean('is_active'));
                 })
@@ -39,6 +40,11 @@ class WorkflowController extends Controller
                     // Filter by tenant for tenant users
                     return $builder->where('tenant_id', $request->user()->tenant_id);
                 })
+                ->keys();
+                
+            $workflows = Workflow::whereIn('id', $workflowIds)
+                ->withCount(['triggers', 'conditions', 'actions'])
+                ->orderBy('name')
                 ->paginate(20)
                 ->withQueryString();
         } else {

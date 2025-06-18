@@ -38,7 +38,7 @@ class AlertResource extends JsonResource
             $data['is_read'] = $this->isReadBy($request->user());
             $data['read_at'] = $this->users()
                 ->where('user_id', $request->user()->id)
-                ->first()?->pivot?->read_at?->toISOString();
+                ->first()?->pivot?->read_at;
         }
 
         // Include related entities if loaded

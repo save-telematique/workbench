@@ -4,7 +4,7 @@ return [
     'title' => 'Alertes',
     'description' => 'Gérer les alertes et notifications du système',
     'create' => 'Créer une alerte',
-    'edit' => 'Modifier l\'alerte',
+
     'show' => 'Détails de l\'alerte',
     'delete' => 'Supprimer l\'alerte',
     'restore' => 'Restaurer l\'alerte',
@@ -32,7 +32,6 @@ return [
     
     'actions' => [
         'create' => 'Créer une alerte',
-        'edit' => 'Modifier',
         'delete' => 'Supprimer',
         'restore' => 'Restaurer',
         'mark_as_read' => 'Marquer comme lu',
@@ -67,7 +66,6 @@ return [
     'breadcrumbs' => [
         'index' => 'Alertes',
         'create' => 'Nouvelle alerte',
-        'edit' => 'Modifier',
         'show' => 'Détails',
     ],
     

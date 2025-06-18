@@ -42,6 +42,10 @@ class VehicleStaticDataSeeder extends Seeder
             'name' => 'FE',
         ]);
 
+        $volvo->models()->create([
+            'name' => 'FM',
+        ]);
+
         $renault->models()->create([
             'name' => 'T',
         ]);

@@ -52,7 +52,10 @@ return [
     'fields' => [
         'name' => 'Nom',
         'description' => 'Description',
+        'status' => 'Statut',
         'is_active' => 'Actif',
+        'components' => 'Composants',
+        'last_execution' => 'Dernière exécution',
         'created_at' => 'Créé le',
         'updated_at' => 'Modifié le',
     ],

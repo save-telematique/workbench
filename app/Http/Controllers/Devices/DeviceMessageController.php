@@ -67,4 +67,50 @@ class DeviceMessageController extends Controller
             'allLocations' => $allLocations
         ]);
     }
+
+    public function list(Request $request)
+    {
+        $request->validate([
+            'after' => 'required|date'
+        ]);
+
+        $messages = \App\Models\DeviceMessage::where('created_at', '>', $request->after)
+            ->get();
+
+        return response()->json([
+            'data' => $messages,
+            'count' => $messages->count(),
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'packets' => 'array|required',
+            'packets.*.imei' => 'required',
+            'packets.*.message' => 'required',
+            'packets.*.ip' => 'required',
+        ]);
+
+        foreach ($request->packets as $packet) {
+            
+            $box = Device::where('imei', $packet['imei'])->first();
+
+            if ($box === null) {
+                continue;
+            }
+
+            $message = $box->messages()->create([
+                'raw' => '',
+                'message' => $packet['message'],
+                'ip' => $packet['ip'],
+            ]);
+
+            try {
+                $message->process();
+            } catch (\Exception $e) {
+                \Sentry\captureException($e);
+            }
+        }
+    }
 } 

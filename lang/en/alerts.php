@@ -4,7 +4,7 @@ return [
     'title' => 'Alerts',
     'description' => 'Manage system alerts and notifications',
     'create' => 'Create Alert',
-    'edit' => 'Edit Alert',
+
     'show' => 'Alert Details',
     'delete' => 'Delete Alert',
     'restore' => 'Restore Alert',
@@ -32,7 +32,6 @@ return [
     
     'actions' => [
         'create' => 'Create Alert',
-        'edit' => 'Edit',
         'delete' => 'Delete',
         'restore' => 'Restore',
         'mark_as_read' => 'Mark as Read',
@@ -67,7 +66,6 @@ return [
     'breadcrumbs' => [
         'index' => 'Alerts',
         'create' => 'New Alert',
-        'edit' => 'Edit',
         'show' => 'Details',
     ],
     

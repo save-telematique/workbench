@@ -1,12 +1,11 @@
 import { Head, Link } from "@inertiajs/react";
 import { type BreadcrumbItem, AlertResource } from "@/types";
 import { useTranslation } from "@/utils/translation";
-import { usePermission } from "@/utils/permissions";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Pencil, 
   ArrowLeft, 
   Eye, 
   EyeOff,
@@ -63,7 +62,7 @@ const getSeverityColor = (severity: string) => {
 
 export default function Show({ alert }: AlertShowProps) {
   const { __ } = useTranslation();
-  const canEditAlerts = usePermission('edit_alerts');
+
   const SeverityIcon = getSeverityIcon(alert.severity);
 
   const breadcrumbs: BreadcrumbItem[] = [
@@ -79,9 +78,9 @@ export default function Show({ alert }: AlertShowProps) {
 
   const handleToggleRead = () => {
     if (alert.is_read) {
-      router.patch(route('alerts.mark-as-unread', { alert: alert.id }));
+      router.post(route('alerts.mark-as-unread', { alert: alert.id }));
     } else {
-      router.patch(route('alerts.mark-as-read', { alert: alert.id }));
+      router.post(route('alerts.mark-as-read', { alert: alert.id }));
     }
   };
 
@@ -280,14 +279,7 @@ export default function Show({ alert }: AlertShowProps) {
               )}
             </Button>
 
-            {canEditAlerts && (
-              <Button asChild variant="outline">
-                <Link href={route("alerts.edit", { alert: alert.id })}>
-                  <Pencil className="mr-2 h-4 w-4" />
-                  {__("common.edit")}
-                </Link>
-              </Button>
-            )}
+
 
             <Button asChild variant="outline">
               <Link href={route("alerts.index")}>

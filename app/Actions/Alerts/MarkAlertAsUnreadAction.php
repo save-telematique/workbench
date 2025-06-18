@@ -13,12 +13,49 @@ class MarkAlertAsUnreadAction
 
     public function handle(Alert $alert, User $user): void
     {
+        // If user is not assigned to the alert but should have access, assign them
+        if (!$alert->users()->where('user_id', $user->id)->exists()) {
+            $this->ensureUserAssignedToAlert($alert, $user);
+        }
+        
         $alert->markAsUnreadFor($user);
     }
 
-    public function authorize(ActionRequest $request, Alert $alert): bool
+    /**
+     * Ensure user is assigned to the alert if they should have access
+     */
+    protected function ensureUserAssignedToAlert(Alert $alert, User $user): void
     {
-        return $request->user()->can('markAsUnread', $alert);
+        // Check if user should have access to this alert based on business rules
+        $shouldHaveAccess = false;
+
+        // Super admins always have access
+        if ($user->hasRole('super_admin')) {
+            $shouldHaveAccess = true;
+        }
+        // For tenant alerts, check if user belongs to the same tenant and has view_alerts permission
+        elseif ($alert->tenant_id && $user->tenant_id === $alert->tenant_id && $user->can('view_alerts')) {
+            $shouldHaveAccess = true;
+        }
+        // For central alerts, check if user is central and has view_alerts permission
+        elseif (!$alert->tenant_id && !$user->tenant_id && $user->can('view_alerts')) {
+            $shouldHaveAccess = true;
+        }
+
+        if ($shouldHaveAccess) {
+            $alert->users()->syncWithoutDetaching([
+                $user->id => [
+                    'read_at' => null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            ]);
+        }
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->can('markAsUnread', $request->route('alert'));
     }
 
     public function asController(ActionRequest $request, Alert $alert)

@@ -42,7 +42,10 @@ class PermissionSeeder extends Seeder
             // CRUD permissions
             Permission::firstOrCreate(['name' => "view_{$resource}", 'guard_name' => 'web']);
             Permission::firstOrCreate(['name' => "create_{$resource}", 'guard_name' => 'web']);
-            Permission::firstOrCreate(['name' => "edit_{$resource}", 'guard_name' => 'web']);
+            // Alerts cannot be edited, only created and deleted
+            if ($resource !== 'alerts') {
+                Permission::firstOrCreate(['name' => "edit_{$resource}", 'guard_name' => 'web']);
+            }
             Permission::firstOrCreate(['name' => "delete_{$resource}", 'guard_name' => 'web']);
         }
 
@@ -98,7 +101,7 @@ class PermissionSeeder extends Seeder
             'view_groups', 'create_groups', 'edit_groups', 'delete_groups',
             'view_geofences', 'create_geofences', 'edit_geofences', 'delete_geofences',
             'view_workflows', 'create_workflows', 'edit_workflows', 'delete_workflows',
-            'view_alerts', 'create_alerts', 'edit_alerts', 'delete_alerts',
+            'view_alerts', 'create_alerts', 'delete_alerts',
         ]);
 
         // Tenant Manager permissions
@@ -112,7 +115,7 @@ class PermissionSeeder extends Seeder
             'view_groups', 'create_groups', 'edit_groups',
             'view_geofences', 'create_geofences', 'edit_geofences',
             'view_workflows', 'create_workflows', 'edit_workflows',
-            'view_alerts', 'create_alerts', 'edit_alerts',
+            'view_alerts', 'create_alerts',
         ]);
 
         // Tenant User permissions
