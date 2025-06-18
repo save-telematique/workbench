@@ -4,6 +4,7 @@ use App\Actions\Users\CreateUserAction;
 use App\Actions\Users\DeleteUserAction;
 use App\Actions\Users\UpdateUserAction;
 use App\Actions\Users\UpdateUserRolesAction;
+use App\Http\Controllers\Devices\DeviceEdgeController;
 use App\Http\Controllers\Devices\DeviceMessageController;
 use App\Http\Controllers\Users\UserController;
 use Illuminate\Support\Facades\Route;
@@ -45,9 +46,9 @@ foreach (config('tenancy.central_domains') as $domain) {
         });
 
         Route::prefix('messages')->group(function () {
-            Route::post('/', [DeviceMessageController::class, 'store'])->name('messages.store');
+            Route::post('/', [DeviceEdgeController::class, 'store'])->name('messages.store');
 
-            Route::get('/', [DeviceMessageController::class, 'list'])->name('messages.index');
+            Route::get('/', [DeviceEdgeController::class, 'index'])->name('messages.index');
         });
     });
 }
