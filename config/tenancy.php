@@ -15,10 +15,12 @@ return [
      *
      * Only relevant if you're using the domain or subdomain identification middleware.
      */
-    'central_domains' => [
+    'central_domains' => app()->isProduction() ? [
+        'beta.save-telematique.fr',
+    ] : [
         '127.0.0.1',
         'localhost',
-        env('APP_URL')
+        'save.test',
     ],
 
     /**
