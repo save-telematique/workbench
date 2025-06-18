@@ -52,7 +52,6 @@ export default function TenantUserEdit({ tenant, user }: TenantUserEditProps) {
                 >
                     <UserForm
                         user={user}
-                        translationNamespace="tenant_users"
                         submitUrl={route('users.update', { user: user.id })}
                         cancelUrl={route('tenants.users.show', { tenant: tenant.id, user: user.id })}
                         isCreate={false}

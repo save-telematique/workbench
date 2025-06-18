@@ -43,7 +43,6 @@ export default function UserEdit({ user }: UserEditProps) {
                 >
                     <UserForm
                         user={user}
-                        translationNamespace="users"
                         submitUrl={route('users.update', { user: user.id })}
                         cancelUrl={route('users.show', { user: user.id })}
                         isCreate={false}

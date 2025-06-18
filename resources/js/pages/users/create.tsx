@@ -33,7 +33,6 @@ export default function UserCreate() {
                     backLabel={__('users.actions.back_to_list')}
                 >
                     <UserForm 
-                        translationNamespace="users" 
                         submitUrl={route('users.store')} 
                         cancelUrl={route('users.index')}
                         isCreate={true}

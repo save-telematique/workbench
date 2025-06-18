@@ -21,7 +21,6 @@ export interface UserFormData {
 
 export interface UserFormProps {
   user?: Partial<UserResource>;
-  translationNamespace: 'users' | 'tenant_users';
   submitUrl: string;
   cancelUrl?: string;
   isCreate?: boolean;
@@ -30,7 +29,6 @@ export interface UserFormProps {
 
 export default function UserForm({
   user,
-  translationNamespace,
   submitUrl,
   cancelUrl,
   isCreate = !user?.id,
@@ -64,26 +62,26 @@ export default function UserForm({
       <Card>
         <CardHeader>
           <CardTitle>
-            {__(`${translationNamespace}.${isCreate ? 'create' : 'edit'}.form_title`)}
+            {__(`users.${isCreate ? 'create' : 'edit'}.form_title`)}
           </CardTitle>
           <CardDescription>
             {isCreate 
-              ? __(`${translationNamespace}.create.form_description`)
-              : __(`${translationNamespace}.edit.form_description`, { name: user?.name || '' })}
+              ? __(`users.create.form_description`)
+              : __(`users.edit.form_description`, { name: user?.name || '' })}
           </CardDescription>
         </CardHeader>
         
         <CardContent className="space-y-6">
           <div>
             <Label htmlFor="name" className="text-sm font-medium">
-              {__(`${translationNamespace}.fields.name`)} <span className="text-destructive">*</span>
+              {__(`users.fields.name`)} <span className="text-destructive">*</span>
             </Label>
             <Input
               id="name"
               type="text"
               value={data.name}
               onChange={(e) => setData('name', e.target.value)}
-              placeholder={__(`${translationNamespace}.placeholders.name`)}
+              placeholder={__(`users.placeholders.name`)}
               className="mt-1"
               required
             />
@@ -92,14 +90,14 @@ export default function UserForm({
 
           <div>
             <Label htmlFor="email" className="text-sm font-medium">
-              {__(`${translationNamespace}.fields.email`)} <span className="text-destructive">*</span>
+              {__(`users.fields.email`)} <span className="text-destructive">*</span>
             </Label>
             <Input
               id="email"
               type="email"
               value={data.email}
               onChange={(e) => setData('email', e.target.value)}
-              placeholder={__(`${translationNamespace}.placeholders.email`)}
+              placeholder={__(`users.placeholders.email`)}
               className="mt-1"
               required
             />
@@ -108,14 +106,14 @@ export default function UserForm({
 
           <div>
             <Label htmlFor="password" className="text-sm font-medium">
-              {__(`${translationNamespace}.fields.password`)} {isCreate && <span className="text-destructive">*</span>}
+              {__(`users.fields.password`)} {isCreate && <span className="text-destructive">*</span>}
             </Label>
             <Input
               id="password"
               type="password"
               value={data.password}
               onChange={(e) => setData('password', e.target.value)}
-              placeholder={__(`${translationNamespace}.placeholders.password`)}
+              placeholder={__(`users.placeholders.password`)}
               className="mt-1"
               required={isCreate}
               autoComplete="new-password"
@@ -125,14 +123,14 @@ export default function UserForm({
 
           <div>
             <Label htmlFor="password_confirmation" className="text-sm font-medium">
-              {__(`${translationNamespace}.fields.password_confirmation`)} {isCreate && <span className="text-destructive">*</span>}
+              {__(`users.fields.password_confirmation`)} {isCreate && <span className="text-destructive">*</span>}
             </Label>
             <Input
               id="password_confirmation"
               type="password"
               value={data.password_confirmation}
               onChange={(e) => setData('password_confirmation', e.target.value)}
-              placeholder={__(`${translationNamespace}.placeholders.password_confirmation`)}
+              placeholder={__(`users.placeholders.password_confirmation`)}
               className="mt-1"
               required={isCreate}
               autoComplete="new-password"
@@ -142,14 +140,14 @@ export default function UserForm({
 
           <div>
             <Label htmlFor="locale" className="text-sm font-medium">
-              {__(`${translationNamespace}.fields.locale`)} <span className="text-destructive">*</span>
+              {__(`users.fields.locale`)} <span className="text-destructive">*</span>
             </Label>
             <Select
               value={data.locale}
               onValueChange={(value) => setData('locale', value)}
             >
               <SelectTrigger id="locale" className="mt-1">
-                <SelectValue placeholder={__(`${translationNamespace}.placeholders.locale`)} />
+                <SelectValue placeholder={__(`users.placeholders.locale`)} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="fr">Français</SelectItem>
