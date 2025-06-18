@@ -45,10 +45,8 @@ foreach (config('tenancy.central_domains') as $domain) {
             require __DIR__ . '/shared/api.php';
         });
 
-        Route::prefix('api')->group(function () {
+        Route::prefix('api')->middleware('api')->group(function () {
             Route::post('/messages', [DeviceEdgeController::class, 'store'])->name('messages.store');
-
-            Route::get('/messages', [DeviceEdgeController::class, 'index'])->name('messages.index');
         });
     });
 }
