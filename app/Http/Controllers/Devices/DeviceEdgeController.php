@@ -33,15 +33,17 @@ class DeviceEdgeController extends Controller
             'packets.*.ip' => 'required',
         ]);
 
+        $devices = Device::all();
+
         foreach ($request->packets as $packet) {
 
-            $box = Device::where('imei', $packet['imei'])->first();
+            $device = $devices->where('imei', $packet['imei'])->first();
 
-            if ($box === null) {
+            if ($device === null) {
                 continue;
             }
 
-            $message = $box->messages()->create([
+            $message = $device->messages()->create([
                 'raw' => '',
                 'message' => $packet['message'],
                 'ip' => $packet['ip'],
