@@ -252,6 +252,7 @@ return [
         'available' => 'Disponible',
         'break' => 'Pause',
         'unknown' => 'Inconnu',
+        'removed_card' => 'Carte retirée',
     ],
     'activities' => [
         'title' => 'Activités',

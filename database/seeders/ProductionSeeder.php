@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
@@ -32,7 +33,26 @@ class ProductionSeeder extends Seeder
         // Assign super_admin role to the admin user
         $superAdmin->assignRole('super_admin');
 
+
         $this->call(LeffTenantSeeder::class);
+
+        $tenant = Tenant::where('name', 'Leff Combustibles')->first();
+        $user = $tenant->users()->create([
+            'name' => 'Jonathan Jean',
+            'email' => 'contact@jonathanjean.fr',
+            'password' => bcrypt('password'),
+        ]);
+        $user->assignRole('tenant_admin');
+
         $this->call(MauffreyTenantSeeder::class);
+
+        $tenant = Tenant::where('name', 'Mauffrey')->first();
+        $user = $tenant->users()->create([
+            'name' => 'Jonathan Jean',
+            'email' => 'contact@jonathanjean.fr',
+            'password' => bcrypt('password'),
+        ]);
+        
+        $user->assignRole('tenant_admin');
     }
 }

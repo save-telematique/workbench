@@ -100,13 +100,7 @@ class UserController extends Controller
         $user->load('roles');
 
         return Inertia::render('users/roles', [
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'roles' => $user->roles->pluck('name'),
-                'isTenant' => $user->tenant_id !== null,
-            ],
+            'user' => new UserResource($user),
             'roles' => $roles,
         ]);
     }

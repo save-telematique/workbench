@@ -34,6 +34,7 @@ return [
     'request_another'              => 'cliquez ici pour en demander un autre',
     'resend_verification_email'    => 'Renvoyer l\'email de vérification',
     'reset_password'               => 'Réinitialiser le mot de passe',
+    'reset_password_button'        => 'Réinitialiser le mot de passe',
     'reset_password_description'   => 'Entrez votre email et nous vous enverrons un lien pour réinitialiser votre mot de passe',
     'reset_password_title'         => 'Réinitialisez votre mot de passe',
     'send_reset_link'              => 'Envoyer le lien de réinitialisation',

@@ -16,7 +16,7 @@ return [
     'settings' => 'Paramètres',
     'global_settings' => 'Paramètres globaux',
     'manage_global_settings' => 'Gérer les paramètres globaux du système',
-
+    'retry' => 'Réessayer',
     'logout' => 'Déconnexion',
     'login' => 'Connexion',
     'register' => 'S\'inscrire',
