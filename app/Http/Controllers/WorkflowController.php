@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\Workflows\CreateWorkflowAction;
 use App\Actions\Workflows\UpdateWorkflowAction;
 use App\Enum\WorkflowActionType;
 use App\Enum\WorkflowConditionOperator;
@@ -77,14 +76,6 @@ class WorkflowController extends Controller
             'operators' => $this->getAvailableOperators(),
             'actionTypes' => $this->getAvailableActionTypes(),
         ]);
-    }
-
-    /**
-     * Store a newly created workflow.
-     */
-    public function store(Request $request)
-    {
-        return (new CreateWorkflowAction())->asController($request);
     }
 
     /**
@@ -168,8 +159,6 @@ class WorkflowController extends Controller
             'executions' => $executions,
         ]);
     }
-
-
 
     /**
      * Get available events from the WorkflowEventType enum.

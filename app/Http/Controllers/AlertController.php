@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Alerts\GetAlertsAction;
-use App\Actions\Alerts\MarkAlertAsReadAction;
-use App\Actions\Alerts\MarkAlertAsUnreadAction;
 use App\Http\Resources\Alerts\AlertResource;
 use App\Models\Alert;
 use Illuminate\Database\Eloquent\Model;
@@ -41,24 +39,6 @@ class AlertController extends Controller
     }
 
     /**
-     * Mark an alert as read.
-     */
-    public function markAsRead(Alert $alert, MarkAlertAsReadAction $action)
-    {
-        return $action->asController(request(), $alert);
-    }
-
-    /**
-     * Mark an alert as unread.
-     */
-    public function markAsUnread(Alert $alert, MarkAlertAsUnreadAction $action)
-    {
-        return $action->asController(request(), $alert);
-    }
-
-
-
-    /**
      * Display the specified alert.
      */
     public function show(Alert $alert)
@@ -67,8 +47,6 @@ class AlertController extends Controller
             'alert' => new AlertResource($alert->load(['creator', 'alertable'])),
         ]);
     }
-
-
 
     /**
      * Get recent alerts for dropdown/widget.

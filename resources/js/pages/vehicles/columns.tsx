@@ -121,7 +121,7 @@ export const useColumns = () => {
       ),
     },
     {
-      accessorFn: (row) => row.device?.serial_number ?? "",
+      accessorFn: (row) => row.device?.imei ?? "",
       id: "device",
       header: "vehicles.fields.device",
       enableSorting: true,
@@ -132,7 +132,7 @@ export const useColumns = () => {
             <Link
               href={route("devices.show", { device: row.original.device.id })}
             >
-              {row.original.device.serial_number}
+              {row.original.device.imei}
             </Link>
           ) : (
             <span className="text-gray-400">{__("common.none")}</span>

@@ -151,8 +151,11 @@ return [
     // Fields
     'fields' => [
         'mandatory' => 'Champs obligatoires',
+        'created_at' => 'Créé le',
+        'updated_at' => 'Mis à jour le',
+        'deleted_at' => 'Supprimé le',
     ],
-    
+    'never' => 'Jamais',
     // Table
     'no_results' => 'Aucun résultat trouvé.',
     'row_selected' => 'ligne sélectionnée',

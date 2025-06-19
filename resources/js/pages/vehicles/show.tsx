@@ -166,7 +166,7 @@ export default function Show({ vehicle }: VehicleShowProps) {
                         className="flex items-center hover:underline text-primary"
                       >
                         <Cpu className="mr-2 h-4 w-4" />
-                        {vehicle.device.serial_number}
+                        {vehicle.device.imei}
                         {vehicle.device.type && (
                           <span className="text-sm text-muted-foreground ml-2">
                             ({vehicle.device.type.manufacturer} - {vehicle.device.type.name})
