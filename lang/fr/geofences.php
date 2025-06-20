@@ -74,6 +74,10 @@ return [
     ],
 
     'form' => [
+        'basic_information' => 'Informations de base',
+        'tenant_assignment' => 'Affectation du tenant',
+        'map_drawing' => 'Dessin de la carte',
+        'map_description' => 'Utilisez les outils de carte pour dessiner la zone géographique de votre géo-barrière. Cliquez sur l\'outil polygone pour commencer.',
         'sections' => [
             'basic_information' => [
                 'title' => 'Informations de base',

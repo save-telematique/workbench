@@ -1,6 +1,6 @@
 import { UserResource, type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, CheckCircle, Pencil, Shield, UserRound, XCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Pencil, Shield, UserRound, XCircle, Mail } from 'lucide-react';
 import { useState } from 'react';
 
 import FormattedDate from '@/components/formatted-date';
@@ -22,6 +22,7 @@ interface UserShowProps {
 
 export default function UserShow({ user }: UserShowProps) {
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] = useState(false);
     const { __ } = useTranslation();
     const canEditUsers = usePermission('edit_users');
     const canDeleteUsers = usePermission('delete_users');
@@ -41,6 +42,11 @@ export default function UserShow({ user }: UserShowProps) {
         router.delete(route('users.destroy', { user: user.id }));
     };
 
+    const handleSendPasswordReset = () => {
+        router.post(route('users.send-password-reset', { user: user.id }));
+        setIsResetPasswordDialogOpen(false);
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={__('users.show.title', { name: user.name })} />
@@ -57,6 +63,33 @@ export default function UserShow({ user }: UserShowProps) {
                                     {__('users.actions.edit')}
                                 </Link>
                             </Button>
+                        )}
+
+                        {canEditUsers && (
+                            <Dialog open={isResetPasswordDialogOpen} onOpenChange={setIsResetPasswordDialogOpen}>
+                                <DialogTrigger asChild>
+                                    <Button variant="outline">
+                                        <Mail className="mr-2 h-4 w-4" />
+                                        {__('users.actions.send_password_reset')}
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                    <DialogHeader>
+                                        <DialogTitle>{__('users.send_password_reset.title')}</DialogTitle>
+                                        <DialogDescription>
+                                            {__('users.send_password_reset.description', { email: user.email })}
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <DialogFooter>
+                                        <Button variant="outline" onClick={() => setIsResetPasswordDialogOpen(false)}>
+                                            {__('common.cancel')}
+                                        </Button>
+                                        <Button onClick={handleSendPasswordReset}>
+                                            {__('users.actions.send_reset_link')}
+                                        </Button>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
                         )}
 
                         {canDeleteUsers && (

@@ -4,9 +4,7 @@ namespace App\Actions\Users;
 
 use App\Models\Tenant;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -36,7 +34,6 @@ class UpdateUserAction
                 'max:255', 
                 Rule::unique('users')->ignore($request->user),
             ],
-            'password' => ['nullable', 'confirmed', Password::defaults()],
             'locale' => ['nullable', 'string', 'in:fr,en'],
         ];
     }
@@ -53,12 +50,6 @@ class UpdateUserAction
             'email' => $data['email'],
             'locale' => $data['locale'] ?? $user->locale,
         ]);
-
-        if (!empty($data['password'])) {
-            $user->update([
-                'password' => Hash::make($data['password']),
-            ]);
-        }
 
         return $user;
     }

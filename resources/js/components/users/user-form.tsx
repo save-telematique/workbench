@@ -13,8 +13,6 @@ import { UserResource } from '@/types/resources';
 export interface UserFormData {
   name: string;
   email: string;
-  password: string;
-  password_confirmation: string;
   locale: string;
   [key: string]: string;
 }
@@ -40,8 +38,6 @@ export default function UserForm({
   const { data, setData, submit, processing, errors, recentlySuccessful } = useForm<UserFormData>({
     name: user?.name || '',
     email: user?.email || '',
-    password: '',
-    password_confirmation: '',
     locale: user?.locale || 'fr',
   });
 
@@ -105,40 +101,6 @@ export default function UserForm({
           </div>
 
           <div>
-            <Label htmlFor="password" className="text-sm font-medium">
-              {__(`users.fields.password`)} {isCreate && <span className="text-destructive">*</span>}
-            </Label>
-            <Input
-              id="password"
-              type="password"
-              value={data.password}
-              onChange={(e) => setData('password', e.target.value)}
-              placeholder={__(`users.placeholders.password`)}
-              className="mt-1"
-              required={isCreate}
-              autoComplete="new-password"
-            />
-            <FormError message={errors.password} />
-          </div>
-
-          <div>
-            <Label htmlFor="password_confirmation" className="text-sm font-medium">
-              {__(`users.fields.password_confirmation`)} {isCreate && <span className="text-destructive">*</span>}
-            </Label>
-            <Input
-              id="password_confirmation"
-              type="password"
-              value={data.password_confirmation}
-              onChange={(e) => setData('password_confirmation', e.target.value)}
-              placeholder={__(`users.placeholders.password_confirmation`)}
-              className="mt-1"
-              required={isCreate}
-              autoComplete="new-password"
-            />
-            <FormError message={errors.password_confirmation} />
-          </div>
-
-          <div>
             <Label htmlFor="locale" className="text-sm font-medium">
               {__(`users.fields.locale`)} <span className="text-destructive">*</span>
             </Label>
@@ -156,6 +118,14 @@ export default function UserForm({
             </Select>
             <FormError message={errors.locale} />
           </div>
+
+          {isCreate && (
+            <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+              <p className="text-sm text-blue-800">
+                {__('users.create.password_info')}
+              </p>
+            </div>
+          )}
         </CardContent>
         
         <CardFooter className="flex justify-between border-t pt-6">

@@ -131,14 +131,37 @@ return [
         'basic_information' => 'Basic Information',
         'tenant_assignment' => 'Tenant Assignment',
         'map_drawing' => 'Map Drawing',
-        'map_description' => 'Use the drawing tools to define the geographic area of the geofence.',
-    ],
-
-    'placeholders' => [
-        'name' => 'Enter geofence name...',
-        'group' => 'Select a group...',
-        'tenant' => 'Select a tenant...',
-        'status' => 'Select a status...',
+        'map_description' => 'Use the map tools to draw the geographic area of your geofence. Click on the polygon tool to start.',
+        'sections' => [
+            'basic_information' => [
+                'title' => 'Basic Information',
+                'description' => 'Define the name and status of the geofence.',
+            ],
+            'assignment' => [
+                'title' => 'Assignment',
+                'description' => 'Assign this geofence to a group (optional).',
+            ],
+            'geographic_area' => [
+                'title' => 'Geographic Area',
+                'description' => 'Define the geographic boundaries of this geofence.',
+            ],
+        ],
+        'placeholders' => [
+            'name' => 'Enter geofence name (e.g., "Depot Area")',
+            'group' => 'Select a group (optional)',
+            'tenant' => 'Select tenant',
+            'status' => 'Select status',
+        ],
+        'help' => [
+            'name' => 'Choose a descriptive name for easy identification.',
+            'group' => 'Optionally assign to a group for better organization.',
+            'is_active' => 'Active geofences are monitored for vehicle entries and exits.',
+            'map' => 'Use the drawing tools to define the geographic area of the geofence.',
+        ],
+        'buttons' => [
+            'save' => 'Save Geofence',
+            'cancel' => 'Cancel',
+        ],
     ],
 
     'unnamed' => 'Unnamed geofence',

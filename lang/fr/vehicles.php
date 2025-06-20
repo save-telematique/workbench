@@ -244,6 +244,14 @@ return [
         'route_points' => 'Points de trajet',
         'enable_camera_follow' => 'Activer le suivi',
         'disable_camera_follow' => 'Désactiver le suivi',
+        'current' => 'Actuel',
+        'history' => 'Historique',
+        'jump_to_start' => 'Aller au début',
+        'jump_to_end' => 'Aller à la fin',
+        'play' => 'Lecture',
+        'pause' => 'Pause',
+        'playback_speed' => 'Vitesse de lecture',
+        'heading' => 'Cap',
     ],
     'activity' => [
         'driving' => 'Conduite',
@@ -295,5 +303,13 @@ return [
             'time_distribution' => 'Répartition du temps',
             'activity_distribution' => 'Répartition des activités',
         ],
+    ],
+    'fleet_stats' => [
+        'title' => 'Statistiques de la flotte',
+        'total_vehicles' => 'Total véhicules',
+        'moving' => 'En mouvement',
+        'idling' => 'En marche',
+        'parked' => 'Stationnés',
+        'active_percentage' => 'Véhicules actifs',
     ],
 ]; 

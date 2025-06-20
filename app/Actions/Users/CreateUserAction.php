@@ -5,8 +5,8 @@ namespace App\Actions\Users;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -31,7 +31,6 @@ class CreateUserAction
         $rules = [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->where(fn ($query) => $query->where('tenant_id', $tenant))],
-            'password' => ['required', 'confirmed', Password::defaults()],
             'locale' => ['nullable', 'string', 'in:fr,en'],
         ];
 
@@ -43,7 +42,7 @@ class CreateUserAction
         $userData = [
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => Hash::make($data['password']),
+            'password' => Hash::make(Str::random(32)), // Generate random password
             'locale' => $data['locale'] ?? config('app.locale'),
             'tenant_id' => $tenant ? $tenant->id : null,
         ];

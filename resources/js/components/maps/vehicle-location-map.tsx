@@ -332,8 +332,8 @@ export default function VehicleLocationMap({
   }
 
   const mapContent = (
-    <div className={cn("relative", showFullscreen ? "fixed inset-0 z-50 p-4 bg-background" : "h-[400px] rounded-md overflow-hidden")}>
-      <div className="absolute top-2 right-2 z-10 flex gap-2">
+    <div className={cn("relative", showFullscreen ? "fixed inset-0 z-50 p-4 bg-background" : "h-[300px] sm:h-[400px] rounded-md overflow-hidden")}>
+      <div className="absolute top-2 right-2 z-10 flex gap-1 sm:gap-2">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -342,10 +342,10 @@ export default function VehicleLocationMap({
                 onPressedChange={setShowAllPoints}
                 aria-label={showAllPoints ? __("devices.map.hide_all_points") : __("devices.map.show_all_points")}
                 size="sm"
-                className="bg-background/90 hover:bg-background border border-border shadow-sm"
+                className="bg-background/90 hover:bg-background border border-border shadow-sm h-7 w-7 sm:h-8 sm:w-8"
                 disabled={isPlaying}
               >
-                {showAllPoints ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                {showAllPoints ? <Eye className="h-3 w-3 sm:h-4 sm:w-4" /> : <EyeOff className="h-3 w-3 sm:h-4 sm:w-4" />}
               </Toggle>
             </TooltipTrigger>
             <TooltipContent>
@@ -360,10 +360,10 @@ export default function VehicleLocationMap({
               <Button 
                 variant="outline" 
                 size="icon" 
-                className="h-8 w-8 bg-background/90 hover:bg-background shadow-sm" 
+                className="h-7 w-7 sm:h-8 sm:w-8 bg-background/90 hover:bg-background shadow-sm" 
                 onClick={resetView}
               >
-                <LocateFixed className="h-4 w-4" />
+                <LocateFixed className="h-3 w-3 sm:h-4 sm:w-4" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -378,10 +378,10 @@ export default function VehicleLocationMap({
               <Button 
                 variant="outline" 
                 size="icon" 
-                className="h-8 w-8 bg-background/90 hover:bg-background shadow-sm" 
+                className="h-7 w-7 sm:h-8 sm:w-8 bg-background/90 hover:bg-background shadow-sm" 
                 onClick={() => setShowFullscreen(!showFullscreen)}
               >
-                {showFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+                {showFullscreen ? <Minimize2 className="h-3 w-3 sm:h-4 sm:w-4" /> : <Maximize2 className="h-3 w-3 sm:h-4 sm:w-4" />}
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -639,7 +639,7 @@ export default function VehicleLocationMap({
       </Map>
       
       {showFullscreen && (
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-background/90 p-2 rounded-md shadow-lg z-10 mt-16">
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-background/90 p-2 rounded-md shadow-lg z-10 mt-16 hidden sm:block">
           <div className="flex items-center gap-2 justify-center">
             <Badge variant="outline">
               {locations.length} {__("devices.messages.locations")}
@@ -666,27 +666,27 @@ export default function VehicleLocationMap({
   }
 
   const timelineContent = (
-    <div className="mt-5 bg-muted/10 border rounded-lg p-3">
-      <div className="flex items-center justify-between gap-2 mb-2">
-        <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-          <Badge variant="outline" className="bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800">
+    <div className="mt-4 sm:mt-5 bg-muted/10 border rounded-lg p-2 sm:p-3">
+      <div className="flex items-center justify-between gap-1 sm:gap-2 mb-2">
+        <div className="flex items-center gap-1 text-xs font-medium text-muted-foreground min-w-0">
+          <Badge variant="outline" className="bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800 text-xs px-1 py-0.5 sm:px-2 sm:py-1">
             {formatTime(locations[0].recorded_at)}
           </Badge>
-          <span>{formatDate(locations[0].recorded_at, 'DATE_MED')}</span>
+          <span className="hidden sm:inline">{formatDate(locations[0].recorded_at, 'DATE_MED')}</span>
         </div>
         
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="outline"
                   size="icon"
-                  className="h-7 w-7"
+                  className="h-6 w-6 sm:h-7 sm:w-7"
                   onClick={jumpToStart}
                   disabled={playbackIndex === 0}
                 >
-                  <SkipBack className="h-3.5 w-3.5" />
+                  <SkipBack className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="bottom">
@@ -701,10 +701,10 @@ export default function VehicleLocationMap({
                 <Button
                   variant={isPlaying ? "default" : "outline"}
                   size="icon"
-                  className="h-7 w-7"
+                  className="h-6 w-6 sm:h-7 sm:w-7"
                   onClick={togglePlayback}
                 >
-                  {isPlaying ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
+                  {isPlaying ? <Pause className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> : <Play className="h-3 w-3 sm:h-3.5 sm:w-3.5" />}
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="bottom">
@@ -719,11 +719,11 @@ export default function VehicleLocationMap({
                 <Button
                   variant="outline"
                   size="icon"
-                  className="h-7 w-7"
+                  className="h-6 w-6 sm:h-7 sm:w-7"
                   onClick={jumpToEnd}
                   disabled={playbackIndex === locations.length - 1}
                 >
-                  <SkipForward className="h-3.5 w-3.5" />
+                  <SkipForward className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="bottom">
@@ -740,9 +740,9 @@ export default function VehicleLocationMap({
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-7 px-2 flex items-center gap-1 text-xs"
+                      className="h-6 px-1.5 sm:h-7 sm:px-2 flex items-center gap-1 text-xs"
                     >
-                      {playbackSpeed}x <ChevronDown className="h-3 w-3" />
+                      {playbackSpeed}x <ChevronDown className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                     </Button>
                   </DropdownMenuTrigger>
                 </TooltipTrigger>
@@ -761,16 +761,16 @@ export default function VehicleLocationMap({
           </DropdownMenu>
         </div>
         
-        <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-          <span>{formatDate(locations[locations.length - 1].recorded_at, 'DATE_MED')}</span>
-          <Badge variant="outline" className="bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800">
+        <div className="flex items-center gap-1 text-xs font-medium text-muted-foreground min-w-0">
+          <span className="hidden sm:inline">{formatDate(locations[locations.length - 1].recorded_at, 'DATE_MED')}</span>
+          <Badge variant="outline" className="bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800 text-xs px-1 py-0.5 sm:px-2 sm:py-1">
             {formatTime(locations[locations.length - 1].recorded_at)}
           </Badge>
         </div>
       </div>
       
       <div className="flex items-center gap-2">
-        <div className="text-xs font-medium text-center w-16 bg-yellow-50 dark:bg-yellow-950/30 py-1 px-2 rounded-md border border-yellow-100 dark:border-yellow-900 text-yellow-700 dark:text-yellow-400">
+        <div className="text-xs font-medium text-center w-12 sm:w-16 bg-yellow-50 dark:bg-yellow-950/30 py-1 px-1 sm:px-2 rounded-md border border-yellow-100 dark:border-yellow-900 text-yellow-700 dark:text-yellow-400">
           {getCurrentTimeDisplay()}
         </div>
         
@@ -783,7 +783,7 @@ export default function VehicleLocationMap({
           className="flex-1"
         />
         
-        <div className="text-xs font-medium w-14 text-center bg-muted/20 py-1 px-2 rounded-md border border-muted/20">
+        <div className="text-xs font-medium w-10 sm:w-14 text-center bg-muted/20 py-1 px-1 sm:px-2 rounded-md border border-muted/20">
           {playbackIndex + 1}/{locations.length}
         </div>
       </div>
@@ -792,21 +792,25 @@ export default function VehicleLocationMap({
 
   return (
     <Card className={cn("mb-6", className)}>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <MapIcon className="h-5 w-5" />
-          {__(title)}
-          <Badge variant="outline" className="ml-2">
-            {locations.length} {__("devices.messages.locations")}
-          </Badge>
-          {isCurrentlyMoving && (
-            <Badge variant="default" className="ml-1 bg-green-600">
-              {__("devices.messages.active")}
+      <CardHeader className="pb-3 sm:pb-6">
+        <CardTitle className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2">
+            <MapIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span className="text-sm sm:text-base">{__(title)}</span>
+          </div>
+          <div className="flex items-center gap-1 sm:gap-2 ml-auto">
+            <Badge variant="outline" className="text-xs">
+              {locations.length} {__("devices.messages.locations")}
             </Badge>
-          )}
+            {isCurrentlyMoving && (
+              <Badge variant="default" className="bg-green-600 text-xs">
+                {__("devices.messages.active")}
+              </Badge>
+            )}
+          </div>
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-0">
         {mapContent}
         {timelineContent}
       </CardContent>

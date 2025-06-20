@@ -30,6 +30,7 @@ interface TenantUserShowProps {
 
 export default function TenantUserShow({ tenant, user }: TenantUserShowProps) {
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] = useState(false);
     const { __ } = useTranslation();
     const canEditTenantUsers = usePermission('edit_tenant_users');
     const canDeleteTenantUsers = usePermission('delete_tenant_users');
@@ -57,6 +58,11 @@ export default function TenantUserShow({ tenant, user }: TenantUserShowProps) {
         router.delete(route('tenants.users.destroy', { tenant: tenant.id, user: user.id }));
     };
 
+    const handleSendPasswordReset = () => {
+        router.post(route('tenants.users.send-password-reset', { tenant: tenant.id, user: user.id }));
+        setIsResetPasswordDialogOpen(false);
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={__('tenant_users.show.title', { name: user.name, tenant: tenant.name })} />
@@ -77,6 +83,34 @@ export default function TenantUserShow({ tenant, user }: TenantUserShowProps) {
                                 </Link>
                             </Button>
                         )}
+
+                        {canEditTenantUsers && (
+                            <Dialog open={isResetPasswordDialogOpen} onOpenChange={setIsResetPasswordDialogOpen}>
+                                <DialogTrigger asChild>
+                                    <Button variant="outline">
+                                        <Mail className="mr-2 h-4 w-4" />
+                                        {__('tenant_users.actions.send_password_reset')}
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                    <DialogHeader>
+                                        <DialogTitle>{__('tenant_users.send_password_reset.title')}</DialogTitle>
+                                        <DialogDescription>
+                                            {__('tenant_users.send_password_reset.description', { email: user.email })}
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <DialogFooter>
+                                        <Button variant="outline" onClick={() => setIsResetPasswordDialogOpen(false)}>
+                                            {__('common.cancel')}
+                                        </Button>
+                                        <Button onClick={handleSendPasswordReset}>
+                                            {__('tenant_users.actions.send_reset_link')}
+                                        </Button>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
+                        )}
+
                         <Button variant="outline" asChild>
                             <Link href={route('tenants.users.index', { tenant: tenant.id })}>
                                 <ArrowLeft className="mr-2 h-4 w-4" />

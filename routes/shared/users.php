@@ -2,6 +2,7 @@
 
 use App\Actions\Users\CreateUserAction;
 use App\Actions\Users\DeleteUserAction;
+use App\Actions\Users\SendPasswordResetLinkAction;
 use App\Actions\Users\UpdateUserAction;
 use App\Actions\Users\UpdateUserRolesAction;
 use App\Http\Controllers\Users\UserController;
@@ -18,4 +19,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/users/{user}', UpdateUserAction::class)->name('users.update');
     Route::delete('/users/{user}', DeleteUserAction::class)->name('users.destroy');
     Route::put('/users/{user}/roles', UpdateUserRolesAction::class)->name('users.roles.update');
+    Route::post('/users/{user}/send-password-reset', SendPasswordResetLinkAction::class)->name('users.send-password-reset');
 });

@@ -68,6 +68,8 @@ export default function GeofenceDrawingMap({
     const [hasDrawnFeature, setHasDrawnFeature] = useState(false);
     const [showExisting, setShowExisting] = useState(showExistingGeofences);
     const [isFullscreen, setIsFullscreen] = useState(false);
+    const [mapLoaded, setMapLoaded] = useState(false);
+    const [mapError, setMapError] = useState<string | null>(null);
     const [hoveredGeofence, setHoveredGeofence] = useState<{ 
         id: string; 
         name: string; 
@@ -78,163 +80,217 @@ export default function GeofenceDrawingMap({
     // Mapbox token from environment
     const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
-    // Initialize Mapbox Draw
+    // Log debugging information
     useEffect(() => {
-        if (!mapRef.current || drawRef.current) return;
-
-        const draw = new MapboxDraw({
-            displayControlsDefault: false,
-            controls: {},
-            styles: [
-                // Polygon fill
-                {
-                    id: 'gl-draw-polygon-fill-inactive',
-                    type: 'fill',
-                    filter: ['all', ['==', 'active', 'false'], ['==', '$type', 'Polygon'], ['!=', 'mode', 'static']],
-                    paint: {
-                        'fill-color': '#3b82f6',
-                        'fill-outline-color': '#3b82f6',
-                        'fill-opacity': 0.1
-                    }
-                },
-                {
-                    id: 'gl-draw-polygon-fill-active',
-                    type: 'fill',
-                    filter: ['all', ['==', 'active', 'true'], ['==', '$type', 'Polygon']],
-                    paint: {
-                        'fill-color': '#fbbf24',
-                        'fill-outline-color': '#fbbf24',
-                        'fill-opacity': 0.1
-                    }
-                },
-                // Polygon stroke
-                {
-                    id: 'gl-draw-polygon-stroke-inactive',
-                    type: 'line',
-                    filter: ['all', ['==', 'active', 'false'], ['==', '$type', 'Polygon'], ['!=', 'mode', 'static']],
-                    layout: {
-                        'line-cap': 'round',
-                        'line-join': 'round'
-                    },
-                    paint: {
-                        'line-color': '#3b82f6',
-                        'line-width': 2
-                    }
-                },
-                {
-                    id: 'gl-draw-polygon-stroke-active',
-                    type: 'line',
-                    filter: ['all', ['==', 'active', 'true'], ['==', '$type', 'Polygon']],
-                    layout: {
-                        'line-cap': 'round',
-                        'line-join': 'round'
-                    },
-                    paint: {
-                        'line-color': '#fbbf24',
-                        'line-width': 3
-                    }
-                },
-                // Vertex points
-                {
-                    id: 'gl-draw-polygon-and-line-vertex-stroke-inactive',
-                    type: 'circle',
-                    filter: ['all', ['==', 'meta', 'vertex'], ['==', '$type', 'Point'], ['!=', 'mode', 'static']],
-                    paint: {
-                        'circle-radius': 5,
-                        'circle-color': '#fff'
-                    }
-                },
-                {
-                    id: 'gl-draw-polygon-and-line-vertex-inactive',
-                    type: 'circle',
-                    filter: ['all', ['==', 'meta', 'vertex'], ['==', '$type', 'Point'], ['!=', 'mode', 'static']],
-                    paint: {
-                        'circle-radius': 3,
-                        'circle-color': '#fbbf24',
-                    }
-                }
-            ]
+        console.log('GeofenceDrawingMap - Configuration:', {
+            mapboxToken: mapboxToken ? 'Present' : 'Missing',
+            readonly,
+            initialGeojson: !!initialGeojson,
+            height,
+            center,
+            zoom
         });
 
-        // Add draw control to map
-        mapRef.current.getMap().addControl(draw, 'top-left');
-        drawRef.current = draw;
+        if (!mapboxToken) {
+            const errorMsg = 'VITE_MAPBOX_TOKEN is not defined. Please check your .env file.';
+            console.error(errorMsg);
+            setMapError(errorMsg);
+        }
+    }, [mapboxToken, readonly, initialGeojson, height, center, zoom]);
 
-        // Set up event listeners
-        const onDrawCreate = () => {
-            setHasDrawnFeature(true);
-            if (onGeofenceChange) {
-                const features = draw.getAll();
-                if (features.features.length > 0) {
-                    onGeofenceChange(features.features[0].geometry as GeoJSON.Geometry);
-                }
-            }
-        };
-
-        const onDrawUpdate = () => {
-            if (onGeofenceChange) {
-                const features = draw.getAll();
-                if (features.features.length > 0) {
-                    onGeofenceChange(features.features[0].geometry as GeoJSON.Geometry);
-                }
-            }
-        };
-
-        const onDrawDelete = () => {
-            setHasDrawnFeature(false);
-            if (onGeofenceChange) {
-                onGeofenceChange(null);
-            }
-        };
-
-        const onDrawModeChange = (e: { mode: string }) => {
-            setCurrentMode(e.mode);
-        };
-
-        mapRef.current.getMap().on('draw.create', onDrawCreate);
-        mapRef.current.getMap().on('draw.update', onDrawUpdate);
-        mapRef.current.getMap().on('draw.delete', onDrawDelete);
-        mapRef.current.getMap().on('draw.modechange', onDrawModeChange);
-
-        // Load initial geojson if provided
-        if (initialGeojson) {
-            const featureIds = draw.add({
-                type: 'Feature',
-                properties: {},
-                geometry: initialGeojson
+    // Initialize Mapbox Draw
+    useEffect(() => {
+        if (!mapRef.current || drawRef.current || readonly || !mapLoaded || mapError) {
+            console.log('Skipping draw initialization:', {
+                mapRef: !!mapRef.current,
+                drawRef: !!drawRef.current,
+                readonly,
+                mapLoaded,
+                mapError
             });
-            setHasDrawnFeature(true);
-            
-            // If not readonly and has initial data, start in edit mode
-            if (!readonly && featureIds && featureIds.length > 0) {
-                setTimeout(() => {
-                    draw.changeMode('direct_select', {
-                        featureId: featureIds[0]
-                    });
-                }, 200);
-            }
-        } else if (!readonly) {
-            // If no initial data and not readonly, start in draw mode
-            setTimeout(() => {
-                draw.changeMode('draw_polygon');
-            }, 100);
+            return;
         }
 
-        return () => {
-            if (mapRef.current && drawRef.current) {
-                mapRef.current.getMap().off('draw.create', onDrawCreate);
-                mapRef.current.getMap().off('draw.update', onDrawUpdate);
-                mapRef.current.getMap().off('draw.delete', onDrawDelete);
-                mapRef.current.getMap().off('draw.modechange', onDrawModeChange);
-                mapRef.current.getMap().removeControl(drawRef.current);
-                drawRef.current = null;
+        console.log('Initializing Mapbox Draw...');
+
+        try {
+            const draw = new MapboxDraw({
+                displayControlsDefault: false,
+                controls: {},
+                styles: [
+                    // Polygon fill
+                    {
+                        id: 'gl-draw-polygon-fill-inactive',
+                        type: 'fill',
+                        filter: ['all', ['==', 'active', 'false'], ['==', '$type', 'Polygon'], ['!=', 'mode', 'static']],
+                        paint: {
+                            'fill-color': '#3b82f6',
+                            'fill-outline-color': '#3b82f6',
+                            'fill-opacity': 0.1
+                        }
+                    },
+                    {
+                        id: 'gl-draw-polygon-fill-active',
+                        type: 'fill',
+                        filter: ['all', ['==', 'active', 'true'], ['==', '$type', 'Polygon']],
+                        paint: {
+                            'fill-color': '#fbbf24',
+                            'fill-outline-color': '#fbbf24',
+                            'fill-opacity': 0.1
+                        }
+                    },
+                    // Polygon stroke
+                    {
+                        id: 'gl-draw-polygon-stroke-inactive',
+                        type: 'line',
+                        filter: ['all', ['==', 'active', 'false'], ['==', '$type', 'Polygon'], ['!=', 'mode', 'static']],
+                        layout: {
+                            'line-cap': 'round',
+                            'line-join': 'round'
+                        },
+                        paint: {
+                            'line-color': '#3b82f6',
+                            'line-width': 2
+                        }
+                    },
+                    {
+                        id: 'gl-draw-polygon-stroke-active',
+                        type: 'line',
+                        filter: ['all', ['==', 'active', 'true'], ['==', '$type', 'Polygon']],
+                        layout: {
+                            'line-cap': 'round',
+                            'line-join': 'round'
+                        },
+                        paint: {
+                            'line-color': '#fbbf24',
+                            'line-width': 3
+                        }
+                    },
+                    // Vertex points
+                    {
+                        id: 'gl-draw-polygon-and-line-vertex-stroke-inactive',
+                        type: 'circle',
+                        filter: ['all', ['==', 'meta', 'vertex'], ['==', '$type', 'Point'], ['!=', 'mode', 'static']],
+                        paint: {
+                            'circle-radius': 5,
+                            'circle-color': '#fff'
+                        }
+                    },
+                    {
+                        id: 'gl-draw-polygon-and-line-vertex-inactive',
+                        type: 'circle',
+                        filter: ['all', ['==', 'meta', 'vertex'], ['==', '$type', 'Point'], ['!=', 'mode', 'static']],
+                        paint: {
+                            'circle-radius': 3,
+                            'circle-color': '#fbbf24',
+                        }
+                    }
+                ]
+            });
+
+            // Add draw control to map
+            const map = mapRef.current.getMap();
+            map.addControl(draw, 'top-left');
+            drawRef.current = draw;
+
+            console.log('Mapbox Draw initialized successfully');
+
+            // Set up event listeners
+            const onDrawCreate = (e: { features: GeoJSON.Feature[] }) => {
+                console.log('Draw create event:', e);
+                setHasDrawnFeature(true);
+                if (onGeofenceChange) {
+                    const features = draw.getAll();
+                    if (features.features.length > 0) {
+                        onGeofenceChange(features.features[0].geometry as GeoJSON.Geometry);
+                    }
+                }
+            };
+
+            const onDrawUpdate = (e: { features: GeoJSON.Feature[]; action: string }) => {
+                console.log('Draw update event:', e);
+                if (onGeofenceChange) {
+                    const features = draw.getAll();
+                    if (features.features.length > 0) {
+                        onGeofenceChange(features.features[0].geometry as GeoJSON.Geometry);
+                    }
+                }
+            };
+
+            const onDrawDelete = (e: { features: GeoJSON.Feature[] }) => {
+                console.log('Draw delete event:', e);
+                setHasDrawnFeature(false);
+                if (onGeofenceChange) {
+                    onGeofenceChange(null);
+                }
+            };
+
+            const onDrawModeChange = (e: { mode: string }) => {
+                console.log('Draw mode change:', e.mode);
+                setCurrentMode(e.mode);
+            };
+
+            map.on('draw.create', onDrawCreate);
+            map.on('draw.update', onDrawUpdate);
+            map.on('draw.delete', onDrawDelete);
+            map.on('draw.modechange', onDrawModeChange);
+
+            // Load initial geojson if provided
+            if (initialGeojson) {
+                console.log('Loading initial geojson:', initialGeojson);
+                try {
+                    const featureIds = draw.add({
+                        type: 'Feature',
+                        properties: {},
+                        geometry: initialGeojson
+                    });
+                    setHasDrawnFeature(true);
+                    
+                    // If not readonly and has initial data, start in edit mode
+                    if (!readonly && featureIds && featureIds.length > 0) {
+                        setTimeout(() => {
+                            if (drawRef.current) {
+                                draw.changeMode('direct_select', {
+                                    featureId: featureIds[0]
+                                });
+                            }
+                        }, 300);
+                    }
+                } catch (error) {
+                    console.error('Error loading initial geojson:', error);
+                }
+            } else if (!readonly) {
+                // If no initial data and not readonly, provide instructions for drawing
+                console.log('No initial data, ready for drawing');
             }
-        };
-    }, [onGeofenceChange, readonly]);
+
+            return () => {
+                console.log('Cleaning up Mapbox Draw...');
+                if (mapRef.current && drawRef.current) {
+                    const map = mapRef.current.getMap();
+                    map.off('draw.create', onDrawCreate);
+                    map.off('draw.update', onDrawUpdate);
+                    map.off('draw.delete', onDrawDelete);
+                    map.off('draw.modechange', onDrawModeChange);
+                    try {
+                        map.removeControl(drawRef.current);
+                    } catch (e) {
+                        console.warn('Error removing draw control:', e);
+                    }
+                    drawRef.current = null;
+                }
+            };
+        } catch (error) {
+            console.error('Error initializing Mapbox Draw:', error);
+            setMapError('Failed to initialize drawing tools');
+        }
+    }, [mapLoaded, readonly, mapError, onGeofenceChange]);
 
     // Handle initialGeojson changes separately to ensure proper re-rendering
     useEffect(() => {
-        if (!drawRef.current) return;
+        if (!drawRef.current || readonly) return;
+
+        console.log('Handling initialGeojson change:', initialGeojson);
 
         // Clear existing features
         drawRef.current.deleteAll();
@@ -242,66 +298,84 @@ export default function GeofenceDrawingMap({
 
         // Load new geojson if provided
         if (initialGeojson) {
-            const featureIds = drawRef.current.add({
-                type: 'Feature',
-                properties: {},
-                geometry: initialGeojson
-            });
-            setHasDrawnFeature(true);
-            
-            // If not readonly and has initial data, start in edit mode
-            if (!readonly && featureIds && featureIds.length > 0) {
-                setTimeout(() => {
-                    if (drawRef.current) {
-                        drawRef.current.changeMode('direct_select', {
-                            featureId: featureIds[0]
-                        });
-                    }
-                }, 200);
-            }
-        } else if (!readonly) {
-            // If no initial data and not readonly, start in draw mode
-            setTimeout(() => {
-                if (drawRef.current) {
-                    drawRef.current.changeMode('draw_polygon');
+            try {
+                const featureIds = drawRef.current.add({
+                    type: 'Feature',
+                    properties: {},
+                    geometry: initialGeojson
+                });
+                setHasDrawnFeature(true);
+                
+                // If not readonly and has initial data, start in edit mode
+                if (!readonly && featureIds && featureIds.length > 0) {
+                    setTimeout(() => {
+                        if (drawRef.current) {
+                            drawRef.current.changeMode('direct_select', {
+                                featureId: featureIds[0]
+                            });
+                        }
+                    }, 300);
                 }
-            }, 100);
+            } catch (error) {
+                console.error('Error loading geojson:', error);
+            }
         }
     }, [initialGeojson, readonly]);
 
     // Drawing mode handlers
     const startDrawingPolygon = useCallback(() => {
+        console.log('Starting polygon drawing...');
         if (drawRef.current) {
-            // Clear existing features first
-            drawRef.current.deleteAll();
-            setHasDrawnFeature(false);
-            // Start polygon drawing
-            drawRef.current.changeMode('draw_polygon');
+            try {
+                // Clear existing features first
+                drawRef.current.deleteAll();
+                setHasDrawnFeature(false);
+                // Start polygon drawing
+                drawRef.current.changeMode('draw_polygon');
+                console.log('Polygon drawing mode activated');
+            } catch (error) {
+                console.error('Error starting polygon drawing:', error);
+            }
+        } else {
+            console.error('Draw control not initialized');
         }
     }, []);
 
     const startEditingMode = useCallback(() => {
+        console.log('Starting editing mode...');
         if (drawRef.current) {
-            const features = drawRef.current.getAll();
-            if (features.features.length > 0) {
-                const feature = features.features[0] as DrawFeatureWithId;
-                drawRef.current.changeMode('direct_select', {
-                    featureId: feature.id
-                });
-            } else {
-                drawRef.current.changeMode('simple_select');
+            try {
+                const features = drawRef.current.getAll();
+                if (features.features.length > 0) {
+                    const feature = features.features[0] as DrawFeatureWithId;
+                    drawRef.current.changeMode('direct_select', {
+                        featureId: feature.id
+                    });
+                    console.log('Edit mode activated for feature:', feature.id);
+                } else {
+                    drawRef.current.changeMode('simple_select');
+                    console.log('No features to edit, switched to simple select');
+                }
+            } catch (error) {
+                console.error('Error starting editing mode:', error);
             }
+        } else {
+            console.error('Draw control not initialized');
         }
     }, []);
 
-
-
     const clearAll = useCallback(() => {
+        console.log('Clearing all features...');
         if (drawRef.current) {
-            drawRef.current.deleteAll();
-            setHasDrawnFeature(false);
-            if (onGeofenceChange) {
-                onGeofenceChange(null);
+            try {
+                drawRef.current.deleteAll();
+                setHasDrawnFeature(false);
+                if (onGeofenceChange) {
+                    onGeofenceChange(null);
+                }
+                console.log('All features cleared');
+            } catch (error) {
+                console.error('Error clearing features:', error);
             }
         }
     }, [onGeofenceChange]);
@@ -315,6 +389,19 @@ export default function GeofenceDrawingMap({
             });
         }
     }, [center, zoom]);
+
+    // Handle map load event
+    const handleMapLoad = useCallback(() => {
+        console.log('Map loaded successfully');
+        setMapLoaded(true);
+        setMapError(null);
+    }, []);
+
+    // Handle map error event
+    const handleMapError = useCallback((e: { error: Error }) => {
+        console.error('Map error:', e.error);
+        setMapError('Failed to load map. Please check your internet connection and Mapbox token.');
+    }, []);
 
     // Create GeoJSON for existing geofences
     const existingGeofencesGeoJSON = {
@@ -330,6 +417,26 @@ export default function GeofenceDrawingMap({
         }))
     };
 
+    // Show error state if token is missing or other critical errors
+    if (mapError) {
+        return (
+            <div className={cn(
+                "relative border rounded-md overflow-hidden bg-muted/20 flex items-center justify-center",
+                className
+            )} style={{ height }}>
+                <div className="text-center p-6">
+                    <div className="text-red-500 mb-2">⚠️ Erreur de carte</div>
+                    <p className="text-sm text-muted-foreground">{mapError}</p>
+                    {!mapboxToken && (
+                        <p className="text-xs text-muted-foreground mt-2">
+                            Vérifiez que VITE_MAPBOX_TOKEN est défini dans votre fichier .env
+                        </p>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
     const mapContent = (
         <div className={cn(
             "relative border rounded-md overflow-hidden bg-muted/20",
@@ -337,69 +444,72 @@ export default function GeofenceDrawingMap({
             className
         )} style={{ height: isFullscreen ? "100vh" : height }}>
             
-            {/* Drawing Controls */}
-            <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
-                <div className="flex flex-col gap-1 bg-background/90 p-2 rounded-md shadow-sm">
-                    <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button
-                                    type="button"
-                                    variant={currentMode === 'draw_polygon' ? "default" : "outline"}
-                                    size="sm"
-                                    onClick={startDrawingPolygon}
-                                    className="h-8 w-8 p-0"
-                                >
-                                    <Square className="h-4 w-4" />
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                {__("geofences.map.draw_polygon")}
-                            </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
+            {/* Drawing Controls - Only show when not readonly */}
+            {!readonly && (
+                <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
+                    <div className="flex flex-col gap-1 bg-background/90 p-2 rounded-md shadow-sm">
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        type="button"
+                                        variant={currentMode === 'draw_polygon' ? "default" : "outline"}
+                                        size="sm"
+                                        onClick={startDrawingPolygon}
+                                        disabled={!mapLoaded || !drawRef.current}
+                                        className="h-8 w-8 p-0"
+                                    >
+                                        <Square className="h-4 w-4" />
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    {__("geofences.map.draw_polygon")}
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
 
-                    <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button
-                                    type="button"
-                                    variant={currentMode === 'direct_select' ? "default" : "outline"}
-                                    size="sm"
-                                    onClick={startEditingMode}
-                                    disabled={!hasDrawnFeature}
-                                    className="h-8 w-8 p-0"
-                                >
-                                    <Move className="h-4 w-4" />
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                {__("geofences.map.edit_polygon")}
-                            </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        type="button"
+                                        variant={currentMode === 'direct_select' ? "default" : "outline"}
+                                        size="sm"
+                                        onClick={startEditingMode}
+                                        disabled={!hasDrawnFeature || !mapLoaded || !drawRef.current}
+                                        className="h-8 w-8 p-0"
+                                    >
+                                        <Move className="h-4 w-4" />
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    {__("geofences.map.edit_polygon")}
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
 
-                    <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={clearAll}
-                                    disabled={!hasDrawnFeature}
-                                    className="h-8 w-8 p-0"
-                                >
-                                    <Trash2 className="h-4 w-4" />
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                {__("geofences.map.clear_all")}
-                            </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={clearAll}
+                                        disabled={!hasDrawnFeature || !mapLoaded || !drawRef.current}
+                                        className="h-8 w-8 p-0"
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    {__("geofences.map.clear_all")}
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* View Controls */}
             <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">
@@ -476,11 +586,18 @@ export default function GeofenceDrawingMap({
             )}
 
             {/* Instructions */}
-            {!readonly && !hasDrawnFeature && currentMode === 'simple_select' && (
+            {!readonly && !hasDrawnFeature && currentMode === 'simple_select' && mapLoaded && (
                 <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10">
                     <div className="bg-background/90 px-3 py-2 rounded-md shadow-sm text-sm text-muted-foreground">
                         {__("geofences.map.click_polygon_to_start")}
                     </div>
+                </div>
+            )}
+
+            {/* Loading indicator */}
+            {!mapLoaded && !mapError && (
+                <div className="absolute inset-0 flex items-center justify-center z-10 bg-background/50">
+                    <div className="text-sm text-muted-foreground">Chargement de la carte...</div>
                 </div>
             )}
 
@@ -491,6 +608,8 @@ export default function GeofenceDrawingMap({
                 mapStyle="mapbox://styles/mapbox/streets-v12"
                 mapboxAccessToken={mapboxToken}
                 style={{ width: "100%", height: "100%" }}
+                onLoad={handleMapLoad}
+                onError={handleMapError}
                 onMouseMove={(e) => {
                     if (readonly && onGeofenceClick && showExisting && existingGeofences.length > 0) {
                         try {

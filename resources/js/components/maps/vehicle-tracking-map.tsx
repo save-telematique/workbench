@@ -791,31 +791,33 @@ export default function VehicleTrackingMap({
   // Return the map card component
   return (
     <Card className={cn("mb-6", className)}>
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+      <CardHeader className="pb-3 sm:pb-6">
+        <CardTitle className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2">
-            <MapIcon className="h-5 w-5" />
-            {__(title)}
+            <MapIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span className="text-sm sm:text-base">{__(title)}</span>
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             {/* History mode toggle */}
             <div className="flex items-center">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={toggleHistoryMode}
-                className="flex items-center gap-1.5"
+                className="flex items-center gap-1 sm:gap-1.5 h-7 sm:h-8 px-2 sm:px-3 text-xs"
               >
                 {historyMode ? (
                   <>
-                    <ArrowLeft className="h-3.5 w-3.5" />
-                    {__("vehicles.map.current_position")}
+                    <ArrowLeft className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                    <span className="hidden sm:inline">{__("vehicles.map.current_position")}</span>
+                    <span className="sm:hidden">{__("vehicles.map.current")}</span>
                   </>
                 ) : (
                   <>
-                    <History className="h-3.5 w-3.5" />
-                    {__("vehicles.map.history_mode")}
+                    <History className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                    <span className="hidden sm:inline">{__("vehicles.map.history_mode")}</span>
+                    <span className="sm:hidden">{__("vehicles.map.history")}</span>
                   </>
                 )}
               </Button>
@@ -823,16 +825,29 @@ export default function VehicleTrackingMap({
             
             {/* Date picker - only show in history mode if enabled */}
             {historyMode && showDatePicker && (
-              <DatePicker
-                date={selectedDate}
-                onSelect={setSelectedDate}
-                disabled={loading}
-              />
+              <div className="hidden sm:block">
+                <DatePicker
+                  date={selectedDate}
+                  onSelect={setSelectedDate}
+                  disabled={loading}
+                />
+              </div>
             )}
           </div>
         </CardTitle>
+        
+        {/* Mobile date picker - show below title on mobile */}
+        {historyMode && showDatePicker && (
+          <div className="mt-2 sm:hidden">
+            <DatePicker
+              date={selectedDate}
+              onSelect={setSelectedDate}
+              disabled={loading}
+            />
+          </div>
+        )}
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-0">
         {error ? (
           <div className="flex flex-col items-center justify-center p-8 text-center bg-muted/20 rounded-md">
             <AlertTriangle className="h-10 w-10 text-red-500 mb-2" />
@@ -846,7 +861,7 @@ export default function VehicleTrackingMap({
         ) : (
           <>
             {/* Map */}
-            <div className="h-[400px] relative">
+            <div className="h-[300px] sm:h-[400px] relative">
               <BaseMap
                 initialRefreshInterval={60}
                 showFullscreenOption={true}
@@ -858,18 +873,22 @@ export default function VehicleTrackingMap({
                 lastRefresh={lastRefresh}
                 showInfoPanel={false}
                 stats={
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
                     {!historyMode && locations.length > 0 && (
-                      <Badge variant="outline" className="bg-background/50">
-                        {vehicle.registration} {vehicle.current_location?.moving 
-                          ? __("vehicles.status.moving") 
-                          : vehicle.current_location?.ignition 
-                            ? __("vehicles.status.idling") 
-                            : __("vehicles.status.parked")}
+                      <Badge variant="outline" className="bg-background/50 text-xs">
+                        <span className="hidden sm:inline">{vehicle.registration}</span>
+                        <span className="sm:hidden">{vehicle.registration.split('-')[0]}</span>
+                        <span className="ml-1">
+                          {vehicle.current_location?.moving 
+                            ? __("vehicles.status.moving") 
+                            : vehicle.current_location?.ignition 
+                              ? __("vehicles.status.idling") 
+                              : __("vehicles.status.parked")}
+                        </span>
                       </Badge>
                     )}
                     {historyMode && locations.length > 0 && (
-                      <Badge variant="outline" className="bg-background/50">
+                      <Badge variant="outline" className="bg-background/50 text-xs">
                         {__("vehicles.map.route_points")}: {locations.length}
                       </Badge>
                     )}
@@ -885,9 +904,9 @@ export default function VehicleTrackingMap({
                 {renderMapElements()}
                 
                 {loading && (
-                  <div className="absolute top-3 left-3 bg-background/85 backdrop-blur-sm p-2 rounded-md shadow-md text-sm flex items-center">
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Loading...
+                  <div className="absolute top-3 left-3 bg-background/85 backdrop-blur-sm p-1.5 sm:p-2 rounded-md shadow-md text-xs sm:text-sm flex items-center">
+                    <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2 animate-spin" />
+                    <span className="hidden sm:inline">Loading...</span>
                   </div>
                 )}
               </BaseMap>
@@ -895,66 +914,62 @@ export default function VehicleTrackingMap({
 
             {/* Playback controls - only show in history mode */}
             {historyMode && locations.length > 0 && (
-              <div className="mt-4 space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
+              <div className="mt-3 sm:mt-4 space-y-2">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <div className="flex items-center space-x-1 sm:space-x-2">
                     <Button 
                       variant="outline" 
                       size="icon" 
-                      className="h-8 w-8"
+                      className="h-7 w-7 sm:h-8 sm:w-8"
                       onClick={jumpToStart} 
                       disabled={playbackIndex === 0}
                     >
-                      <SkipBack className="h-4 w-4" />
+                      <SkipBack className="h-3 w-3 sm:h-4 sm:w-4" />
                     </Button>
                     
                     <Button
                       variant={isPlaying ? "default" : "outline"}
                       size="icon"
-                      className="h-8 w-8"
+                      className="h-7 w-7 sm:h-8 sm:w-8"
                       onClick={togglePlayback}
                       disabled={locations.length <= 1}
                     >
                       {isPlaying ? (
-                        <Pause className="h-4 w-4" />
+                        <Pause className="h-3 w-3 sm:h-4 sm:w-4" />
                       ) : (
-                        <Play className="h-4 w-4" />
+                        <Play className="h-3 w-3 sm:h-4 sm:w-4" />
                       )}
                     </Button>
                     
                     <Button 
                       variant="outline" 
                       size="icon" 
-                      className="h-8 w-8"
+                      className="h-7 w-7 sm:h-8 sm:w-8"
                       onClick={jumpToEnd}
                       disabled={playbackIndex === locations.length - 1}
                     >
-                      <SkipForward className="h-4 w-4" />
+                      <SkipForward className="h-3 w-3 sm:h-4 sm:w-4" />
                     </Button>
                   </div>
                   
-                  <div className="flex items-center gap-2 text-sm">
-                    <Clock className="h-4 w-4" />
+                  <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+                    <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
                     <span className="font-medium">{getCurrentTimeDisplay()}</span>
                     
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => setShowAllPoints(!showAllPoints)}
-                      className="ml-2 h-7 text-xs"
+                      className="ml-1 sm:ml-2 h-6 sm:h-7 text-xs px-2"
                       disabled={isPlaying}
                     >
-                      {showAllPoints ? (
-                        <>
-                          <MapPin className="mr-1 h-3 w-3" />
-                          {__("vehicles.map.hide_points")}
-                        </>
-                      ) : (
-                        <>
-                          <MapPin className="mr-1 h-3 w-3" />
-                          {__("vehicles.map.show_all_points")}
-                        </>
-                      )}
+                      <MapPin className="mr-1 h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                      <span className="hidden sm:inline">
+                        {showAllPoints ? __("vehicles.map.hide_points") : __("vehicles.map.show_all_points")}
+                      </span>
+                      <span className="sm:hidden">
+                        {showAllPoints ? "Hide" : "Show"}
+                      </span>
                     </Button>
                     
                     {/* Camera follow button - controls whether the map view follows the vehicle during playback */}
@@ -962,20 +977,21 @@ export default function VehicleTrackingMap({
                       variant={followCamera ? "default" : "outline"} 
                       size="sm"
                       onClick={() => setFollowCamera(!followCamera)}
-                      className="ml-1 h-7 text-xs"
+                      className="ml-1 h-6 sm:h-7 text-xs px-2"
                       disabled={isPlaying && !followCamera}
                     >
-                      <Navigation2 className="mr-1 h-3 w-3" />
-                      {followCamera ? (
-                        __("vehicles.map.disable_camera_follow")
-                      ) : (
-                        __("vehicles.map.enable_camera_follow")
-                      )}
+                      <Navigation2 className="mr-1 h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                      <span className="hidden sm:inline">
+                        {followCamera ? __("vehicles.map.disable_camera_follow") : __("vehicles.map.enable_camera_follow")}
+                      </span>
+                      <span className="sm:hidden">
+                        {followCamera ? "Fixed" : "Follow"}
+                      </span>
                     </Button>
                   </div>
                 </div>
                 
-                <div className="pt-2">
+                <div className="pt-1 sm:pt-2">
                   <Slider
                     value={[playbackIndex]}
                     max={locations.length - 1}
@@ -989,13 +1005,13 @@ export default function VehicleTrackingMap({
                   <div>
                     {locations.length > 0 && formatTime(locations[0].recorded_at)}
                   </div>
-                  <div>
-                    {__("vehicles.map.speed")}: 
+                  <div className="flex items-center gap-1">
+                    <span className="hidden sm:inline">{__("vehicles.map.speed")}:</span>
                     <Button
                       variant="link"
                       onClick={() => setPlaybackSpeed(1)}
                       className={cn(
-                        "h-5 px-1 text-xs",
+                        "h-4 px-1 text-xs",
                         playbackSpeed === 1 ? "text-primary font-medium" : "text-muted-foreground"
                       )}
                     >
@@ -1005,7 +1021,7 @@ export default function VehicleTrackingMap({
                       variant="link"
                       onClick={() => setPlaybackSpeed(2)}
                       className={cn(
-                        "h-5 px-1 text-xs",
+                        "h-4 px-1 text-xs",
                         playbackSpeed === 2 ? "text-primary font-medium" : "text-muted-foreground"
                       )}
                     >
@@ -1015,7 +1031,7 @@ export default function VehicleTrackingMap({
                       variant="link"
                       onClick={() => setPlaybackSpeed(4)}
                       className={cn(
-                        "h-5 px-1 text-xs",
+                        "h-4 px-1 text-xs",
                         playbackSpeed === 4 ? "text-primary font-medium" : "text-muted-foreground"
                       )}
                     >
@@ -1029,9 +1045,9 @@ export default function VehicleTrackingMap({
               </div>
             )}
             
-            {/* Route stats - only show in history mode */}
+            {/* Route stats - only show in history mode and hide some on mobile */}
             {historyMode && locations.length > 0 && (
-              <div className="mt-4 pt-4 border-t flex flex-wrap gap-4 text-sm">
+              <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t flex flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm">
                 <div>
                   <span className="text-muted-foreground mr-1">{__("vehicles.map.total_points")}:</span>
                   <span className="font-medium">{locations.length}</span>
@@ -1043,7 +1059,7 @@ export default function VehicleTrackingMap({
                 </div>
                 
                 {locations.length > 1 && (
-                  <div>
+                  <div className="hidden sm:block">
                     <span className="text-muted-foreground mr-1">{__("vehicles.map.end_time")}:</span>
                     <span className="font-medium">{formatTime(locations[locations.length - 1].recorded_at)}</span>
                   </div>
@@ -1053,15 +1069,17 @@ export default function VehicleTrackingMap({
             
             {/* Single left-aligned refresh info for both modes */}
             <div className="mt-2 text-xs text-left text-muted-foreground">
-              {__("vehicles.map.last_updated")}: {formatDate(lastRefresh, 'TIME')}
+              <span className="hidden sm:inline">{__("vehicles.map.last_updated")}: {formatDate(lastRefresh, 'TIME')}</span>
+              <span className="sm:hidden">Updated: {formatDate(lastRefresh, 'TIME')}</span>
               <span className="mx-1">•</span> 
-              {__("vehicles.map.auto_refresh")}: 60s
+              <span className="hidden sm:inline">{__("vehicles.map.auto_refresh")}: 60s</span>
+              <span className="sm:hidden">Auto: 60s</span>
             </div>
 
             {/* Show the activity at the selected point's time */}
             {historyMode && selectedPoint?.recorded_at && (
               <div className="mt-2">
-                <Badge className="px-2 py-0.5">
+                <Badge className="px-2 py-0.5 text-xs">
                   {__(`vehicles.activity.${getActivityAtTime(selectedPoint.recorded_at)?.name?.toLowerCase() || 'unknown'}`)}
                 </Badge>
               </div>
