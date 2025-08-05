@@ -95,6 +95,7 @@ class PermissionSeeder extends Seeder
         $tenantAdmin = Role::findByName('tenant_admin');
         $tenantAdmin->givePermissionTo([
             'view_users', 'create_users', 'edit_users', 'delete_users',
+            'view_tenant_users', 'create_tenant_users', 'edit_tenant_users', 'delete_tenant_users',
             'view_vehicles', 'create_vehicles', 'edit_vehicles', 'delete_vehicles',
             'view_devices', 'create_devices', 'edit_devices', 'delete_devices',
             'view_drivers', 'create_drivers', 'edit_drivers', 'delete_drivers',
@@ -107,7 +108,8 @@ class PermissionSeeder extends Seeder
         // Tenant Manager permissions
         $tenantManager = Role::findByName('tenant_manager');
         $tenantManager->givePermissionTo([
-            'view_users', 
+            'view_users',
+            'view_tenant_users', 'edit_tenant_users',
             'view_tenant_domains',
             'view_vehicles', 'create_vehicles', 'edit_vehicles',
             'view_devices', 'create_devices', 'edit_devices',

@@ -13,15 +13,26 @@ class SendPasswordResetLinkAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $user = $request->route('user');
+        // Get the user from route parameter (auto-resolved by Laravel)
+        $targetUser = $request->route('user');
         
         // For central users
-        if (!$user->tenant_id) {
+        if (!$request->route('tenant')) {
             return $request->user()->can('edit_users');
         }
         
-        // For tenant users
-        return $request->user()->can('edit_tenant_users');
+        // For tenant users - check permission and tenant ownership
+        if (!$request->user()->can('edit_tenant_users')) {
+            return false;
+        }
+        
+        // Ensure target user belongs to the tenant (for tenant context)
+        $tenant = $request->route('tenant');
+        if ($tenant && $targetUser->tenant_id !== $tenant->id) {
+            return false;
+        }
+        
+        return true;
     }
 
     public function handle(User $user): string
@@ -35,8 +46,10 @@ class SendPasswordResetLinkAction
         return 'error';
     }
 
-    public function asController(ActionRequest $request, User $user)
+    public function asController(ActionRequest $request)
     {
+        $user = $request->route('user');
+        
         $status = $this->handle($user);
         
         $tenant = $user->tenant_id ? $user->tenant : null;
@@ -51,10 +64,6 @@ class SendPasswordResetLinkAction
                 : __('users.messages.password_reset_failed');
         }
 
-        if ($tenant) {
-            return back()->with($status === 'success' ? 'message' : 'error', $message);
-        }
-        
         return back()->with($status === 'success' ? 'message' : 'error', $message);
     }
 } 

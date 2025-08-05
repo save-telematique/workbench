@@ -46,11 +46,7 @@ export default function TenantsDomains({ tenant, domains, app_url }: TenantsDoma
 
     // Extraire le nom d'hôte de l'URL de l'application
     const appHostname = useMemo(() => {
-        try {
-            return new URL(app_url).hostname;
-        } catch {
-            return null;
-        }
+        return app_url;
     }, [app_url]);
 
     // Déterminer si le domaine saisi est un sous-domaine (sans point)
