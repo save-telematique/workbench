@@ -28,6 +28,10 @@ return new class extends Migration
             $table->index(['recorded_at', 'vehicle_id', 'data_point_type_id'], 'idx_vehicle_type_recorded_at');
             $table->index(['recorded_at', 'device_message_id'], 'idx_device_message_recorded_at');
             $table->index(['recorded_at', 'data_point_type_id'], 'idx_type_recorded_at');
+            $table->index(['device_message_id'], 'idx_device_message_id');
+            $table->index(['device_id'], 'idx_device_id');
+            $table->index(['vehicle_id'], 'idx_vehicle_id');
+            $table->index(['data_point_type_id'], 'idx_data_point_type_id');
         });
     }
 
