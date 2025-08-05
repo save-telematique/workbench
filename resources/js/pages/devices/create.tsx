@@ -11,7 +11,7 @@ import DeviceForm from "@/components/devices/device-form";
 interface DeviceCreateProps {
   deviceTypes: DeviceTypeResource[];
   tenants: TenantResource[];
-  vehicles: Pick<VehicleResource, 'id' | 'registration'>[];
+  vehicles: Pick<VehicleResource, 'id' | 'registration' | 'tenant_id'>[];
 }
 
 export default function Create({ deviceTypes, tenants, vehicles }: DeviceCreateProps) {

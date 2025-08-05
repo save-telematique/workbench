@@ -176,6 +176,8 @@ return [
         'tenant' => 'Sélectionnez un client',
         'name' => 'Entrez le nom de l\'appareil',
         'type' => 'Sélectionnez le type d\'appareil',
+        'no_vehicles_for_tenant' => 'Aucun véhicule disponible pour ce client',
+        'select_tenant_first' => 'Sélectionnez d\'abord un client',
     ],
     
     // List related translations

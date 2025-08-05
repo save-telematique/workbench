@@ -19,28 +19,18 @@ import { useForm } from "@inertiajs/react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ImageAnalysisUpload from "@/components/image-analysis-upload";
 import { AnalysisData } from "@/types/analysis";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 interface DeviceFormProps {
   device: Partial<DeviceResource>;
   deviceTypes: DeviceTypeResource[];
   tenants: TenantResource[];
-  vehicles: Pick<VehicleResource, 'id' | 'registration'>[];
+  vehicles: Pick<VehicleResource, 'id' | 'registration' | 'tenant_id'>[];
   isCreate?: boolean;
   onSuccess?: () => void;
 }
 
-// Define the form data type
-interface DeviceFormData {
-  device_type_id: string;
-  tenant_id?: string;
-  vehicle_id?: string;
-  firmware_version: string;
-  serial_number: string;
-  sim_number: string;
-  imei: string;
-  [key: string]: string | number | null | undefined;
-}
+
 
 export default function DeviceForm({
   device,
@@ -54,7 +44,7 @@ export default function DeviceForm({
   const [activeTab, setActiveTab] = useState("manual");
 
   // Initialize form with device data or defaults
-  const { data, setData, processing, errors, recentlySuccessful, post, put } = useForm<DeviceFormData>({
+  const { data, setData, processing, errors, recentlySuccessful, post, put } = useForm({
     device_type_id: device.type?.id.toString() || "",
     tenant_id: device.tenant_id || '',
     vehicle_id: device.vehicle_id || '',
@@ -63,6 +53,41 @@ export default function DeviceForm({
     sim_number: device.sim_number || "",
     imei: device.imei || "",
   });
+
+  // Filter vehicles based on selected tenant
+  const filteredVehicles = useMemo(() => {
+    if (!data.tenant_id) {
+      return vehicles;
+    }
+    return vehicles.filter(vehicle => vehicle.tenant_id === data.tenant_id);
+  }, [vehicles, data.tenant_id]);
+
+  // Handle vehicle selection and auto-set tenant
+  const handleVehicleChange = (vehicleId: string) => {
+    setData(prevData => {
+      const selectedVehicle = vehicles.find(v => v.id === vehicleId);
+      return {
+        ...prevData,
+        vehicle_id: vehicleId,
+        tenant_id: selectedVehicle?.tenant_id || prevData.tenant_id
+      };
+    });
+  };
+
+  // Handle tenant selection and clear vehicle if it doesn't belong to the tenant
+  const handleTenantChange = (tenantId: string) => {
+    setData(prevData => {
+      const vehicleBelongsToTenant = vehicles.find(v => 
+        v.id === prevData.vehicle_id && v.tenant_id === tenantId
+      );
+      
+      return {
+        ...prevData,
+        tenant_id: tenantId,
+        vehicle_id: vehicleBelongsToTenant ? prevData.vehicle_id : ''
+      };
+    });
+  };
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -204,7 +229,7 @@ export default function DeviceForm({
           </Label>
           <Select
             value={data.tenant_id}
-            onValueChange={(value) => setData("tenant_id", value)}
+            onValueChange={handleTenantChange}
           >
             <SelectTrigger id="tenant_id" className="mt-1">
               <SelectValue placeholder={__("devices.placeholders.tenant")} />
@@ -226,17 +251,25 @@ export default function DeviceForm({
           </Label>
           <Select
             value={data.vehicle_id}
-            onValueChange={(value) => setData("vehicle_id", value)}
+            onValueChange={handleVehicleChange}
           >
             <SelectTrigger id="vehicle_id" className="mt-1">
               <SelectValue placeholder={__("devices.placeholders.vehicle")} />
             </SelectTrigger>
             <SelectContent>
-              {vehicles.map((vehicle) => (
-                <SelectItem key={vehicle.id} value={vehicle.id}>
-                  {vehicle.registration}
+              {filteredVehicles.length > 0 ? (
+                filteredVehicles.map((vehicle) => (
+                  <SelectItem key={vehicle.id} value={vehicle.id}>
+                    {vehicle.registration}
+                  </SelectItem>
+                ))
+              ) : (
+                <SelectItem value="" disabled>
+                  {data.tenant_id 
+                    ? __("devices.placeholders.no_vehicles_for_tenant")
+                    : __("devices.placeholders.select_tenant_first")}
                 </SelectItem>
-              ))}
+              )}
             </SelectContent>
           </Select>
           <FormError message={errors.vehicle_id} />

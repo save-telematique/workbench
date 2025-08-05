@@ -172,6 +172,8 @@ return [
         'tenant' => 'Select tenant',
         'name' => 'Enter device name',
         'type' => 'Select device type',
+        'no_vehicles_for_tenant' => 'No vehicles available for this tenant',
+        'select_tenant_first' => 'Select a tenant first',
     ],
     
     // List related translations

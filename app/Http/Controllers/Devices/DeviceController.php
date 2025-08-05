@@ -75,11 +75,8 @@ class DeviceController extends Controller
             'tenant'
         ]);
 
-        $deviceTypes = DeviceType::all();
-
         return Inertia::render('devices/show', [
             'device' => new DeviceResource($device),
-            'deviceTypes' => DeviceTypeResource::collection($deviceTypes),
         ]);
     }
 

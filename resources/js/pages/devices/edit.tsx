@@ -12,7 +12,7 @@ interface DeviceEditProps {
   device: DeviceResource;
   deviceTypes: DeviceTypeResource[];
   tenants: TenantResource[];
-  vehicles: Pick<VehicleResource, 'id' | 'registration'>[];
+  vehicles: Pick<VehicleResource, 'id' | 'registration' | 'tenant_id'>[];
 }
 
 export default function Edit({ device, deviceTypes, tenants, vehicles }: DeviceEditProps) {
@@ -37,7 +37,7 @@ export default function Edit({ device, deviceTypes, tenants, vehicles }: DeviceE
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title={__("devices.actions.edit", { serial: device.serial_number })} />
 
-      <DevicesLayout showSidebar={false}>
+      <DevicesLayout showSidebar={true} device={device}>
         <div className="flex items-center justify-between">
           <HeadingSmall 
             title={__("devices.edit.heading", { serial: device.serial_number })} 
@@ -46,7 +46,7 @@ export default function Edit({ device, deviceTypes, tenants, vehicles }: DeviceE
           <Button variant="outline" asChild>
             <a href={route("devices.show", { device: device.id })}>
               <ArrowLeft className="mr-2 h-4 w-4" />
-              {__("common.back_to_details")}
+              {__("common.back_to_list")}
             </a>
           </Button>
         </div>

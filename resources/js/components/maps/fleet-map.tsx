@@ -570,32 +570,37 @@ const FleetMap: React.FC<FleetMapProps> = ({
 
     // Activity distribution
     const activityDistribution = useMemo(() => {
-        return Object.entries(activityColors).map(([key, { color, label }]) => {
+        const distributions = [];
+        
+        for (const [key, { color, label }] of Object.entries(activityColors)) {
             // Skip default entry
-            if (key === 'default') return null;
+            if (key === 'default') continue;
             
             const activityId = parseInt(key);
             const count = vehicleStats.activitiesCounts[activityId] || 0;
             
-            if (count === 0) return null;
-            
-            // Get fallback values based on activity ID
-            const fallbackText = 
-                key === '0' ? "Repos" :
-                key === '1' ? "Disponibilité" :
-                key === '2' ? "Travail" :
-                key === '3' ? "Conduite" :
-                key === '100' ? "Carte retirée" : label;
-            
-            return (
-                <div key={key} className="flex items-center gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }} />
-                    <span>
-                        {count} {__(`vehicles.activity.${label}`, { fallback: fallbackText })}
-                    </span>
-                </div>
-            );
-        }).filter(Boolean); // Filter out null values
+            // Only include activities that have vehicles
+            if (count > 0) {
+                // Get fallback values based on activity ID
+                const fallbackText = 
+                    key === '0' ? "Repos" :
+                    key === '1' ? "Disponibilité" :
+                    key === '2' ? "Travail" :
+                    key === '3' ? "Conduite" :
+                    key === '100' ? "Carte retirée" : label;
+                
+                distributions.push(
+                    <div key={key} className="flex items-center gap-1.5">
+                        <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }} />
+                        <span>
+                            {count} {__(`vehicles.activity.${label}`, { fallback: fallbackText })}
+                        </span>
+                    </div>
+                );
+            }
+        }
+        
+        return distributions;
     }, [vehicleStats.activitiesCounts, __]);
 
     return (

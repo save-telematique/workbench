@@ -60,8 +60,15 @@ class UpdateVehicleAction
 
         if (isset($data['device_id']) &&
             $data['device_id']
-            && ($device = Device::where('id', $data['device_id'])->where('tenant_id', $vehicle->tenant_id)->first())
+            && ($device = Device::where('id', $data['device_id'])->where(function ($query) use ($vehicle) {
+                $query->where('tenant_id', $vehicle->tenant_id)
+                    ->orWhereNull('tenant_id');
+            })->first())
         ) {
+            if (!$device->tenant_id) {
+                $device->tenant_id = $vehicle->tenant_id;
+            }
+            
             $device->vehicle_id = $vehicle->id;
             $device->save();
         }
