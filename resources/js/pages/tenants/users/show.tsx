@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { TenantResource, UserResource, type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, Pencil, Mail, Calendar, Globe, Trash, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, Pencil, Mail, Calendar, Globe, Trash, Clock, CheckCircle, XCircle, Shield, UserRound } from 'lucide-react';
 
 import FormattedDate from '@/components/formatted-date';
 import HeadingSmall from '@/components/heading-small';
@@ -21,6 +21,7 @@ import AppLayout from '@/layouts/app-layout';
 import TenantsLayout from '@/layouts/tenants/layout';
 import { useTranslation } from '@/utils/translation';
 import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 import { usePermission } from '@/utils/permissions';
 
 interface TenantUserShowProps {
@@ -80,6 +81,15 @@ export default function TenantUserShow({ tenant, user }: TenantUserShowProps) {
                                 <Link href={route('tenants.users.edit', { tenant: tenant.id, user: user.id })}>
                                     <Pencil className="mr-2 h-4 w-4" />
                                     {__('tenant_users.actions.edit')}
+                                </Link>
+                            </Button>
+                        )}
+
+                        {canEditTenantUsers && (
+                            <Button variant="outline" asChild>
+                                <Link href={route('tenants.users.roles.edit', { tenant: tenant.id, user: user.id })}>
+                                    <Shield className="mr-2 h-4 w-4" />
+                                    {__('tenant_users.actions.manage_roles')}
                                 </Link>
                             </Button>
                         )}
@@ -173,6 +183,46 @@ export default function TenantUserShow({ tenant, user }: TenantUserShowProps) {
                                     <Globe className="mr-2 h-4 w-4 text-neutral-500" />
                                     {user.locale === 'fr' ? 'Français' : 'English'}
                                 </p>
+                            </div>
+
+                            <Separator className="my-6" />
+
+                            <div className="space-y-6">
+                                <div>
+                                    <h3 className="mb-2 flex items-center text-lg font-medium">
+                                        <UserRound className="mr-2 h-5 w-5" />
+                                        {__('tenant_users.fields.roles')}
+                                    </h3>
+                                    <div className="flex flex-wrap gap-2">
+                                        {user.roles && user.roles.length > 0 ? (
+                                            user.roles.map((role) => (
+                                                <Badge key={role} variant="secondary">
+                                                    {role}
+                                                </Badge>
+                                            ))
+                                        ) : (
+                                            <p className="text-muted-foreground text-sm">{__('tenant_users.no_roles')}</p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h3 className="mb-2 flex items-center text-lg font-medium">
+                                        <Shield className="mr-2 h-5 w-5" />
+                                        {__('tenant_users.fields.permissions')}
+                                    </h3>
+                                    <div className="flex flex-wrap gap-2">
+                                        {user.permissions && user.permissions.length > 0 ? (
+                                            user.permissions.map((permission) => (
+                                                <Badge key={permission} variant="outline" className="border-blue-200 bg-blue-50 text-blue-700">
+                                                    {permission}
+                                                </Badge>
+                                            ))
+                                        ) : (
+                                            <p className="text-muted-foreground text-sm">{__('tenant_users.no_permissions')}</p>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                         </CardContent>
                         <CardFooter className="border-t pt-6">

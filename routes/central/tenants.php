@@ -8,6 +8,7 @@ use App\Actions\Tenants\DeleteDomainAction;
 use App\Actions\Users\CreateUserAction;
 use App\Actions\Users\SendPasswordResetLinkAction;
 use App\Actions\Users\UpdateUserAction;
+use App\Actions\Users\UpdateUserRolesAction;
 use App\Http\Controllers\Tenants\TenantController;
 use App\Http\Controllers\Tenants\TenantDomainsController;
 use App\Http\Controllers\Tenants\TenantUsersController;
@@ -34,5 +35,7 @@ Route::middleware('auth', 'universal')->group(function () {
     Route::post('/tenants/{tenant}/users', CreateUserAction::class)->name('tenants.users.store');
     Route::put('/tenants/{tenant}/users/{user}', UpdateUserAction::class)->name('tenants.users.update');
     Route::post('/tenants/{tenant}/users/{user}/send-password-reset', SendPasswordResetLinkAction::class)->name('tenants.users.send-password-reset');
+    Route::get('/tenants/{tenant}/users/{user}/roles', [TenantUsersController::class, 'editRoles'])->name('tenants.users.roles.edit');
+    Route::put('/tenants/{tenant}/users/{user}/roles', UpdateUserRolesAction::class)->name('tenants.users.roles.update');
     Route::resource('tenants.users', TenantUsersController::class)->except(['store', 'update']);
 }); 

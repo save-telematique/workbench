@@ -10,6 +10,7 @@ use App\Models\Tenant;
 use App\Models\User;
 use Inertia\Inertia;
 use Inertia\Response;
+use Spatie\Permission\Models\Role;
 
 class TenantUsersController extends Controller
 {
@@ -52,14 +53,11 @@ class TenantUsersController extends Controller
             abort(404);
         }
 
-        $permissionCollection = $user->getPermissionsViaRoles();
-        $roleCollection = $user->getRoleNames();
+        $user->load('roles');
 
         return Inertia::render('tenants/users/show', [
             'tenant' => new TenantResource($tenant),
             'user' => new UserResource($user),
-            'permissions' => $permissionCollection,
-            'roles' => $roleCollection,
         ]);
     }
 
@@ -88,5 +86,52 @@ class TenantUsersController extends Controller
         return Inertia::render('tenants/users/create', [
             'tenant' => new TenantResource($tenant),
         ]);
+    }
+
+    /**
+     * Show the form for editing user roles.
+     */
+    public function editRoles(Tenant $tenant, User $user): Response
+    {
+        $this->authorize('edit_tenant_users');
+
+        // Ensure the user belongs to the tenant
+        if ($user->tenant_id !== $tenant->id) {
+            abort(404);
+        }
+
+        // Only show tenant roles for tenant users
+        $roles = Role::where('name', 'like', 'tenant_%')->get();
+
+        $roles = $roles->map(function ($role) {
+            return [
+                'id' => $role->id,
+                'name' => $role->name,
+                'description' => $this->getRoleDescription($role->name),
+            ];
+        });
+
+        $user->load('roles');
+
+        return Inertia::render('tenants/users/roles', [
+            'tenant' => new TenantResource($tenant),
+            'user' => new UserResource($user),
+            'roles' => $roles,
+        ]);
+    }
+
+    /**
+     * Get a human-readable description for a role.
+     */
+    private function getRoleDescription(string $roleName): string
+    {
+        $descriptions = [
+            'tenant_admin' => 'Tenant Administrator with full tenant access',
+            'tenant_manager' => 'Tenant Manager with extensive access',
+            'tenant_user' => 'Tenant standard user',
+            'tenant_viewer' => 'Tenant user with view-only access',
+        ];
+
+        return $descriptions[$roleName] ?? $roleName;
     }
 } 
