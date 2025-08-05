@@ -14,7 +14,7 @@ class SendPasswordResetLinkAction
     public function authorize(ActionRequest $request): bool
     {
         // Get the user from route parameter (auto-resolved by Laravel)
-        $targetUser = $request->route('user');
+        $targetUser = User::find($request->route('user'));
         
         // For central users
         if (!$request->route('tenant')) {
@@ -28,7 +28,7 @@ class SendPasswordResetLinkAction
         
         // Ensure target user belongs to the tenant (for tenant context)
         $tenant = $request->route('tenant');
-        if ($tenant && $targetUser->tenant_id !== $tenant->id) {
+        if ($tenant && $targetUser->tenant_id !== $tenant) {
             return false;
         }
         
@@ -48,8 +48,8 @@ class SendPasswordResetLinkAction
 
     public function asController(ActionRequest $request)
     {
-        $user = $request->route('user');
-        
+        $user = User::find($request->route('user'));
+
         $status = $this->handle($user);
         
         $tenant = $user->tenant_id ? $user->tenant : null;
