@@ -37,13 +37,7 @@ class SendPasswordResetLinkAction
 
     public function handle(User $user): string
     {
-        if ($user->tenant_id) {
-            $status = $user->tenant->run(function ($tenant) use ($user) {
-                return Password::sendResetLink(['email' => $user->email]);
-            });
-        } else {
-            $status = Password::sendResetLink(['email' => $user->email]);
-        }
+          $status = Password::sendResetLink(['email' => $user->email]);
 
         if ($status === Password::RESET_LINK_SENT) {
             return 'success';
