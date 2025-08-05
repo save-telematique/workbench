@@ -31,11 +31,8 @@ class DataPointController extends Controller
         // Get all data point types
         $dataPointTypes = DataPointTypeResource::collection(DataPointType::all());
         
-        // Get latest readings for each data point type
-        $latestReadings = collect($dataPointTypes)->mapWithKeys(function ($dataPointType) use ($device) {
-            $reading = $this->telemetryService->getLatestReading($device, $dataPointType['id']);
-            return [$dataPointType['id'] => $reading];
-        })->filter()->all();
+        // Get all latest readings for the device in a single optimized query
+        $latestReadings = $this->telemetryService->getAllLatestReadings($device);
 
         // Load device with all necessary relationships for consistent display
         $device->load([

@@ -16,6 +16,62 @@ class DeviceTelemetryService
     protected const CACHE_TTL = 60 * 60 * 24; // Cache Time-To-Live in seconds (1 day)
 
     /**
+     * Get all latest data point readings for a specific device.
+     * This method is optimized to fetch all latest readings in a single query.
+     *
+     * @param Device $device
+     * @return array Associative array where keys are data_point_type_id and values are the latest readings
+     */
+    public function getAllLatestReadings(Device $device): array
+    {
+        $cacheKey = "device_telemetry:{$device->id}:all_latest";
+
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($device) {
+            // Use window function to get latest reading for each data point type
+            $latestReadings = DB::select("
+                SELECT 
+                    data_point_type_id,
+                    value,
+                    recorded_at
+                FROM (
+                    SELECT 
+                        data_point_type_id,
+                        value,
+                        recorded_at,
+                        ROW_NUMBER() OVER (PARTITION BY data_point_type_id ORDER BY recorded_at DESC) as rn
+                    FROM device_data_points 
+                    WHERE device_id = ?
+                ) ranked_readings
+                WHERE rn = 1
+            ", [$device->id]);
+
+            // Convert to associative array and handle composite types
+            $results = [];
+            foreach ($latestReadings as $reading) {
+                $results[$reading->data_point_type_id] = json_decode($reading->value, true);
+            }
+
+            // Handle composite data point types
+            $allDataPointTypes = Cache::remember(
+                'data_point_types_all_keyed_by_id',
+                now()->addHours(24),
+                fn() => DataPointType::all()->keyBy('id')
+            );
+
+            foreach ($allDataPointTypes as $dataPointType) {
+                if ($dataPointType->category === 'COMPOSITE' && !isset($results[$dataPointType->id])) {
+                    $compositeValue = $this->calculateCompositeValue($device, $dataPointType);
+                    if ($compositeValue !== null) {
+                        $results[$dataPointType->id] = $compositeValue;
+                    }
+                }
+            }
+
+            return $results;
+        });
+    }
+
+    /**
      * Get the latest data point reading for a specific device and data point type.
      *
      * @param Device $device
